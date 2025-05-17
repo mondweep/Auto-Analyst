@@ -62,7 +62,7 @@ export default function HeroSection() {
               Transform Your Data Into Insights
             </h2>
             <p className="text-xl text-gray-600 mb-8">
-              Harness the power of AI to analyze, predict, and optimize your business decisions
+              Harness the power of AI to analyze, predict, and optimize your business decisions with powerful analytics for automotive inventory management and more
             </p>
             
             {mounted && (
@@ -70,10 +70,19 @@ export default function HeroSection() {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={handleGetStarted}
+                  onClick={() => router.push('/automotive')}
                   className="bg-[#FF7F7F] text-white px-8 py-4 rounded-full font-semibold flex items-center justify-center gap-2 hover:bg-[#FF6666] transition-colors"
                 >
-                  Get Started <ArrowRight className="w-5 h-5" />
+                  Try Automotive Demo <ArrowRight className="w-5 h-5" />
+                </motion.button>
+                
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleGetStarted}
+                  className="border-2 border-[#FF7F7F] text-[#FF7F7F] px-8 py-4 rounded-full font-semibold flex items-center justify-center gap-2 hover:bg-[#FF7F7F] hover:text-white transition-colors"
+                >
+                  Get Started
                 </motion.button>
                 
                 <motion.button

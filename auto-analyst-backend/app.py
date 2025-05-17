@@ -35,6 +35,7 @@ from src.agents.retrievers.retrievers import *
 from src.managers.ai_manager import AI_Manager
 from src.managers.session_manager import SessionManager
 from src.routes.analytics_routes import router as analytics_router
+from src.routes.automotive_routes import router as automotive_router
 from src.routes.chat_routes import router as chat_router
 from src.routes.code_routes import router as code_router
 from src.routes.session_routes import router as session_router, get_session_id_dependency
@@ -285,7 +286,7 @@ class AppState:
         return dspy.Predict(self.chat_name_agent)
 
 # Initialize FastAPI app with state
-app = FastAPI(title="AI Analytics API", version="1.0")
+app = FastAPI(title="Auto-Analyst API")
 app.state = AppState()
 
 # Configure middleware
@@ -856,6 +857,7 @@ app.include_router(chat_router)
 app.include_router(analytics_router)
 app.include_router(code_router)
 app.include_router(session_router)
+app.include_router(automotive_router)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

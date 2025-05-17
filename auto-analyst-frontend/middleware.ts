@@ -20,10 +20,15 @@ export function middleware(request: NextRequest) {
     // For more complex auth, consider using an API route or Auth.js
   }
 
+  // Allow direct access to /automotive and /chat routes
+  if (pathname.startsWith('/automotive') || pathname.startsWith('/chat')) {
+    return NextResponse.next();
+  }
+
   return NextResponse.next();
 }
 
 // Configure which paths should trigger this middleware
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/automotive/:path*', '/chat/:path*'],
 }; 

@@ -1147,7 +1147,8 @@ const ChatInterface: React.FC = () => {
 
   const isInputDisabled = () => {
     if (session) return false // Allow input if user is signed in
-    return !hasFreeTrial() // Only check free trial if not signed in
+    if (localStorage.getItem('userApiKey')) return false // Allow input if user has set a custom API key
+    return !hasFreeTrial() // Only check free trial if not signed in and no custom API key
   }
 
   // Add useEffect to fetch chat histories on mount for signed-in or admin users
@@ -1374,6 +1375,34 @@ const ChatInterface: React.FC = () => {
     setIsUserProfileOpen(false);
   }, [router, setIsUserProfileOpen]);
 
+  // Add this useEffect near the top of the component to handle custom API keys
+  useEffect(() => {
+    // Check for custom API key in localStorage
+    const userApiKey = localStorage.getItem('userApiKey');
+    const modelProvider = localStorage.getItem('modelProvider');
+    
+    if (userApiKey && modelProvider && modelSettings) {
+      // Update the model settings with the custom API key
+      const updatedSettings = {
+        ...modelSettings,
+        apiKey: userApiKey,
+        provider: modelProvider,
+        model: modelProvider === 'gemini' ? 'gemini-pro' : 
+               modelProvider === 'openai' ? 'gpt-4o-mini' :
+               modelProvider === 'anthropic' ? 'claude-3-sonnet-20240229' :
+               modelProvider === 'groq' ? 'llama3-70b-8192' : 
+               modelSettings.model,
+        hasCustomKey: true
+      };
+      
+      // Sync the updated settings to the backend
+      syncSettingsToBackend(updatedSettings);
+      
+      // Log that we're using a custom API key (for debugging)
+      console.log(`Using custom ${modelProvider} API key`);
+    }
+  }, [modelSettings, syncSettingsToBackend]);
+
   // Don't render anything until mounted to prevent hydration mismatch
   if (!mounted) {
     return null
@@ -1402,7 +1431,7 @@ const ChatInterface: React.FC = () => {
         transition={{ type: "tween", duration: 0.3 }}
         className="flex-1 flex flex-col min-w-0 relative"
       >
-        {mounted && !session && !hasFreeTrial() && <FreeTrialOverlay />}
+        {mounted && !session && !hasFreeTrial() && !localStorage.getItem('userApiKey') && <FreeTrialOverlay />}
         
         <header className="bg-white/70 backdrop-blur-sm p-4 flex justify-between items-center border-b border-gray-200 relative z-10">
           <div className="flex items-center gap-4">
