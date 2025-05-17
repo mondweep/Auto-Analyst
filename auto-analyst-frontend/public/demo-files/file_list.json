@@ -1,0 +1,18 @@
+{
+  "files": [
+    {
+      "name": "vehicles.csv",
+      "path": "/demo-files/vehicles.csv"
+    },
+    {
+      "name": "market_data.csv",
+      "path": "/demo-files/market_data.csv"
+    },
+    {
+      "name": "automotive_analysis.csv",
+      "path": "/demo-files/automotive_analysis.csv"
+    }
+  ],
+  "count": 3,
+  "updated_at": "2025-05-17T18:10:20.598628"
+}

@@ -1,4 +1,161 @@
-id,make,model,year,price,demand,sales_velocity,profit_potential,days_in_inventory
-1,Toyota,Camry,2021,28500,High,Fast,1700,45
-2,Honda,Civic,2022,24700,Medium,Medium,1200,30
-3,Ford,F-150,2020,38900,Low,Slow,-2200,60
+id,make,model,year,color,price,mileage,condition,fuel_type,days_in_inventory,avg_market_price,price_difference,percent_difference,is_opportunity,market_demand,avg_days_to_sell
+1,Kia,Telluride,2020,Green,32521,40776,Excellent,Hybrid,39,30105,-2416,-8.03,False,Low,30
+2,Ford,Explorer,2012,Silver,8729,217198,Fair,Hybrid,23,13222,4493,33.98,True,High,51
+4,Mercedes,S-Class,2015,Orange,33425,182479,Poor,Diesel,87,44882,11457,25.53,True,High,60
+6,BMW,7 Series,2014,Brown,7754,199513,Poor,Gasoline,12,8262,508,6.15,False,High,54
+7,BMW,5 Series,2021,Orange,60586,35067,Good,Electric,82,52291,-8295,-15.86,False,High,58
+8,Hyundai,Elantra,2011,Orange,15153,166821,Fair,Gasoline,15,13137,-2016,-15.35,False,Low,45
+10,Hyundai,Santa Fe,2020,Black,11258,85783,Poor,Gasoline,90,10099,-1159,-11.48,False,High,26
+12,Kia,Soul,2020,Orange,22495,58734,Fair,Electric,2,25860,3365,13.01,True,Medium,38
+13,Toyota,RAV4,2014,White,15533,171011,Poor,Gasoline,32,10403,-5130,-49.31,False,Medium,44
+14,Tesla,Model 3,2014,Red,11911,86982,Good,Hybrid,48,11447,-464,-4.05,False,Low,20
+15,Audi,A8,2019,Blue,19810,38784,Good,Hybrid,36,16875,-2935,-17.39,False,High,39
+16,Honda,CR-V,2022,Orange,24035,18490,Good,Electric,75,22410,-1625,-7.25,False,High,41
+18,Kia,Telluride,2018,Black,14039,69493,Poor,Hybrid,50,15174,1135,7.48,False,Low,51
+20,Tesla,Model Y,2016,Brown,20766,141149,Poor,Hybrid,5,16106,-4660,-28.93,False,High,42
+21,Mercedes,GLE,2021,Brown,18025,49011,Poor,Gasoline,62,20458,2433,11.89,True,Medium,43
+22,Honda,CR-V,2012,White,6204,103387,Good,Diesel,32,11003,4799,43.62,True,Low,46
+23,Tesla,Model X,2013,Orange,20195,182177,Fair,Diesel,77,19061,-1134,-5.95,False,Low,46
+24,Toyota,RAV4,2016,Blue,26784,119862,Poor,Electric,32,30214,3430,11.35,True,Low,22
+25,Mercedes,GLE,2011,Red,9690,189029,Poor,Electric,20,9020,-670,-7.43,False,High,20
+26,BMW,5 Series,2018,Black,36486,59470,Good,Electric,29,44266,7780,17.58,True,High,31
+27,BMW,5 Series,2022,Brown,47464,23413,Fair,Electric,21,46731,-733,-1.57,False,Medium,26
+28,Mercedes,E-Class,2022,Black,75250,29571,Good,Gasoline,22,48230,-27020,-56.02,False,Low,24
+29,Tesla,Model Y,2022,White,35585,21189,Excellent,Gasoline,72,40089,4504,11.24,True,Low,22
+33,Tesla,Model Y,2011,White,13557,201384,Poor,Hybrid,27,13386,-171,-1.28,False,Medium,59
+34,BMW,3 Series,2023,Brown,39634,9057,Good,Electric,81,40245,611,1.52,False,High,26
+35,Chevrolet,Silverado,2018,Red,33635,103914,Fair,Diesel,8,34837,1202,3.45,False,High,48
+38,Tesla,Model X,2010,Red,12922,161135,Good,Hybrid,84,11289,-1633,-14.47,False,Low,43
+39,Honda,Odyssey,2020,Red,4952,59531,Poor,Electric,78,22897,17945,78.37,True,Low,30
+40,Kia,Forte,2018,Red,13946,80523,Fair,Gasoline,54,13564,-382,-2.82,False,Low,43
+41,Hyundai,Tucson,2015,Brown,12787,59213,Excellent,Electric,38,14697,1910,13.0,True,Medium,42
+42,Hyundai,Palisade,2024,Silver,30381,0,Good,Diesel,59,28741,-1640,-5.71,False,Medium,51
+43,Toyota,Tacoma,2010,Red,12313,109534,Good,Electric,26,6379,-5934,-93.02,False,High,50
+44,Hyundai,Palisade,2010,Orange,4413,173561,Good,Electric,6,4917,504,10.25,True,Medium,26
+45,Honda,Accord,2021,Blue,8070,68902,Poor,Gasoline,58,7714,-356,-4.61,False,High,31
+46,Honda,CR-V,2021,White,16764,31682,Good,Electric,16,20291,3527,17.38,True,High,42
+48,Honda,Odyssey,2019,Yellow,46795,38005,Excellent,Hybrid,77,26888,-19907,-74.04,False,High,32
+49,Toyota,Corolla,2011,Silver,5545,104442,Good,Diesel,53,6297,752,11.94,True,Medium,21
+51,Tesla,Model 3,2020,Orange,6758,39656,Fair,Gasoline,9,32329,25571,79.1,True,High,30
+52,BMW,5 Series,2024,Gray,34899,0,Fair,Diesel,40,31008,-3891,-12.55,False,High,51
+54,Tesla,Model Y,2017,Red,5683,91010,Poor,Electric,74,13033,7350,56.4,True,Low,40
+55,Chevrolet,Tahoe,2015,Orange,6607,90141,Good,Hybrid,75,7433,826,11.11,True,High,37
+56,BMW,3 Series,2015,Black,19427,87666,Excellent,Hybrid,57,17595,-1832,-10.41,False,Low,34
+57,Kia,Sorento,2022,Blue,33944,18455,Good,Gasoline,61,29523,-4421,-14.97,False,Medium,34
+58,Hyundai,Elantra,2022,Green,22589,33112,Poor,Electric,20,18599,-3990,-21.45,False,Medium,31
+59,Ford,Edge,2012,Red,6570,200390,Fair,Electric,36,6501,-69,-1.06,False,High,33
+60,Kia,Telluride,2011,Green,4504,171387,Good,Electric,67,4431,-73,-1.65,False,Medium,27
+61,Mercedes,E-Class,2022,Yellow,26190,23036,Excellent,Electric,59,58044,31854,54.88,True,Medium,37
+62,Mercedes,GLC,2024,Green,17778,0,Fair,Gasoline,53,15113,-2665,-17.63,False,Low,51
+63,Tesla,Model S,2011,Green,2924,174913,Fair,Diesel,52,2632,-292,-11.09,False,High,59
+64,Mercedes,GLE,2011,Blue,18993,280756,Poor,Electric,82,8602,-10391,-120.8,False,High,40
+65,BMW,X3,2010,White,19398,145151,Fair,Gasoline,55,19795,397,2.01,False,High,56
+66,Mercedes,E-Class,2010,Red,9232,213232,Good,Gasoline,81,17195,7963,46.31,True,Low,22
+67,Ford,Explorer,2013,Gray,16327,85385,Excellent,Electric,17,11903,-4424,-37.17,False,Medium,46
+68,Toyota,Highlander,2010,Black,7906,146689,Good,Diesel,60,11790,3884,32.94,True,Low,28
+69,BMW,X5,2010,Black,3672,103869,Excellent,Hybrid,82,3374,-298,-8.83,False,Medium,42
+70,Honda,Odyssey,2024,Black,15664,0,Poor,Hybrid,64,16699,1035,6.2,False,High,26
+71,Chevrolet,Tahoe,2013,Brown,23259,142590,Good,Electric,58,20993,-2266,-10.79,False,High,45
+72,Tesla,Model S,2018,Silver,7465,140900,Poor,Diesel,22,12991,5526,42.54,True,Medium,51
+73,Toyota,RAV4,2014,Blue,7278,120613,Excellent,Hybrid,87,11399,4121,36.15,True,Low,42
+74,Ford,F-150,2022,White,15091,35126,Poor,Gasoline,43,17276,2185,12.65,True,High,49
+75,BMW,X5,2019,Brown,6498,56600,Fair,Hybrid,86,6837,339,4.96,False,Low,36
+76,BMW,X3,2018,Red,36003,100513,Fair,Electric,71,25051,-10952,-43.72,False,Medium,52
+77,Mercedes,C-Class,2023,Blue,22662,15692,Fair,Diesel,61,15931,-6731,-42.25,False,Medium,45
+78,Mercedes,C-Class,2017,Gray,20801,67005,Good,Electric,56,25619,4818,18.81,True,Low,41
+79,Ford,Edge,2021,Yellow,26633,17970,Excellent,Diesel,55,19214,-7419,-38.61,False,Medium,29
+81,BMW,3 Series,2024,Blue,13757,0,Good,Diesel,87,32728,18971,57.97,True,Low,58
+84,Ford,Escape,2022,Black,20820,29257,Poor,Gasoline,79,21748,928,4.27,False,Low,40
+85,Mercedes,C-Class,2020,Orange,45571,30996,Excellent,Diesel,30,43367,-2204,-5.08,False,High,36
+86,BMW,5 Series,2018,Green,47762,87282,Fair,Electric,90,44677,-3085,-6.91,False,Medium,36
+87,Toyota,Camry,2011,Black,11712,145643,Excellent,Gasoline,25,11749,37,0.31,False,High,52
+88,BMW,5 Series,2018,Gray,45199,81212,Poor,Electric,27,34832,-10367,-29.76,False,Low,28
+89,Ford,Explorer,2018,Gray,43058,64129,Excellent,Electric,75,28359,-14699,-51.83,False,Low,55
+91,Ford,F-150,2015,Black,11326,113427,Good,Hybrid,16,12926,1600,12.38,True,Low,45
+93,Kia,Forte,2021,White,25701,47290,Fair,Diesel,83,22717,-2984,-13.14,False,Medium,47
+94,Honda,Pilot,2017,White,7623,105786,Fair,Electric,68,21826,14203,65.07,True,Low,57
+95,Honda,Civic,2013,Blue,7600,179211,Fair,Gasoline,88,5197,-2403,-46.24,False,High,47
+96,Toyota,Highlander,2019,Brown,39343,57960,Good,Hybrid,9,36257,-3086,-8.51,False,Low,36
+98,Toyota,Camry,2021,Gray,29670,50034,Fair,Gasoline,33,27870,-1800,-6.46,False,High,25
+99,Ford,Explorer,2019,Brown,20208,66603,Good,Hybrid,65,29686,9478,31.93,True,Low,25
+100,Chevrolet,Traverse,2017,Green,16822,70436,Excellent,Electric,5,16186,-636,-3.93,False,Low,50
+101,Audi,Q5,2011,Brown,4151,174928,Poor,Gasoline,78,3824,-327,-8.55,False,Medium,22
+102,Hyundai,Elantra,2014,Yellow,21140,127653,Fair,Diesel,19,21901,761,3.47,False,Medium,49
+103,Kia,Sportage,2014,Black,18270,126942,Good,Gasoline,30,17530,-740,-4.22,False,High,31
+104,Audi,A6,2020,Yellow,58097,35928,Good,Diesel,8,34945,-23152,-66.25,False,High,35
+107,BMW,5 Series,2013,Brown,10486,231713,Poor,Gasoline,20,9038,-1448,-16.02,False,Low,43
+108,Audi,A8,2017,Blue,27044,76557,Good,Diesel,11,27489,445,1.62,False,Low,26
+109,Tesla,Model S,2018,Yellow,15889,57407,Good,Gasoline,80,10487,-5402,-51.51,False,Medium,34
+110,Audi,Q7,2012,Green,27217,108943,Good,Hybrid,64,19502,-7715,-39.56,False,Low,50
+114,Mercedes,GLE,2010,Silver,14390,173801,Fair,Hybrid,60,11843,-2547,-21.51,False,Low,39
+115,Honda,Civic,2021,Gray,33151,27835,Good,Hybrid,17,26436,-6715,-25.4,False,High,50
+116,BMW,5 Series,2010,Blue,4830,141941,Good,Hybrid,73,4770,-60,-1.26,False,Low,22
+118,Honda,Odyssey,2010,Green,17892,114571,Excellent,Gasoline,36,19555,1663,8.5,False,High,36
+119,Mercedes,GLE,2024,Yellow,72786,0,Excellent,Diesel,61,39821,-32965,-82.78,False,Medium,22
+120,Mercedes,GLE,2011,Orange,6848,166472,Poor,Gasoline,13,11041,4193,37.98,True,Low,45
+122,Tesla,Model S,2022,Yellow,18026,18918,Good,Hybrid,45,19174,1148,5.99,False,High,22
+124,BMW,7 Series,2016,Yellow,35797,170494,Poor,Diesel,21,35871,74,0.21,False,Medium,54
+125,Honda,Odyssey,2023,Blue,23018,13989,Poor,Electric,70,18015,-5003,-27.77,False,Low,55
+126,Mercedes,GLC,2019,Gray,23625,51534,Good,Diesel,3,22006,-1619,-7.36,False,Low,47
+127,Audi,A4,2015,Green,48606,111706,Excellent,Gasoline,32,45001,-3605,-8.01,False,High,52
+130,Toyota,Corolla,2019,Black,25472,66696,Fair,Hybrid,55,16359,-9113,-55.71,False,High,22
+131,Chevrolet,Silverado,2018,Brown,32422,70097,Excellent,Electric,56,36272,3850,10.61,True,High,30
+133,Toyota,Highlander,2010,Yellow,14042,208149,Fair,Gasoline,85,11690,-2352,-20.12,False,Low,55
+134,Kia,Sorento,2018,Black,6103,73857,Excellent,Hybrid,21,9124,3021,33.11,True,High,30
+135,BMW,3 Series,2013,Red,26124,216643,Poor,Gasoline,40,23430,-2694,-11.5,False,Low,40
+136,Audi,A8,2011,Brown,4171,178347,Good,Gasoline,89,4089,-82,-2.01,False,High,40
+137,Ford,Edge,2018,Blue,41268,68644,Excellent,Gasoline,77,23953,-17315,-72.29,False,Low,31
+141,Hyundai,Elantra,2022,Silver,16199,27427,Fair,Electric,77,20579,4380,21.28,True,Medium,43
+142,Hyundai,Palisade,2022,Gray,15929,30292,Good,Gasoline,34,16246,317,1.95,False,Low,21
+143,Mercedes,E-Class,2011,Orange,25475,121550,Excellent,Hybrid,75,15663,-9812,-62.64,False,Medium,41
+144,Kia,Telluride,2021,Blue,28616,39545,Poor,Electric,15,26680,-1936,-7.26,False,Low,23
+145,Toyota,Camry,2011,White,12786,127715,Good,Hybrid,38,11095,-1691,-15.24,False,Medium,37
+146,Chevrolet,Malibu,2011,Gray,16453,178016,Fair,Gasoline,12,15099,-1354,-8.97,False,Medium,58
+147,Ford,Mustang,2014,White,3660,231140,Poor,Diesel,13,7556,3896,51.56,True,Low,60
+148,Hyundai,Tucson,2012,White,20930,163725,Good,Hybrid,23,22206,1276,5.75,False,Low,49
+149,Chevrolet,Traverse,2022,Brown,35973,20019,Fair,Electric,35,35290,-683,-1.94,False,Medium,25
+151,Ford,F-150,2023,Green,21863,15943,Fair,Diesel,35,17951,-3912,-21.79,False,Low,22
+153,Tesla,Model Y,2015,White,20260,189126,Poor,Gasoline,27,16816,-3444,-20.48,False,Low,60
+154,Chevrolet,Silverado,2020,Blue,27308,46915,Good,Hybrid,55,24096,-3212,-13.33,False,High,29
+155,Hyundai,Kona,2013,Black,2225,157641,Fair,Gasoline,64,2191,-34,-1.55,False,Medium,50
+156,Chevrolet,Traverse,2014,Silver,26338,65836,Excellent,Diesel,57,18744,-7594,-40.51,False,Medium,23
+157,Mercedes,GLE,2024,Orange,12103,0,Fair,Gasoline,21,43949,31846,72.46,True,Medium,31
+158,Toyota,Tacoma,2021,Black,31672,31289,Fair,Electric,1,36222,4550,12.56,True,Low,40
+159,Chevrolet,Tahoe,2018,Silver,8093,66865,Good,Diesel,56,9273,1180,12.73,True,Medium,32
+160,Honda,Pilot,2023,Silver,45996,9813,Excellent,Gasoline,68,40909,-5087,-12.43,False,Medium,48
+161,Ford,Escape,2015,Black,4220,114184,Poor,Diesel,2,4223,3,0.07,False,Low,34
+162,Toyota,RAV4,2010,Brown,3973,170475,Excellent,Electric,6,4373,400,9.15,False,Low,55
+163,Kia,Soul,2019,Blue,29274,90560,Poor,Hybrid,72,22940,-6334,-27.61,False,High,32
+164,Honda,Pilot,2017,Gray,33631,68256,Good,Diesel,16,18867,-14764,-78.25,False,High,35
+165,Toyota,RAV4,2018,Black,16666,108029,Fair,Gasoline,1,30475,13809,45.31,True,High,23
+166,Mercedes,S-Class,2015,White,46793,116171,Good,Diesel,14,34510,-12283,-35.59,False,High,34
+167,Ford,Mustang,2015,Blue,9914,87888,Fair,Electric,72,7571,-2343,-30.95,False,Medium,30
+168,Mercedes,GLE,2019,Orange,9978,65158,Poor,Diesel,82,10017,39,0.39,False,High,34
+170,Tesla,Model S,2024,Red,66202,0,Good,Hybrid,90,74298,8096,10.9,True,Low,55
+172,Ford,Edge,2024,Blue,44827,0,Fair,Hybrid,29,41943,-2884,-6.88,False,Low,56
+173,Tesla,Model Y,2020,Blue,68293,29671,Good,Diesel,61,75946,7653,10.08,True,Low,45
+174,BMW,X3,2017,Orange,13215,95343,Fair,Diesel,44,20970,7755,36.98,True,Medium,37
+175,BMW,3 Series,2024,White,58246,0,Good,Gasoline,8,38176,-20070,-52.57,False,Low,47
+176,Toyota,Camry,2017,Blue,20624,76839,Excellent,Diesel,13,18721,-1903,-10.17,False,Medium,28
+177,Toyota,Corolla,2019,Black,6757,93700,Poor,Hybrid,23,18594,11837,63.66,True,Medium,60
+178,Chevrolet,Malibu,2021,Silver,22885,63519,Poor,Diesel,73,23895,1010,4.23,False,High,42
+179,Tesla,Cybertruck,2010,Silver,4956,175656,Good,Hybrid,80,4320,-636,-14.72,False,High,41
+180,Ford,Edge,2017,Black,6188,105910,Good,Diesel,46,27000,20812,77.08,True,Low,21
+181,Mercedes,GLE,2010,Yellow,7110,140840,Excellent,Electric,14,12135,5025,41.41,True,Low,44
+182,Toyota,Tacoma,2011,Blue,1672,138447,Fair,Hybrid,70,6326,4654,73.57,True,Low,41
+183,Toyota,Tacoma,2018,Green,5215,86612,Fair,Diesel,20,5219,4,0.08,False,Medium,43
+184,Kia,Sportage,2016,Silver,20739,128022,Fair,Electric,80,18165,-2574,-14.17,False,Medium,22
+185,Audi,Q5,2019,Brown,7950,64920,Poor,Diesel,25,8575,625,7.29,False,High,53
+186,Ford,Escape,2019,Orange,20020,42685,Good,Gasoline,56,19021,-999,-5.25,False,Medium,57
+187,Hyundai,Palisade,2014,Brown,2671,115101,Good,Diesel,65,2753,82,2.98,False,High,56
+188,Chevrolet,Malibu,2017,White,16596,87320,Excellent,Hybrid,25,17043,447,2.62,False,Medium,32
+190,Tesla,Model 3,2019,Blue,51896,57047,Good,Diesel,17,30599,-21297,-69.6,False,Medium,59
+191,Mercedes,GLE,2012,Gray,2932,257397,Poor,Diesel,81,9600,6668,69.46,True,High,33
+192,Hyundai,Kona,2017,Black,7947,63749,Excellent,Electric,41,6794,-1153,-16.97,False,High,45
+193,Audi,A6,2020,Blue,10962,29209,Excellent,Hybrid,26,34506,23544,68.23,True,Low,23
+194,Ford,Edge,2020,White,16144,46376,Fair,Diesel,47,20584,4440,21.57,True,Low,46
+195,Toyota,Corolla,2019,Black,23574,55209,Fair,Diesel,71,20158,-3416,-16.95,False,Low,28
+196,BMW,5 Series,2017,White,27575,123796,Poor,Gasoline,41,41498,13923,33.55,True,Low,30
+197,Kia,Telluride,2017,Black,13295,115254,Fair,Gasoline,50,15148,1853,12.23,True,High,21
+198,Audi,A6,2013,Red,28654,159656,Good,Electric,21,32337,3683,11.39,True,Low,53
+199,BMW,3 Series,2024,Gray,36063,0,Poor,Electric,59,36342,279,0.77,False,Low,41

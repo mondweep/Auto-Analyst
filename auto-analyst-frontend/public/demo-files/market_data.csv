@@ -1,4 +1,161 @@
-id,make,model,year,your_price,market_price,price_difference,price_difference_percent,days_in_inventory
-1,Toyota,Camry,2021,28500,30200,-1700,-5.63,45
-2,Honda,Civic,2022,24700,25900,-1200,-4.63,30
-3,Ford,F-150,2020,38900,36700,2200,5.99,60
+vehicle_id,make,model,year,avg_market_price,price_difference,percent_difference,is_opportunity,sample_size,avg_days_to_sell,market_demand
+1,Kia,Telluride,2020,30105,-2416,-8.03,False,2,30,Low
+2,Ford,Explorer,2012,13222,4493,33.98,True,2,51,High
+4,Mercedes,S-Class,2015,44882,11457,25.53,True,2,60,High
+6,BMW,7 Series,2014,8262,508,6.15,False,1,54,High
+7,BMW,5 Series,2021,52291,-8295,-15.86,False,2,58,High
+8,Hyundai,Elantra,2011,13137,-2016,-15.35,False,1,45,Low
+10,Hyundai,Santa Fe,2020,10099,-1159,-11.48,False,1,26,High
+12,Kia,Soul,2020,25860,3365,13.01,True,2,38,Medium
+13,Toyota,RAV4,2014,10403,-5130,-49.31,False,2,44,Medium
+14,Tesla,Model 3,2014,11447,-464,-4.05,False,1,20,Low
+15,Audi,A8,2019,16875,-2935,-17.39,False,1,39,High
+16,Honda,CR-V,2022,22410,-1625,-7.25,False,2,41,High
+18,Kia,Telluride,2018,15174,1135,7.48,False,2,51,Low
+20,Tesla,Model Y,2016,16106,-4660,-28.93,False,4,42,High
+21,Mercedes,GLE,2021,20458,2433,11.89,True,1,43,Medium
+22,Honda,CR-V,2012,11003,4799,43.62,True,2,46,Low
+23,Tesla,Model X,2013,19061,-1134,-5.95,False,1,46,Low
+24,Toyota,RAV4,2016,30214,3430,11.35,True,1,22,Low
+25,Mercedes,GLE,2011,9020,-670,-7.43,False,6,20,High
+26,BMW,5 Series,2018,44266,7780,17.58,True,4,31,High
+27,BMW,5 Series,2022,46731,-733,-1.57,False,2,26,Medium
+28,Mercedes,E-Class,2022,48230,-27020,-56.02,False,2,24,Low
+29,Tesla,Model Y,2022,40089,4504,11.24,True,1,22,Low
+33,Tesla,Model Y,2011,13386,-171,-1.28,False,1,59,Medium
+34,BMW,3 Series,2023,40245,611,1.52,False,4,26,High
+35,Chevrolet,Silverado,2018,34837,1202,3.45,False,2,48,High
+38,Tesla,Model X,2010,11289,-1633,-14.47,False,1,43,Low
+39,Honda,Odyssey,2020,22897,17945,78.37,True,2,30,Low
+40,Kia,Forte,2018,13564,-382,-2.82,False,1,43,Low
+41,Hyundai,Tucson,2015,14697,1910,13.0,True,1,42,Medium
+42,Hyundai,Palisade,2024,28741,-1640,-5.71,False,1,51,Medium
+43,Toyota,Tacoma,2010,6379,-5934,-93.02,False,2,50,High
+44,Hyundai,Palisade,2010,4917,504,10.25,True,1,26,Medium
+45,Honda,Accord,2021,7714,-356,-4.61,False,1,31,High
+46,Honda,CR-V,2021,20291,3527,17.38,True,2,42,High
+48,Honda,Odyssey,2019,26888,-19907,-74.04,False,2,32,High
+49,Toyota,Corolla,2011,6297,752,11.94,True,1,21,Medium
+51,Tesla,Model 3,2020,32329,25571,79.1,True,2,30,High
+52,BMW,5 Series,2024,31008,-3891,-12.55,False,1,51,High
+54,Tesla,Model Y,2017,13033,7350,56.4,True,3,40,Low
+55,Chevrolet,Tahoe,2015,7433,826,11.11,True,1,37,High
+56,BMW,3 Series,2015,17595,-1832,-10.41,False,1,34,Low
+57,Kia,Sorento,2022,29523,-4421,-14.97,False,1,34,Medium
+58,Hyundai,Elantra,2022,18599,-3990,-21.45,False,2,31,Medium
+59,Ford,Edge,2012,6501,-69,-1.06,False,1,33,High
+60,Kia,Telluride,2011,4431,-73,-1.65,False,1,27,Medium
+61,Mercedes,E-Class,2022,58044,31854,54.88,True,2,37,Medium
+62,Mercedes,GLC,2024,15113,-2665,-17.63,False,1,51,Low
+63,Tesla,Model S,2011,2632,-292,-11.09,False,1,59,High
+64,Mercedes,GLE,2011,8602,-10391,-120.8,False,6,40,High
+65,BMW,X3,2010,19795,397,2.01,False,1,56,High
+66,Mercedes,E-Class,2010,17195,7963,46.31,True,2,22,Low
+67,Ford,Explorer,2013,11903,-4424,-37.17,False,2,46,Medium
+68,Toyota,Highlander,2010,11790,3884,32.94,True,2,28,Low
+69,BMW,X5,2010,3374,-298,-8.83,False,1,42,Medium
+70,Honda,Odyssey,2024,16699,1035,6.2,False,2,26,High
+71,Chevrolet,Tahoe,2013,20993,-2266,-10.79,False,1,45,High
+72,Tesla,Model S,2018,12991,5526,42.54,True,2,51,Medium
+73,Toyota,RAV4,2014,11399,4121,36.15,True,2,42,Low
+74,Ford,F-150,2022,17276,2185,12.65,True,2,49,High
+75,BMW,X5,2019,6837,339,4.96,False,1,36,Low
+76,BMW,X3,2018,25051,-10952,-43.72,False,3,52,Medium
+77,Mercedes,C-Class,2023,15931,-6731,-42.25,False,2,45,Medium
+78,Mercedes,C-Class,2017,25619,4818,18.81,True,2,41,Low
+79,Ford,Edge,2021,19214,-7419,-38.61,False,2,29,Medium
+81,BMW,3 Series,2024,32728,18971,57.97,True,4,58,Low
+84,Ford,Escape,2022,21748,928,4.27,False,1,40,Low
+85,Mercedes,C-Class,2020,43367,-2204,-5.08,False,1,36,High
+86,BMW,5 Series,2018,44677,-3085,-6.91,False,4,36,Medium
+87,Toyota,Camry,2011,11749,37,0.31,False,2,52,High
+88,BMW,5 Series,2018,34832,-10367,-29.76,False,4,28,Low
+89,Ford,Explorer,2018,28359,-14699,-51.83,False,2,55,Low
+91,Ford,F-150,2015,12926,1600,12.38,True,1,45,Low
+93,Kia,Forte,2021,22717,-2984,-13.14,False,1,47,Medium
+94,Honda,Pilot,2017,21826,14203,65.07,True,2,57,Low
+95,Honda,Civic,2013,5197,-2403,-46.24,False,2,47,High
+96,Toyota,Highlander,2019,36257,-3086,-8.51,False,1,36,Low
+98,Toyota,Camry,2021,27870,-1800,-6.46,False,1,25,High
+99,Ford,Explorer,2019,29686,9478,31.93,True,2,25,Low
+100,Chevrolet,Traverse,2017,16186,-636,-3.93,False,1,50,Low
+101,Audi,Q5,2011,3824,-327,-8.55,False,1,22,Medium
+102,Hyundai,Elantra,2014,21901,761,3.47,False,1,49,Medium
+103,Kia,Sportage,2014,17530,-740,-4.22,False,1,31,High
+104,Audi,A6,2020,34945,-23152,-66.25,False,2,35,High
+107,BMW,5 Series,2013,9038,-1448,-16.02,False,1,43,Low
+108,Audi,A8,2017,27489,445,1.62,False,1,26,Low
+109,Tesla,Model S,2018,10487,-5402,-51.51,False,2,34,Medium
+110,Audi,Q7,2012,19502,-7715,-39.56,False,2,50,Low
+114,Mercedes,GLE,2010,11843,-2547,-21.51,False,5,39,Low
+115,Honda,Civic,2021,26436,-6715,-25.4,False,3,50,High
+116,BMW,5 Series,2010,4770,-60,-1.26,False,1,22,Low
+118,Honda,Odyssey,2010,19555,1663,8.5,False,1,36,High
+119,Mercedes,GLE,2024,39821,-32965,-82.78,False,2,22,Medium
+120,Mercedes,GLE,2011,11041,4193,37.98,True,6,45,Low
+122,Tesla,Model S,2022,19174,1148,5.99,False,1,22,High
+124,BMW,7 Series,2016,35871,74,0.21,False,1,54,Medium
+125,Honda,Odyssey,2023,18015,-5003,-27.77,False,2,55,Low
+126,Mercedes,GLC,2019,22006,-1619,-7.36,False,1,47,Low
+127,Audi,A4,2015,45001,-3605,-8.01,False,1,52,High
+130,Toyota,Corolla,2019,16359,-9113,-55.71,False,3,22,High
+131,Chevrolet,Silverado,2018,36272,3850,10.61,True,2,30,High
+133,Toyota,Highlander,2010,11690,-2352,-20.12,False,2,55,Low
+134,Kia,Sorento,2018,9124,3021,33.11,True,2,30,High
+135,BMW,3 Series,2013,23430,-2694,-11.5,False,1,40,Low
+136,Audi,A8,2011,4089,-82,-2.01,False,1,40,High
+137,Ford,Edge,2018,23953,-17315,-72.29,False,2,31,Low
+141,Hyundai,Elantra,2022,20579,4380,21.28,True,2,43,Medium
+142,Hyundai,Palisade,2022,16246,317,1.95,False,1,21,Low
+143,Mercedes,E-Class,2011,15663,-9812,-62.64,False,2,41,Medium
+144,Kia,Telluride,2021,26680,-1936,-7.26,False,2,23,Low
+145,Toyota,Camry,2011,11095,-1691,-15.24,False,2,37,Medium
+146,Chevrolet,Malibu,2011,15099,-1354,-8.97,False,1,58,Medium
+147,Ford,Mustang,2014,7556,3896,51.56,True,2,60,Low
+148,Hyundai,Tucson,2012,22206,1276,5.75,False,1,49,Low
+149,Chevrolet,Traverse,2022,35290,-683,-1.94,False,1,25,Medium
+151,Ford,F-150,2023,17951,-3912,-21.79,False,2,22,Low
+153,Tesla,Model Y,2015,16816,-3444,-20.48,False,3,60,Low
+154,Chevrolet,Silverado,2020,24096,-3212,-13.33,False,1,29,High
+155,Hyundai,Kona,2013,2191,-34,-1.55,False,1,50,Medium
+156,Chevrolet,Traverse,2014,18744,-7594,-40.51,False,2,23,Medium
+157,Mercedes,GLE,2024,43949,31846,72.46,True,2,31,Medium
+158,Toyota,Tacoma,2021,36222,4550,12.56,True,1,40,Low
+159,Chevrolet,Tahoe,2018,9273,1180,12.73,True,1,32,Medium
+160,Honda,Pilot,2023,40909,-5087,-12.43,False,1,48,Medium
+161,Ford,Escape,2015,4223,3,0.07,False,1,34,Low
+162,Toyota,RAV4,2010,4373,400,9.15,False,1,55,Low
+163,Kia,Soul,2019,22940,-6334,-27.61,False,2,32,High
+164,Honda,Pilot,2017,18867,-14764,-78.25,False,2,35,High
+165,Toyota,RAV4,2018,30475,13809,45.31,True,2,23,High
+166,Mercedes,S-Class,2015,34510,-12283,-35.59,False,2,34,High
+167,Ford,Mustang,2015,7571,-2343,-30.95,False,2,30,Medium
+168,Mercedes,GLE,2019,10017,39,0.39,False,1,34,High
+170,Tesla,Model S,2024,74298,8096,10.9,True,1,55,Low
+172,Ford,Edge,2024,41943,-2884,-6.88,False,1,56,Low
+173,Tesla,Model Y,2020,75946,7653,10.08,True,1,45,Low
+174,BMW,X3,2017,20970,7755,36.98,True,2,37,Medium
+175,BMW,3 Series,2024,38176,-20070,-52.57,False,4,47,Low
+176,Toyota,Camry,2017,18721,-1903,-10.17,False,1,28,Medium
+177,Toyota,Corolla,2019,18594,11837,63.66,True,3,60,Medium
+178,Chevrolet,Malibu,2021,23895,1010,4.23,False,1,42,High
+179,Tesla,Cybertruck,2010,4320,-636,-14.72,False,1,41,High
+180,Ford,Edge,2017,27000,20812,77.08,True,2,21,Low
+181,Mercedes,GLE,2010,12135,5025,41.41,True,5,44,Low
+182,Toyota,Tacoma,2011,6326,4654,73.57,True,2,41,Low
+183,Toyota,Tacoma,2018,5219,4,0.08,False,1,43,Medium
+184,Kia,Sportage,2016,18165,-2574,-14.17,False,1,22,Medium
+185,Audi,Q5,2019,8575,625,7.29,False,1,53,High
+186,Ford,Escape,2019,19021,-999,-5.25,False,1,57,Medium
+187,Hyundai,Palisade,2014,2753,82,2.98,False,1,56,High
+188,Chevrolet,Malibu,2017,17043,447,2.62,False,1,32,Medium
+190,Tesla,Model 3,2019,30599,-21297,-69.6,False,2,59,Medium
+191,Mercedes,GLE,2012,9600,6668,69.46,True,4,33,High
+192,Hyundai,Kona,2017,6794,-1153,-16.97,False,1,45,High
+193,Audi,A6,2020,34506,23544,68.23,True,2,23,Low
+194,Ford,Edge,2020,20584,4440,21.57,True,2,46,Low
+195,Toyota,Corolla,2019,20158,-3416,-16.95,False,3,28,Low
+196,BMW,5 Series,2017,41498,13923,33.55,True,4,30,Low
+197,Kia,Telluride,2017,15148,1853,12.23,True,2,21,High
+198,Audi,A6,2013,32337,3683,11.39,True,1,53,Low
+199,BMW,3 Series,2024,36342,279,0.77,False,4,41,Low
