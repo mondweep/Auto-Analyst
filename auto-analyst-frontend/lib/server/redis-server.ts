@@ -1,11 +1,32 @@
 import { Redis } from '@upstash/redis';
 import { KEYS } from '../redis';
 
-// Initialize Redis client for server-side operations only
-const serverRedis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL || '',
-  token: process.env.UPSTASH_REDIS_REST_TOKEN || '',
-});
+// Check if we have valid Redis credentials
+const hasRedisConfig = !!(
+  process.env.UPSTASH_REDIS_REST_URL &&
+  process.env.UPSTASH_REDIS_REST_TOKEN &&
+  process.env.UPSTASH_REDIS_REST_URL.startsWith('https://') &&
+  process.env.UPSTASH_REDIS_REST_TOKEN.length > 5
+)
+
+// Create mock methods for development without Redis
+const mockRedis = {
+  ping: async () => "PONG",
+  hgetall: async () => ({}),
+  hset: async () => "OK",
+  del: async () => 1,
+  get: async () => null,
+  set: async () => "OK",
+  incr: async () => 1
+}
+
+// Initialize Redis client or use mock
+const serverRedis = hasRedisConfig
+  ? new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL || '',
+      token: process.env.UPSTASH_REDIS_REST_TOKEN || '',
+    })
+  : mockRedis as unknown as Redis;
 
 // Server-side only Redis operations
 export const serverCreditUtils = {

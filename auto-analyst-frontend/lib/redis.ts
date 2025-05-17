@@ -1,11 +1,32 @@
 import { Redis } from '@upstash/redis'
 import logger from '@/lib/utils/logger'
 
-// Initialize Redis client with Upstash credentials
-const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL || '',
-  token: process.env.UPSTASH_REDIS_REST_TOKEN || '',
-})
+// Check if we have valid Redis credentials
+const hasRedisConfig = !!(
+  process.env.UPSTASH_REDIS_REST_URL &&
+  process.env.UPSTASH_REDIS_REST_TOKEN &&
+  process.env.UPSTASH_REDIS_REST_URL.startsWith('https://') &&
+  process.env.UPSTASH_REDIS_REST_TOKEN.length > 5
+)
+
+// Create mock methods for development without Redis
+const mockRedis = {
+  ping: async () => "PONG",
+  hgetall: async () => ({}),
+  hset: async () => "OK",
+  del: async () => 1,
+  get: async () => null,
+  set: async () => "OK",
+  incr: async () => 1
+}
+
+// Initialize Redis client or use mock
+const redis = hasRedisConfig
+  ? new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL || '',
+      token: process.env.UPSTASH_REDIS_REST_TOKEN || '',
+    })
+  : mockRedis as unknown as Redis
 
 // Test connection and log status - but only when explicitly called
 const testConnection = async () => {

@@ -43,23 +43,13 @@ export default function LandingPage() {
       )
     }
 
-    if (session) {
-      return (
-        <Button
-          onClick={() => router.push('/chat')}
-          className="bg-[#FF7F7F] text-white hover:bg-[#FF6666] shadow-md"
-        >
-          Go to Chat
-        </Button>
-      )
-    }
-
+    // Bypass authentication - go directly to chat
     return (
       <Button
-        onClick={() => router.push('/login')}
+        onClick={() => router.push('/chat')}
         className="bg-[#FF7F7F] text-white hover:bg-[#FF6666] shadow-md"
       >
-        Sign in
+        Go to Chat
       </Button>
     )
   }
@@ -68,6 +58,12 @@ export default function LandingPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white">
       <nav className="fixed top-0 right-0 w-full z-50 p-6">
         <div className="max-w-7xl mx-auto flex justify-end space-x-3">
+          <Button
+            onClick={() => router.push('/automotive')}
+            className="bg-white text-[#FF7F7F] border border-[#FF7F7F] hover:bg-gray-50 shadow-sm"
+          >
+            Automotive Demo
+          </Button>
           <Button
             onClick={() => router.push('/pricing')}
             className="bg-white text-[#FF7F7F] border border-[#FF7F7F] hover:bg-gray-50 shadow-sm"
