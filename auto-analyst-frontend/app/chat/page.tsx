@@ -12,22 +12,29 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function ChatPage() {
   const { status } = useSession()
-  const { queriesUsed, hasFreeTrial } = useFreeTrialStore()
-  const [hasApiKey, setHasApiKey] = useState(false)
+  const { queriesUsed, hasFreeTrial, setHasFreeTrial } = useFreeTrialStore()
+  // Always set hasApiKey to true in demo mode
+  const [hasApiKey, setHasApiKey] = useState(true)
   
-  // Check for first-time free trial users
+  // Check for first-time free trial users and set model provider
   useEffect(() => {
-    if (status === "unauthenticated" && queriesUsed === 0 && hasFreeTrial()) {
-      // First-time free trial user, set flag to show onboarding tooltip
-      if (!localStorage.getItem('hasSeenOnboarding')) {
-        localStorage.setItem('showOnboarding', 'true')
-      }
+    // Always enable free trial mode and set infinite queries for demo
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('freeTrialQueries', '0')
+      localStorage.setItem('freeTrialEnabled', 'true')
+      
+      // Force free trial to always be available
+      setHasFreeTrial(true)
     }
     
-    // Check if API key is stored
-    const userApiKey = localStorage.getItem('userApiKey')
-    setHasApiKey(!!userApiKey)
-  }, [status, queriesUsed, hasFreeTrial])
+    // Always set the model provider to gemini for demo purposes
+    localStorage.setItem('modelProvider', 'gemini')
+    
+    // Set a default API key to force chat to work without requiring user input
+    localStorage.setItem('userApiKey', 'demo-api-key')
+    
+    console.log(`Using model provider: gemini (Demo mode)`)
+  }, [status, queriesUsed, setHasFreeTrial])
 
   const handleApiKeySet = () => {
     setHasApiKey(true)
@@ -36,7 +43,7 @@ export default function ChatPage() {
   return (
     <ResponsiveLayout>
       <div className="container mx-auto py-4">
-        <Tabs defaultValue={hasApiKey ? "chat" : "settings"} className="w-full">
+        <Tabs defaultValue="chat" className="w-full">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 mb-4">
             <TabsTrigger value="chat">Chat</TabsTrigger>
             <TabsTrigger value="settings">API Settings</TabsTrigger>

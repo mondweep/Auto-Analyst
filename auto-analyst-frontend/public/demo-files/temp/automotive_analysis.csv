@@ -1,0 +1,4 @@
+id,make,model,year,price,demand,sales_velocity,profit_potential,days_in_inventory
+1,Toyota,Camry,2021,28500,High,Fast,1700,45
+2,Honda,Civic,2022,24700,Medium,Medium,1200,30
+3,Ford,F-150,2020,38900,Low,Slow,-2200,60

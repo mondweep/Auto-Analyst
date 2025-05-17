@@ -1,0 +1,201 @@
+id,make,model,year,color,price,mileage,condition,fuel_type,list_date,days_in_inventory,vin,is_sold
+1,Kia,Telluride,2020,Green,32521,40776,Excellent,Hybrid,2025-04-06,39,VIN821963,False
+2,Ford,Explorer,2012,Silver,8729,217198,Fair,Hybrid,2025-04-22,23,VIN471323,False
+3,Tesla,Model 3,2012,Gray,5150,159004,Poor,Diesel,2025-05-01,14,VIN801938,True
+4,Mercedes,S-Class,2015,Orange,33425,182479,Poor,Diesel,2025-02-17,87,VIN202659,False
+5,Audi,Q7,2011,Silver,13619,239475,Poor,Gasoline,2025-04-28,17,VIN709123,True
+6,BMW,7 Series,2014,Brown,7754,199513,Poor,Gasoline,2025-05-03,12,VIN808749,False
+7,BMW,5 Series,2021,Orange,60586,35067,Good,Electric,2025-02-22,82,VIN177544,False
+8,Hyundai,Elantra,2011,Orange,15153,166821,Fair,Gasoline,2025-04-30,15,VIN643697,False
+9,Audi,Q7,2010,Gray,11290,214819,Good,Hybrid,2025-03-31,45,VIN465390,True
+10,Hyundai,Santa Fe,2020,Black,11258,85783,Poor,Gasoline,2025-02-14,90,VIN274831,False
+11,Honda,Accord,2011,Red,9326,134496,Excellent,Hybrid,2025-05-13,2,VIN406025,True
+12,Kia,Soul,2020,Orange,22495,58734,Fair,Electric,2025-05-13,2,VIN657448,False
+13,Toyota,RAV4,2014,White,15533,171011,Poor,Gasoline,2025-04-13,32,VIN339772,False
+14,Tesla,Model 3,2014,Red,11911,86982,Good,Hybrid,2025-03-28,48,VIN294087,False
+15,Audi,A8,2019,Blue,19810,38784,Good,Hybrid,2025-04-09,36,VIN979877,False
+16,Honda,CR-V,2022,Orange,24035,18490,Good,Electric,2025-03-01,75,VIN161637,False
+17,Tesla,Model Y,2016,Orange,10069,130223,Poor,Electric,2025-03-11,65,VIN580019,True
+18,Kia,Telluride,2018,Black,14039,69493,Poor,Hybrid,2025-03-26,50,VIN816381,False
+19,Audi,Q7,2016,Green,37410,130998,Poor,Electric,2025-04-21,24,VIN730269,True
+20,Tesla,Model Y,2016,Brown,20766,141149,Poor,Hybrid,2025-05-10,5,VIN809875,False
+21,Mercedes,GLE,2021,Brown,18025,49011,Poor,Gasoline,2025-03-14,62,VIN583737,False
+22,Honda,CR-V,2012,White,6204,103387,Good,Diesel,2025-04-13,32,VIN855282,False
+23,Tesla,Model X,2013,Orange,20195,182177,Fair,Diesel,2025-02-27,77,VIN244777,False
+24,Toyota,RAV4,2016,Blue,26784,119862,Poor,Electric,2025-04-13,32,VIN688967,False
+25,Mercedes,GLE,2011,Red,9690,189029,Poor,Electric,2025-04-25,20,VIN860466,False
+26,BMW,5 Series,2018,Black,36486,59470,Good,Electric,2025-04-16,29,VIN202008,False
+27,BMW,5 Series,2022,Brown,47464,23413,Fair,Electric,2025-04-24,21,VIN215217,False
+28,Mercedes,E-Class,2022,Black,75250,29571,Good,Gasoline,2025-04-23,22,VIN826556,False
+29,Tesla,Model Y,2022,White,35585,21189,Excellent,Gasoline,2025-03-04,72,VIN115765,False
+30,Mercedes,C-Class,2024,Red,11199,0,Poor,Gasoline,2025-02-14,90,VIN934087,True
+31,Mercedes,C-Class,2016,Brown,33034,103720,Fair,Gasoline,2025-03-26,50,VIN953662,True
+32,Honda,Pilot,2021,Black,39612,42820,Good,Electric,2025-04-10,35,VIN459782,True
+33,Tesla,Model Y,2011,White,13557,201384,Poor,Hybrid,2025-04-18,27,VIN258022,False
+34,BMW,3 Series,2023,Brown,39634,9057,Good,Electric,2025-02-23,81,VIN646083,False
+35,Chevrolet,Silverado,2018,Red,33635,103914,Fair,Diesel,2025-05-07,8,VIN127671,False
+36,Toyota,RAV4,2020,Silver,25737,37702,Excellent,Diesel,2025-02-26,78,VIN527993,True
+37,Chevrolet,Traverse,2014,Gray,9578,75379,Excellent,Diesel,2025-03-08,68,VIN212472,True
+38,Tesla,Model X,2010,Red,12922,161135,Good,Hybrid,2025-02-20,84,VIN287427,False
+39,Honda,Odyssey,2020,Red,4952,59531,Poor,Electric,2025-02-26,78,VIN269081,False
+40,Kia,Forte,2018,Red,13946,80523,Fair,Gasoline,2025-03-22,54,VIN880736,False
+41,Hyundai,Tucson,2015,Brown,12787,59213,Excellent,Electric,2025-04-07,38,VIN854524,False
+42,Hyundai,Palisade,2024,Silver,30381,0,Good,Diesel,2025-03-17,59,VIN144143,False
+43,Toyota,Tacoma,2010,Red,12313,109534,Good,Electric,2025-04-19,26,VIN739612,False
+44,Hyundai,Palisade,2010,Orange,4413,173561,Good,Electric,2025-05-09,6,VIN842957,False
+45,Honda,Accord,2021,Blue,8070,68902,Poor,Gasoline,2025-03-18,58,VIN246266,False
+46,Honda,CR-V,2021,White,16764,31682,Good,Electric,2025-04-29,16,VIN483206,False
+47,Audi,A4,2023,Red,9822,10509,Excellent,Diesel,2025-02-28,76,VIN656472,True
+48,Honda,Odyssey,2019,Yellow,46795,38005,Excellent,Hybrid,2025-02-27,77,VIN619400,False
+49,Toyota,Corolla,2011,Silver,5545,104442,Good,Diesel,2025-03-23,53,VIN679525,False
+50,Ford,Explorer,2023,Orange,53272,10252,Good,Hybrid,2025-04-04,41,VIN470790,True
+51,Tesla,Model 3,2020,Orange,6758,39656,Fair,Gasoline,2025-05-06,9,VIN451331,False
+52,BMW,5 Series,2024,Gray,34899,0,Fair,Diesel,2025-04-05,40,VIN476107,False
+53,Hyundai,Tucson,2020,Orange,19598,49168,Good,Diesel,2025-05-07,8,VIN742632,True
+54,Tesla,Model Y,2017,Red,5683,91010,Poor,Electric,2025-03-02,74,VIN652584,False
+55,Chevrolet,Tahoe,2015,Orange,6607,90141,Good,Hybrid,2025-03-01,75,VIN539868,False
+56,BMW,3 Series,2015,Black,19427,87666,Excellent,Hybrid,2025-03-19,57,VIN723563,False
+57,Kia,Sorento,2022,Blue,33944,18455,Good,Gasoline,2025-03-15,61,VIN716543,False
+58,Hyundai,Elantra,2022,Green,22589,33112,Poor,Electric,2025-04-25,20,VIN314806,False
+59,Ford,Edge,2012,Red,6570,200390,Fair,Electric,2025-04-09,36,VIN197013,False
+60,Kia,Telluride,2011,Green,4504,171387,Good,Electric,2025-03-09,67,VIN561627,False
+61,Mercedes,E-Class,2022,Yellow,26190,23036,Excellent,Electric,2025-03-17,59,VIN101455,False
+62,Mercedes,GLC,2024,Green,17778,0,Fair,Gasoline,2025-03-23,53,VIN951848,False
+63,Tesla,Model S,2011,Green,2924,174913,Fair,Diesel,2025-03-24,52,VIN293735,False
+64,Mercedes,GLE,2011,Blue,18993,280756,Poor,Electric,2025-02-22,82,VIN142493,False
+65,BMW,X3,2010,White,19398,145151,Fair,Gasoline,2025-03-21,55,VIN385849,False
+66,Mercedes,E-Class,2010,Red,9232,213232,Good,Gasoline,2025-02-23,81,VIN630058,False
+67,Ford,Explorer,2013,Gray,16327,85385,Excellent,Electric,2025-04-28,17,VIN406867,False
+68,Toyota,Highlander,2010,Black,7906,146689,Good,Diesel,2025-03-16,60,VIN976593,False
+69,BMW,X5,2010,Black,3672,103869,Excellent,Hybrid,2025-02-22,82,VIN778830,False
+70,Honda,Odyssey,2024,Black,15664,0,Poor,Hybrid,2025-03-12,64,VIN572408,False
+71,Chevrolet,Tahoe,2013,Brown,23259,142590,Good,Electric,2025-03-18,58,VIN341396,False
+72,Tesla,Model S,2018,Silver,7465,140900,Poor,Diesel,2025-04-23,22,VIN429015,False
+73,Toyota,RAV4,2014,Blue,7278,120613,Excellent,Hybrid,2025-02-17,87,VIN409931,False
+74,Ford,F-150,2022,White,15091,35126,Poor,Gasoline,2025-04-02,43,VIN810751,False
+75,BMW,X5,2019,Brown,6498,56600,Fair,Hybrid,2025-02-18,86,VIN446713,False
+76,BMW,X3,2018,Red,36003,100513,Fair,Electric,2025-03-05,71,VIN138817,False
+77,Mercedes,C-Class,2023,Blue,22662,15692,Fair,Diesel,2025-03-15,61,VIN142425,False
+78,Mercedes,C-Class,2017,Gray,20801,67005,Good,Electric,2025-03-20,56,VIN167026,False
+79,Ford,Edge,2021,Yellow,26633,17970,Excellent,Diesel,2025-03-21,55,VIN902528,False
+80,Honda,Odyssey,2014,Gray,19542,226661,Poor,Electric,2025-03-18,58,VIN290589,True
+81,BMW,3 Series,2024,Blue,13757,0,Good,Diesel,2025-02-17,87,VIN564602,False
+82,BMW,X3,2023,Gray,39956,14569,Good,Gasoline,2025-03-26,50,VIN150098,True
+83,Audi,A4,2021,Yellow,14145,52587,Poor,Gasoline,2025-04-25,20,VIN879761,True
+84,Ford,Escape,2022,Black,20820,29257,Poor,Gasoline,2025-02-25,79,VIN357407,False
+85,Mercedes,C-Class,2020,Orange,45571,30996,Excellent,Diesel,2025-04-15,30,VIN958598,False
+86,BMW,5 Series,2018,Green,47762,87282,Fair,Electric,2025-02-14,90,VIN540865,False
+87,Toyota,Camry,2011,Black,11712,145643,Excellent,Gasoline,2025-04-20,25,VIN656139,False
+88,BMW,5 Series,2018,Gray,45199,81212,Poor,Electric,2025-04-18,27,VIN916726,False
+89,Ford,Explorer,2018,Gray,43058,64129,Excellent,Electric,2025-03-01,75,VIN960621,False
+90,BMW,X3,2012,Gray,12525,170924,Fair,Electric,2025-04-27,18,VIN756109,True
+91,Ford,F-150,2015,Black,11326,113427,Good,Hybrid,2025-04-29,16,VIN673800,False
+92,Hyundai,Kona,2021,White,24731,42264,Poor,Diesel,2025-03-14,62,VIN542279,True
+93,Kia,Forte,2021,White,25701,47290,Fair,Diesel,2025-02-21,83,VIN373847,False
+94,Honda,Pilot,2017,White,7623,105786,Fair,Electric,2025-03-08,68,VIN598952,False
+95,Honda,Civic,2013,Blue,7600,179211,Fair,Gasoline,2025-02-16,88,VIN166489,False
+96,Toyota,Highlander,2019,Brown,39343,57960,Good,Hybrid,2025-05-06,9,VIN107703,False
+97,Ford,Escape,2011,Silver,1937,149386,Good,Diesel,2025-04-21,24,VIN947540,True
+98,Toyota,Camry,2021,Gray,29670,50034,Fair,Gasoline,2025-04-12,33,VIN961241,False
+99,Ford,Explorer,2019,Brown,20208,66603,Good,Hybrid,2025-03-11,65,VIN650341,False
+100,Chevrolet,Traverse,2017,Green,16822,70436,Excellent,Electric,2025-05-10,5,VIN244564,False
+101,Audi,Q5,2011,Brown,4151,174928,Poor,Gasoline,2025-02-26,78,VIN919207,False
+102,Hyundai,Elantra,2014,Yellow,21140,127653,Fair,Diesel,2025-04-26,19,VIN104071,False
+103,Kia,Sportage,2014,Black,18270,126942,Good,Gasoline,2025-04-15,30,VIN602269,False
+104,Audi,A6,2020,Yellow,58097,35928,Good,Diesel,2025-05-07,8,VIN871310,False
+105,Ford,Mustang,2017,Red,17407,90276,Poor,Gasoline,2025-05-07,8,VIN789486,True
+106,Hyundai,Tucson,2010,Green,9362,214763,Fair,Hybrid,2025-03-16,60,VIN869274,True
+107,BMW,5 Series,2013,Brown,10486,231713,Poor,Gasoline,2025-04-25,20,VIN157848,False
+108,Audi,A8,2017,Blue,27044,76557,Good,Diesel,2025-05-04,11,VIN255804,False
+109,Tesla,Model S,2018,Yellow,15889,57407,Good,Gasoline,2025-02-24,80,VIN524981,False
+110,Audi,Q7,2012,Green,27217,108943,Good,Hybrid,2025-03-12,64,VIN245913,False
+111,BMW,7 Series,2012,Brown,28465,164988,Good,Electric,2025-02-26,78,VIN964180,True
+112,BMW,X3,2019,Brown,18101,57402,Good,Gasoline,2025-02-23,81,VIN710596,True
+113,Toyota,Camry,2015,Orange,25034,188435,Poor,Gasoline,2025-05-02,13,VIN543285,True
+114,Mercedes,GLE,2010,Silver,14390,173801,Fair,Hybrid,2025-03-16,60,VIN254962,False
+115,Honda,Civic,2021,Gray,33151,27835,Good,Hybrid,2025-04-28,17,VIN926197,False
+116,BMW,5 Series,2010,Blue,4830,141941,Good,Hybrid,2025-03-03,73,VIN492788,False
+117,Audi,A8,2024,Brown,45623,0,Poor,Electric,2025-02-20,84,VIN306489,True
+118,Honda,Odyssey,2010,Green,17892,114571,Excellent,Gasoline,2025-04-09,36,VIN866688,False
+119,Mercedes,GLE,2024,Yellow,72786,0,Excellent,Diesel,2025-03-15,61,VIN494343,False
+120,Mercedes,GLE,2011,Orange,6848,166472,Poor,Gasoline,2025-05-02,13,VIN829880,False
+121,Mercedes,S-Class,2010,Blue,12373,169854,Good,Diesel,2025-03-23,53,VIN430545,True
+122,Tesla,Model S,2022,Yellow,18026,18918,Good,Hybrid,2025-03-31,45,VIN736599,False
+123,Honda,Civic,2012,Silver,2379,224103,Poor,Diesel,2025-05-07,8,VIN359836,True
+124,BMW,7 Series,2016,Yellow,35797,170494,Poor,Diesel,2025-04-24,21,VIN850118,False
+125,Honda,Odyssey,2023,Blue,23018,13989,Poor,Electric,2025-03-06,70,VIN971235,False
+126,Mercedes,GLC,2019,Gray,23625,51534,Good,Diesel,2025-05-12,3,VIN394222,False
+127,Audi,A4,2015,Green,48606,111706,Excellent,Gasoline,2025-04-13,32,VIN923409,False
+128,Toyota,Highlander,2014,Black,33766,100263,Excellent,Electric,2025-05-11,4,VIN723884,True
+129,Toyota,RAV4,2018,Red,47211,44157,Excellent,Diesel,2025-04-26,19,VIN886818,True
+130,Toyota,Corolla,2019,Black,25472,66696,Fair,Hybrid,2025-03-21,55,VIN582359,False
+131,Chevrolet,Silverado,2018,Brown,32422,70097,Excellent,Electric,2025-03-20,56,VIN715084,False
+132,Honda,Pilot,2012,Blue,7355,248527,Poor,Gasoline,2025-04-18,27,VIN176443,True
+133,Toyota,Highlander,2010,Yellow,14042,208149,Fair,Gasoline,2025-02-19,85,VIN676296,False
+134,Kia,Sorento,2018,Black,6103,73857,Excellent,Hybrid,2025-04-24,21,VIN417456,False
+135,BMW,3 Series,2013,Red,26124,216643,Poor,Gasoline,2025-04-05,40,VIN291808,False
+136,Audi,A8,2011,Brown,4171,178347,Good,Gasoline,2025-02-15,89,VIN679342,False
+137,Ford,Edge,2018,Blue,41268,68644,Excellent,Gasoline,2025-02-27,77,VIN682535,False
+138,Honda,CR-V,2013,Green,15092,118031,Fair,Diesel,2025-05-11,4,VIN562436,True
+139,Kia,Telluride,2023,Green,19776,10377,Good,Gasoline,2025-02-27,77,VIN972249,True
+140,Kia,Sorento,2018,Orange,13578,54824,Excellent,Electric,2025-03-21,55,VIN375832,True
+141,Hyundai,Elantra,2022,Silver,16199,27427,Fair,Electric,2025-02-27,77,VIN501524,False
+142,Hyundai,Palisade,2022,Gray,15929,30292,Good,Gasoline,2025-04-11,34,VIN521950,False
+143,Mercedes,E-Class,2011,Orange,25475,121550,Excellent,Hybrid,2025-03-01,75,VIN322254,False
+144,Kia,Telluride,2021,Blue,28616,39545,Poor,Electric,2025-04-30,15,VIN263025,False
+145,Toyota,Camry,2011,White,12786,127715,Good,Hybrid,2025-04-07,38,VIN821051,False
+146,Chevrolet,Malibu,2011,Gray,16453,178016,Fair,Gasoline,2025-05-03,12,VIN328896,False
+147,Ford,Mustang,2014,White,3660,231140,Poor,Diesel,2025-05-02,13,VIN893030,False
+148,Hyundai,Tucson,2012,White,20930,163725,Good,Hybrid,2025-04-22,23,VIN416791,False
+149,Chevrolet,Traverse,2022,Brown,35973,20019,Fair,Electric,2025-04-10,35,VIN957775,False
+150,Honda,Civic,2021,Green,24899,19952,Excellent,Hybrid,2025-03-04,72,VIN281129,True
+151,Ford,F-150,2023,Green,21863,15943,Fair,Diesel,2025-04-10,35,VIN968812,False
+152,Chevrolet,Equinox,2021,Silver,15470,67966,Poor,Gasoline,2025-03-04,72,VIN522990,True
+153,Tesla,Model Y,2015,White,20260,189126,Poor,Gasoline,2025-04-18,27,VIN491720,False
+154,Chevrolet,Silverado,2020,Blue,27308,46915,Good,Hybrid,2025-03-21,55,VIN999273,False
+155,Hyundai,Kona,2013,Black,2225,157641,Fair,Gasoline,2025-03-12,64,VIN683942,False
+156,Chevrolet,Traverse,2014,Silver,26338,65836,Excellent,Diesel,2025-03-19,57,VIN833347,False
+157,Mercedes,GLE,2024,Orange,12103,0,Fair,Gasoline,2025-04-24,21,VIN403007,False
+158,Toyota,Tacoma,2021,Black,31672,31289,Fair,Electric,2025-05-14,1,VIN773350,False
+159,Chevrolet,Tahoe,2018,Silver,8093,66865,Good,Diesel,2025-03-20,56,VIN588484,False
+160,Honda,Pilot,2023,Silver,45996,9813,Excellent,Gasoline,2025-03-08,68,VIN137827,False
+161,Ford,Escape,2015,Black,4220,114184,Poor,Diesel,2025-05-13,2,VIN218002,False
+162,Toyota,RAV4,2010,Brown,3973,170475,Excellent,Electric,2025-05-09,6,VIN534106,False
+163,Kia,Soul,2019,Blue,29274,90560,Poor,Hybrid,2025-03-04,72,VIN363486,False
+164,Honda,Pilot,2017,Gray,33631,68256,Good,Diesel,2025-04-29,16,VIN683701,False
+165,Toyota,RAV4,2018,Black,16666,108029,Fair,Gasoline,2025-05-14,1,VIN185183,False
+166,Mercedes,S-Class,2015,White,46793,116171,Good,Diesel,2025-05-01,14,VIN577703,False
+167,Ford,Mustang,2015,Blue,9914,87888,Fair,Electric,2025-03-04,72,VIN411390,False
+168,Mercedes,GLE,2019,Orange,9978,65158,Poor,Diesel,2025-02-22,82,VIN983134,False
+169,Honda,Civic,2022,Red,30409,22562,Fair,Gasoline,2025-03-17,59,VIN389582,True
+170,Tesla,Model S,2024,Red,66202,0,Good,Hybrid,2025-02-14,90,VIN510463,False
+171,Kia,Telluride,2014,Brown,20891,95301,Fair,Gasoline,2025-03-21,55,VIN815499,True
+172,Ford,Edge,2024,Blue,44827,0,Fair,Hybrid,2025-04-16,29,VIN150389,False
+173,Tesla,Model Y,2020,Blue,68293,29671,Good,Diesel,2025-03-15,61,VIN164131,False
+174,BMW,X3,2017,Orange,13215,95343,Fair,Diesel,2025-04-01,44,VIN184648,False
+175,BMW,3 Series,2024,White,58246,0,Good,Gasoline,2025-05-07,8,VIN573970,False
+176,Toyota,Camry,2017,Blue,20624,76839,Excellent,Diesel,2025-05-02,13,VIN873746,False
+177,Toyota,Corolla,2019,Black,6757,93700,Poor,Hybrid,2025-04-22,23,VIN636349,False
+178,Chevrolet,Malibu,2021,Silver,22885,63519,Poor,Diesel,2025-03-03,73,VIN857849,False
+179,Tesla,Cybertruck,2010,Silver,4956,175656,Good,Hybrid,2025-02-24,80,VIN452969,False
+180,Ford,Edge,2017,Black,6188,105910,Good,Diesel,2025-03-30,46,VIN381993,False
+181,Mercedes,GLE,2010,Yellow,7110,140840,Excellent,Electric,2025-05-01,14,VIN155350,False
+182,Toyota,Tacoma,2011,Blue,1672,138447,Fair,Hybrid,2025-03-06,70,VIN652646,False
+183,Toyota,Tacoma,2018,Green,5215,86612,Fair,Diesel,2025-04-25,20,VIN373002,False
+184,Kia,Sportage,2016,Silver,20739,128022,Fair,Electric,2025-02-24,80,VIN529238,False
+185,Audi,Q5,2019,Brown,7950,64920,Poor,Diesel,2025-04-20,25,VIN406723,False
+186,Ford,Escape,2019,Orange,20020,42685,Good,Gasoline,2025-03-20,56,VIN916672,False
+187,Hyundai,Palisade,2014,Brown,2671,115101,Good,Diesel,2025-03-11,65,VIN656332,False
+188,Chevrolet,Malibu,2017,White,16596,87320,Excellent,Hybrid,2025-04-20,25,VIN918926,False
+189,Hyundai,Tucson,2020,Red,6694,50330,Fair,Gasoline,2025-04-03,42,VIN673733,True
+190,Tesla,Model 3,2019,Blue,51896,57047,Good,Diesel,2025-04-28,17,VIN950302,False
+191,Mercedes,GLE,2012,Gray,2932,257397,Poor,Diesel,2025-02-23,81,VIN298428,False
+192,Hyundai,Kona,2017,Black,7947,63749,Excellent,Electric,2025-04-04,41,VIN331087,False
+193,Audi,A6,2020,Blue,10962,29209,Excellent,Hybrid,2025-04-19,26,VIN934409,False
+194,Ford,Edge,2020,White,16144,46376,Fair,Diesel,2025-03-29,47,VIN315161,False
+195,Toyota,Corolla,2019,Black,23574,55209,Fair,Diesel,2025-03-05,71,VIN664244,False
+196,BMW,5 Series,2017,White,27575,123796,Poor,Gasoline,2025-04-04,41,VIN715197,False
+197,Kia,Telluride,2017,Black,13295,115254,Fair,Gasoline,2025-03-26,50,VIN459767,False
+198,Audi,A6,2013,Red,28654,159656,Good,Electric,2025-04-24,21,VIN645841,False
+199,BMW,3 Series,2024,Gray,36063,0,Poor,Electric,2025-03-17,59,VIN232110,False
+200,Ford,Edge,2014,Black,26349,139554,Good,Gasoline,2025-04-19,26,VIN756440,True

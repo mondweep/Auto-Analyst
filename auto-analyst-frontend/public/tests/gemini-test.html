@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Chat API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1, h2 {
+            color: #2a2a7a;
+        }
+        .test-container {
+            background: #f5f5f7;
+            border-left: 4px solid #2a2a7a;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .test-step {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .code {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        #results {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            min-height: 200px;
+        }
+        .success {
+            color: #4CAF50;
+        }
+        .error {
+            color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gemini Chat API Test</h1>
+    
+    <div class="test-container">
+        <h2>Test Instructions</h2>
+        <p>This page allows you to test the Gemini Chat API functionality directly:</p>
+        
+        <div class="test-step">
+            <h3>Step 1: Navigate to Chat Page</h3>
+            <p>First, open the chat interface in a separate tab:</p>
+            <a href="/chat" target="_blank">
+                <button>Open Chat Interface</button>
+            </a>
+        </div>
+        
+        <div class="test-step">
+            <h3>Step 2: Run Test</h3>
+            <p>In the chat tab, run this JavaScript in the browser console:</p>
+            <div class="code">
+javascript:(function(){const script=document.createElement('script');script.src='/tests/gemini-test.js';document.head.appendChild(script);})();
+            </div>
+            <p>Or click this bookmarklet (drag to your bookmarks bar):</p>
+            <p>
+                <a href="javascript:(function(){const script=document.createElement('script');script.src='/tests/gemini-test.js';document.head.appendChild(script);})();">
+                    <button>Gemini Test</button>
+                </a>
+            </p>
+        </div>
+        
+        <div class="test-step">
+            <h3>Step 3: Check Results</h3>
+            <p>The test will create a floating panel that shows test progress and results.</p>
+            <p>Click "Run Tests" in the panel to start the automated testing sequence.</p>
+        </div>
+    </div>
+    
+    <h2>Expected Results</h2>
+    <p>The test should show that:</p>
+    <ul>
+        <li>The chat interface successfully accepts input</li>
+        <li>The Gemini model receives the input and processes it</li>
+        <li>Responses are generated that correctly address the automotive data questions</li>
+    </ul>
+    
+    <div id="results">
+        <h3>Test Run Log</h3>
+        <p><em>Results will appear here when you run the test...</em></p>
+    </div>
+    
+    <script>
+        // This is just to display instructions
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Gemini Test page loaded. Please follow the instructions to run the tests.');
+        });
+    </script>
+</body>
+</html> 

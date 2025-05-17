@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto-Analyst Chat Tester</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1, h2, h3 {
+            color: #2a2a7a;
+        }
+        .test-step {
+            background: #f5f5f7;
+            border-left: 4px solid #2a2a7a;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .test-case {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .test-result {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+        }
+        code {
+            font-family: monospace;
+            background: #f0f0f0;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        .success {
+            color: green;
+            font-weight: bold;
+        }
+        .failure {
+            color: red;
+            font-weight: bold;
+        }
+        .btn {
+            background: #2a2a7a;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .btn:hover {
+            background: #3e3ea8;
+        }
+        .question-box {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            margin-bottom: 15px;
+            min-height: 100px;
+        }
+        .manual-testing {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Auto-Analyst Chat Interface Tester</h1>
+    <p>This tool helps test the chat interface in the Auto-Analyst application.</p>
+    
+    <div class="test-step">
+        <h3>Setup Instructions:</h3>
+        <ol>
+            <li>Start the Auto-Analyst backend services (file_server.py and automotive_server.py)</li>
+            <li>Start the Auto-Analyst frontend (npm run dev)</li>
+            <li>Open the chat interface in another browser tab (usually <a href="http://localhost:3000/chat" target="_blank">http://localhost:3000/chat</a>)</li>
+            <li>Open your browser's developer console in that tab (F12)</li>
+            <li>Copy the code from the chatTester.js file, paste it in the console, and press Enter</li>
+            <li>Run <code>chatTester.start()</code> in the console to start automated testing</li>
+        </ol>
+    </div>
+    
+    <h2>Test Cases</h2>
+    
+    <div class="test-case">
+        <h3>Test Case 1: Chat Interface Loads Properly</h3>
+        <p><strong>Description:</strong> Verify that the chat interface loads properly with all necessary components.</p>
+        <p><strong>Expected Result:</strong> Chat interface should load without errors, input field visible, welcome message displayed.</p>
+    </div>
+    
+    <div class="test-case">
+        <h3>Test Case 2: Send a Basic Question and Receive Response</h3>
+        <p><strong>Description:</strong> Test asking a basic question about inventory data.</p>
+        <p><strong>Test Question:</strong> "What vehicles are in the inventory?"</p>
+        <p><strong>Expected Result:</strong> Response should mention Toyota Camry, Honda Civic, Ford F-150 and other inventory items.</p>
+    </div>
+    
+    <div class="test-case">
+        <h3>Test Case 3: Model Provider Settings</h3>
+        <p><strong>Description:</strong> Verify the model provider is correctly set to Gemini and works without API key issues.</p>
+        <p><strong>Test Question:</strong> "Based on the inventory and market data, which vehicle would be the best one to promote in a sale to maximize profit?"</p>
+        <p><strong>Expected Result:</strong> Response with reasoning showing Gemini's capabilities, mentioning profit maximization, price considerations, etc.</p>
+    </div>
+    
+    <div class="test-case">
+        <h3>Test Case 4: Data Analysis Question</h3>
+        <p><strong>Description:</strong> Test the chat interface's ability to analyze data in CSV files.</p>
+        <p><strong>Test Question:</strong> "Analyze the market data and tell me which vehicles are priced below market value"</p>
+        <p><strong>Expected Result:</strong> Response should mention Toyota Camry and Honda Civic being priced below market, with specific percentage differences.</p>
+    </div>
+    
+    <div class="manual-testing">
+        <h2>Manual Testing</h2>
+        <p>Use this section to compose your own test questions and check the responses manually.</p>
+        
+        <div class="question-box">
+            <h3>Test Your Own Question</h3>
+            <textarea id="custom-question" placeholder="Enter your question here...">Show me an analysis of which vehicles are priced below market value and recommend the best ones to focus on for increased sales.</textarea>
+            <p>
+                <button class="btn" id="copy-btn">Copy Question</button>
+                <button class="btn" id="view-results-btn">View Test Results</button>
+            </p>
+            <p><small>Copy the question, paste it in the chat interface, and analyze the response manually.</small></p>
+        </div>
+        
+        <div class="test-result" id="results-panel" style="display:none;">
+            <h3>Test Results</h3>
+            <pre id="test-results">Test has not been run yet.</pre>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('copy-btn').addEventListener('click', function() {
+            const textarea = document.getElementById('custom-question');
+            textarea.select();
+            document.execCommand('copy');
+            alert('Question copied to clipboard! Paste it in the chat interface.');
+        });
+        
+        document.getElementById('view-results-btn').addEventListener('click', function() {
+            const resultsPanel = document.getElementById('results-panel');
+            resultsPanel.style.display = 'block';
+            
+            // This would normally fetch results from the chatTester, but since they're in different contexts,
+            // we'll just show instructions
+            document.getElementById('test-results').textContent = 
+                "To view actual test results:\n\n" +
+                "1. Go to the chat interface tab\n" +
+                "2. Open the browser console (F12)\n" +
+                "3. After running tests with chatTester.start()\n" +
+                "4. Type: chatTester.reportResults()\n" +
+                "5. To save results as JSON: chatTester.downloadResults()";
+        });
+    </script>
+</body>
+</html> 
