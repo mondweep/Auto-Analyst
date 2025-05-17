@@ -1,147 +1,163 @@
-![Auto Analyst Logo](/auto-analyst-backend/images/auto-analyst%20logo.png)
+# 🚗 Auto-Analyst Automotive Pricing Intelligence Demo
 
-# Auto-Analyst
-An AI-powered data analytics platform with interactive visualizations and real-time insights.
+A powerful AI-driven analytics platform designed to help automotive dealers optimize inventory pricing and identify market opportunities.
 
-![Auto-Analyst Platform](/auto-analyst-backend/images/Auto-analyst-poster.png)
+## 📋 Overview
 
-## 📌 Overview  
-Auto-Analyst is an analytics platform featuring a **FastAPI backend** and a **Next.js frontend**. The system provides **AI-driven data analytics**, **interactive visualizations**, and an **admin dashboard** for monitoring key usage metrics. The platform leverages **WebSockets** for real-time updates and integrates enterprise-grade functionalities.
+This demo showcases how advanced AI and data analytics can transform automotive dealership operations by providing:
 
-![Chat Interface](/auto-analyst-backend/images/AI%20snapshot-chat.png)  
+- Real-time market pricing intelligence
+- Inventory optimization recommendations
+- Profit opportunity identification
+- Data-driven insights through interactive dashboards
 
+## 🛠️ Architecture
 
-### **Tech Stack**  
-- **Frontend:** Next.js / React  (Learn more about the frontend architecture [here](/docs/frontend.md))
-- **Backend:** Python / FastAPI  (Learn more about the api breakdown [here](/docs/backend.md))
-- **Database:** SQLite for data storage and Redis Upstash for rate limiting and credits management
-- **CI/CD:** GitHub Actions  
-- **Payment Processing:** Stripe Integration
-- **Security:** API Key Management System
+The application consists of three main components:
 
----
+1. **Frontend** (Next.js/React)
+   - Interactive automotive dashboards
+   - File upload/download capabilities
+   - Responsive UI for all devices
 
-## 🚀 Development & Contributing
-For detailed setup instructions, development guidelines, and information about contributing to this project, please refer to our [Contributing Guide](CONTRIBUTING.md).
+2. **Automotive API** (Python HTTP Server)
+   - Provides vehicle data, market analysis, and pricing recommendations
+   - Runs on port 8003
 
----
+3. **File Server** (Python HTTP Server)
+   - Serves downloadable data files (CSV exports)
+   - Runs on port 8001
 
-## ✅ Implemented Features  
+## 🚀 Getting Started
 
-### Core Features
-- **Chat Interface** – Interactive AI-powered chat system with multi-agent support.  
-- **Chat History** – Chat history is stored in the database and displayed in the chat interface.
-- **Session Management** – Persistent user sessions with state tracking.  
-- **Code Execution** – Python code execution with AI-powered editing and fixing capabilities.
-- **Google OAuth** – Google OAuth is supported for authentication.
+### Prerequisites
 
-### Analytics & Monitoring
-- **Analytics Dashboard** – A comprehensive admin panel displaying usage statistics, model performance metrics, and cost analysis.  
-- **Cost Analytics** – Tracks detailed cost breakdowns, daily spending trends, and cost projections.  
-- **User Analytics** – Monitors user activity, session statistics, and new user acquisition rates.  
-- **Model Performance Tracking** – Evaluates model usage, response times, and token consumption patterns.  
+- Python 3.10+
+- Node.js 16+
+- npm or yarn
 
-### Security & Authentication
-- **Admin Authentication** – Secure, API key-based authentication for administrative access.  
-- **API Key Management** – Reading API KEYS via code canvas is blocked.
+### Backend Setup
 
-### Real-time Features
-- **Real-time Updates** – WebSocket-based real-time updates for dashboard and analytics views.  
-- **Real-time Analytics Enhancements** – WebSocket handling with improved robustness and error recovery.
+```bash
+# Navigate to the backend directory
+cd auto-analyst-backend
 
-### Enterprise Features
-- **Enterprise Deployment Options** – On-premise deployment contact support for custom API integrations.
-- **Documentation** – Comprehensive documentation for developers and maintainers.
-- **Model Credits System** – Redis Upstash-based credits tracking and management.
-- **Stripe Integration** – Secure payment processing for credit purchases and subscription management.
+# Install Python dependencies
+pip install -r requirements.txt
 
-### AI & Code Features
-- **AI Code Editing** – Intelligent code editing with code highlight.
-- **Code Error Fixing** – Automated code error detection and fixing capabilities.
-- **Canvas Implementation** – Interactive data visualization canvas for custom analytics.
-- **Multi-Model Support** – Integration with multiple AI models (OpenAI, Groq, Anthropic, Gemini).
+# Start all services with the convenience script
+./start_services.sh
+```
 
-### Automotive Module
+This will start:
+- File server on port 8001
+- Automotive API on port 8003
 
-The Automotive Module is a specialized component designed for automotive dealerships and businesses to:
+### Frontend Setup
 
-1. **Inventory Management**: Track and filter vehicle inventory by make, model, condition, and more
-2. **Market Analysis**: Compare inventory prices against market rates to identify pricing opportunities
-3. **Opportunity Detection**: Automatically identify undervalued vehicles with profit potential
-4. **Statistical Analysis**: View key metrics and visualizations about inventory composition and performance
+```bash
+# In a separate terminal, navigate to the frontend directory
+cd auto-analyst-frontend
 
-#### API Endpoints
+# Install dependencies
+npm install
 
-The automotive module provides the following API endpoints:
+# Start the development server
+npm run dev
+```
 
-- `GET /api/vehicles`: List vehicles with optional filtering
-- `GET /api/vehicles/{id}`: Get details for a specific vehicle
-- `GET /api/market-data`: Get market pricing data
-- `GET /api/market-data/{vehicle_id}`: Get market data for a specific vehicle
-- `GET /api/opportunities`: Get undervalued vehicle opportunities
-- `GET /api/statistics`: Get statistical overview of inventory
+The frontend will be accessible at http://localhost:3000
 
-#### Frontend Components
+## 📊 Available Endpoints
 
-The automotive module includes a user-friendly interface with:
+### Automotive API (Port 8003)
 
-- Inventory browsing with advanced filtering
-- Market data visualization
-- Opportunity dashboard
-- Statistical overview with charts and metrics
+- `/api/vehicles` - Vehicle inventory data
+- `/api/market-data` - Market pricing analysis
+- `/api/opportunities` - Profit opportunities
+- `/api/statistics` - Inventory and performance metrics
+- `/health` - API health check
 
----
+### File Server (Port 8001)
 
-## 🛠️ Roadmap  
-The following areas are part of our development roadmap to improve system stability, performance and feature set:
+- `/exports/vehicles.csv` - Vehicle inventory export
+- `/exports/market_data.csv` - Market data export
+- `/exports/automotive_analysis.csv` - Combined analysis export
+- `/health` - Server health check
 
-### Short-term Goals
-- **Error Handling** – Implement more robust exception handling for API endpoints.
-- **Cost Calculation Precision** – Improve floating-point precision in cost calculations.
-- **Redis Connection Stability** – Enhance connection handling with better fallback mechanisms.
-- **User Accounts Page** – Implement email change functionality, plan updates, and other account management features.
+## 🧪 Testing
 
-### Mid-term Goals  
-- **Query Performance** – Optimize agents to be more efficient and reduce hallucinated results on low tier models.
-- **API Key Rotation** – Implement automated API key rotation for enhanced security.
-- **User Guest Creation in DB** - Fix excessive creation of guest users when users first log in.
+The system includes comprehensive tests to ensure all functionality works as expected:
 
-### Long-term Goals
-Our long-term vision is explained in three principles we would like to follow while developing the latest versions of the product. It is hard to define them in specifics.
+```bash
+# Run backend unit tests for automotive features
+cd auto-analyst-backend
+python test_automotive.py
 
-- **Usability**: We want the product to be as usable as possible, which can only be achieved through constant experimentation. The optimal UX for such a project is yet to be discovered.
-- **Community-driven**: We want input from data analysts and scientists from around the world to guide us in our future development efforts. Please stay in touch on our socials (LinkedIn, Medium, Substack).
-- **Openness**: We would like to not only open-source the source code but also, through blogs and other forms of communication, share with the world all advancements in the product openly.
+# Run backend end-to-end tests
+python test_e2e.py
 
----
+# Run frontend test to verify connectivity
+cd ../auto-analyst-frontend
+node test-frontend.js
+```
 
-## ⚙️ Configuration
+## 🔍 Key Features
 
-### **Environment Variables:**  
-- `ADMIN_API_KEY` – Critical for securing admin access.  
-- `NEXT_PUBLIC_API_URL` – Backend API endpoint reference.  
-- **AWS credentials** – Required for infrastructure provisioning and deployment.  
-- **SMTP credentials** – Required for sending emails.  
-- **OpenAI API Key** – Required for the chat interface.  
-- **Groq API Key** – Required for the chat interface.  
-- **Gemini API Key** - Required for Chat interface.
-- **Anthropic API Key** – Required for the chat interface.  
-- **Redis URL** – Required for rate limiting and credits management.
-- **Stripe Keys** – Required for payment processing.
+### 1. Vehicle Inventory Management
 
----
+View complete inventory with detailed information about each vehicle including:
+- Make, model, year, condition
+- Current pricing
+- Days in inventory
+- Full specifications
 
-## 🔗 Useful Links
-- [Contributing Guide](CONTRIBUTING.md)
-- [Frontend Documentation](/docs/frontend.md)
-- [Backend Documentation](/docs/backend.md)
-- [API Documentation](/docs/api)
-- [Database Schema](/docs/db_schema.md)
-- [Redis Setup](/docs/redis-setup)
+### 2. Market Analysis
 
----
+Compare your inventory against market prices:
+- Price differentials
+- Market positioning
+- Competitive analysis
 
-## 📞 Support
-- Open an [issue](https://github.com/FireBird-Technologies/Auto-Analyst/issues) for bugs
-- Use [discussions](https://github.com/FireBird-Technologies/Auto-Analyst/discussions) for questions
-- Contact maintainers for enterprise support 
+### 3. Profit Opportunities
+
+Identify vehicles that are:
+- Underpriced compared to market
+- Likely to appreciate
+- Opportunities for acquisition
+
+### 4. Performance Metrics
+
+Track key performance indicators:
+- Inventory aging
+- Price distribution
+- Make/model popularity
+
+## 📑 Documentation
+
+For more detailed documentation, see:
+- [Implementation Guide](./docs/implementation-guide.md)
+- [Data Schema](./docs/data-schema.md)
+- [API Documentation](./docs/api-docs.md)
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+- **404 Errors**: Ensure both the file server and automotive server are running
+- **CORS Issues**: Check that both servers are configured with the correct CORS headers
+- **Download Failures**: Verify the exports directory contains the CSV files
+
+To restart all services:
+```bash
+cd auto-analyst-backend
+./start_services.sh
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow the existing code style and add tests for new features.
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE file for details. 

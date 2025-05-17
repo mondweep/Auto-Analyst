@@ -4,21 +4,23 @@ import { useState, useEffect } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import AUTOMOTIVE_API_URL from '@/config/automotive-api';
+
+const AUTOMOTIVE_API_URL = process.env.NEXT_PUBLIC_AUTOMOTIVE_API_URL || 'http://localhost:8003';
 
 // Define types
 interface MarketData {
-  vehicle_id: number;
+  id: number;
   make: string;
   model: string;
   year: number;
-  avg_market_price: number;
+  your_price: number;
+  market_price: number;
   price_difference: number;
-  percent_difference: number;
-  is_opportunity: boolean;
-  sample_size: number;
-  avg_days_to_sell: number;
-  market_demand: string;
+  price_difference_percent: number;
+  days_in_inventory: number;
+  potential_profit?: number;
+  market_demand?: string;
+  avg_days_to_sell?: number;
 }
 
 export default function MarketData() {
@@ -29,12 +31,12 @@ export default function MarketData() {
   const [error, setError] = useState<string | null>(null);
   
   // Filter states
-  const [makeFilter, setMakeFilter] = useState<string>('');
-  const [demandFilter, setDemandFilter] = useState<string>('');
+  const [makeFilter, setMakeFilter] = useState<string>('all');
+  const [demandFilter, setDemandFilter] = useState<string>('all');
   
   // Unique values for filters
   const [makes, setMakes] = useState<string[]>([]);
-  const [demands, setDemands] = useState<string[]>([]);
+  const [demands, setDemands] = useState<string[]>(['High', 'Medium', 'Low']);
   
   // Fetch market data
   useEffect(() => {
@@ -52,15 +54,31 @@ export default function MarketData() {
         const data = await response.json();
         const marketDataArray = data.market_data || [];
         
-        setMarketData(marketDataArray);
-        setFilteredData(marketDataArray);
+        // Add market demand based on price difference percent
+        const enrichedData = marketDataArray.map((item: MarketData) => {
+          // Calculate market demand based on price difference
+          let marketDemand = 'Medium';
+          if (item.price_difference_percent <= -5) {
+            marketDemand = 'High';  // Priced below market, high demand
+          } else if (item.price_difference_percent >= 5) {
+            marketDemand = 'Low';   // Priced above market, low demand
+          }
+          
+          // Add market demand to the item
+          return {
+            ...item,
+            market_demand: marketDemand,
+            avg_days_to_sell: Math.round(90 - (item.price_difference_percent * -2)) // Simulated data
+          };
+        });
         
-        // Extract unique makes and demand levels for filters
-        const uniqueMakes = [...new Set(marketDataArray.map((d: MarketData) => d.make))] as string[];
-        const uniqueDemands = [...new Set(marketDataArray.map((d: MarketData) => d.market_demand))] as string[];
+        setMarketData(enrichedData);
+        setFilteredData(enrichedData);
+        
+        // Extract unique makes
+        const uniqueMakes = [...new Set(enrichedData.map((d: MarketData) => d.make))] as string[];
         
         setMakes(uniqueMakes);
-        setDemands(uniqueDemands);
         
         setLoading(false);
       } catch (err) {
@@ -91,7 +109,8 @@ export default function MarketData() {
   }, [marketData, makeFilter, demandFilter]);
   
   // Format currency
-  const formatCurrency = (amount: number) => {
+  const formatCurrency = (amount: number | undefined) => {
+    if (amount === undefined || amount === null) return '$0';
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -100,12 +119,13 @@ export default function MarketData() {
   };
   
   // Format percentage
-  const formatPercentage = (value: number) => {
+  const formatPercentage = (value: number | undefined) => {
+    if (value === undefined || value === null) return '0.00%';
     return `${value.toFixed(2)}%`;
   };
   
   // Get demand badge class
-  const getDemandBadgeClass = (demand: string) => {
+  const getDemandBadgeClass = (demand: string | undefined) => {
     switch (demand) {
       case 'High':
         return 'bg-green-100 text-green-800';
@@ -119,7 +139,9 @@ export default function MarketData() {
   };
   
   // Get price difference class
-  const getPriceDifferenceClass = (percent: number) => {
+  const getPriceDifferenceClass = (percent: number | undefined) => {
+    if (!percent) return 'text-gray-600';
+    
     if (percent > 10) {
       return 'text-green-600 font-semibold';
     } else if (percent > 5) {
@@ -189,40 +211,42 @@ export default function MarketData() {
               <TableHead>Make</TableHead>
               <TableHead>Model</TableHead>
               <TableHead>Year</TableHead>
+              <TableHead>Your Price</TableHead>
               <TableHead>Market Price</TableHead>
               <TableHead>Difference</TableHead>
               <TableHead>%</TableHead>
               <TableHead>Demand</TableHead>
-              <TableHead>Avg. Days to Sell</TableHead>
+              <TableHead>Inventory Days</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredData.length > 0 ? (
               filteredData.map((data) => (
-                <TableRow key={data.vehicle_id}>
+                <TableRow key={data.id}>
                   <TableCell>{data.make}</TableCell>
                   <TableCell>{data.model}</TableCell>
                   <TableCell>{data.year}</TableCell>
-                  <TableCell>{formatCurrency(data.avg_market_price)}</TableCell>
-                  <TableCell className={getPriceDifferenceClass(data.percent_difference)}>
+                  <TableCell>{formatCurrency(data.your_price)}</TableCell>
+                  <TableCell>{formatCurrency(data.market_price)}</TableCell>
+                  <TableCell className={getPriceDifferenceClass(data.price_difference_percent)}>
                     {formatCurrency(data.price_difference)}
                   </TableCell>
-                  <TableCell className={getPriceDifferenceClass(data.percent_difference)}>
-                    {formatPercentage(data.percent_difference)}
+                  <TableCell className={getPriceDifferenceClass(data.price_difference_percent)}>
+                    {formatPercentage(data.price_difference_percent)}
                   </TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 rounded-full text-xs ${getDemandBadgeClass(data.market_demand)}`}>
-                      {data.market_demand}
+                      {data.market_demand || 'Medium'}
                     </span>
                   </TableCell>
-                  <TableCell>{data.avg_days_to_sell} days</TableCell>
+                  <TableCell>{data.days_in_inventory} days</TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colspan={8} className="text-center py-6 text-gray-500">
+                <td className="text-center py-6 text-gray-500" colSpan={9}>
                   No market data matches your current filters
-                </TableCell>
+                </td>
               </TableRow>
             )}
           </TableBody>
