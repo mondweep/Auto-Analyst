@@ -179,7 +179,7 @@ def get_session_lm(session_state):
         
         # Get appropriate API key based on provider
         if provider == "gemini":
-            api_key = os.getenv("GOOGLE_API_KEY")
+            api_key = os.getenv("GEMINI_API_KEY")
         elif provider == "groq":
             api_key = os.getenv("GROQ_API_KEY")
         elif provider == "anthropic":
@@ -1179,7 +1179,7 @@ def query_gemini(prompt, session_lm):
             import os
             from dotenv import load_dotenv
             load_dotenv()
-            api_key = os.getenv("GOOGLE_API_KEY")
+            api_key = os.getenv("GEMINI_API_KEY")
             
         if not api_key:
             logger.log_message("No API key found for Gemini", level=logging.ERROR)
