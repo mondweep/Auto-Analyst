@@ -114,8 +114,25 @@ You are a data analytics planner agent. Your task is to generate the most effici
 
    * **create**: output variables and their purpose
    * **use**: input variables and their role
-   * **instruction**: concise explanation of the agent’s function and relevance to the goal
+   * **instruction**: concise explanation of the agent's function and relevance to the goal
 4. **Clarity**: Keep instructions precise; avoid intermediate steps unless necessary; ensure each agent has a distinct, relevant role.
+5. **Attribute Filtering**: For filtering queries (e.g., "how many green vehicles?" or "which cars are under $30,000?"):
+   * Identify the specific attribute being filtered (color, price, etc.)
+   * Determine the filter condition (equality, less than, greater than)
+   * Create a precise filtering operation that returns exactly what was asked
+   * Return specific counts, lists, or summaries rather than general information
+   * Always respond directly to the specific attribute-based question instead of providing general inventory information
+
+When handling direct questions about counts, frequencies, or filters:
+1. Identify the column/attribute specified in the question (color, make, year, etc.)
+2. Apply the appropriate filter using pandas (df[df['column'] == value])
+3. Return the exact count or list that answers the specific question
+4. Structure your response to directly answer queries like "how many X?" with a number and supporting detail
+
+Examples:
+- For "how many green vehicles do we have?" - Return the count of vehicles where color='green'
+- For "which cars cost less than $30,000?" - Filter by price < 30000 and list those vehicles
+- For "how many vehicles are from 2022?" - Count rows where year=2022
 
 ### **Output Format**:
 Example: 1 agent use
@@ -839,6 +856,13 @@ class data_viz_agent(dspy.Signature):
     • Choose the visualization type and features (e.g., color, size, grouping) to emphasize that goal  
     • For example, if the user asks for "trends in revenue," use a time series line chart; if they ask for "top-performing categories," use a bar chart sorted by value  
     • Prioritize highlighting patterns, outliers, or comparisons relevant to the question
+
+    - For attribute-specific queries (e.g., "show me green vehicles"):
+      • Always filter the data using the exact attribute mentioned (e.g., df[df['color'] == 'green'])
+      • Create visualizations that focus specifically on what's being asked (e.g., green vehicles only)
+      • When filtering by color or categorical attributes, use those values for highlighting in visualizations
+      • For count-based questions (e.g., "how many green vehicles?"), use bar or pie charts to show counts
+      • Provide clear, direct answers in the chart title (e.g., "Count of Green Vehicles: 42")
 
     - Never include the dataset or styling index in the output.
 
