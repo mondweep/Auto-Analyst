@@ -1,7 +1,7 @@
 import logging
 from typing import Optional, Dict, Any
 import time
-from src.db.schemas.models import ModelUsage
+from src.db.schemas.models import ModelUsage, User, Chat
 from src.db.init_db import session_factory
 from datetime import datetime
 import tiktoken
@@ -34,6 +34,21 @@ class AI_Manager:
         try:
             session = session_factory()
             
+            # Verify user_id exists or is None (which is allowed by the foreign key constraint)
+            if user_id is not None:
+                user_exists = session.query(session.query(User).filter_by(user_id=user_id).exists()).scalar()
+                if not user_exists:
+                    logger.log_message(f"User ID {user_id} does not exist, setting to None", level=logging.WARNING)
+                    user_id = None
+            
+            # Verify chat_id exists or is None (which is allowed by the foreign key constraint)
+            if chat_id is not None:
+                chat_exists = session.query(session.query(Chat).filter_by(chat_id=chat_id).exists()).scalar()
+                if not chat_exists:
+                    logger.log_message(f"Chat ID {chat_id} does not exist, setting to None", level=logging.WARNING)
+                    chat_id = None
+            
+            # Create usage record
             usage = ModelUsage(
                 user_id=user_id,
                 chat_id=chat_id,
@@ -52,7 +67,6 @@ class AI_Manager:
             
             session.add(usage)
             session.commit()
-            # logger.info(f"Saved usage data to database for chat {chat_id}: {total_tokens} tokens, ${cost:.6f}")
             
             # Broadcast the event asynchronously
             asyncio.create_task(handle_new_model_usage(usage))

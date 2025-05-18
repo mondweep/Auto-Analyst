@@ -12,6 +12,7 @@ from typing import List, Optional
 import groq
 import pandas as pd
 import uvicorn
+import requests
 from dotenv import load_dotenv
 from fastapi import (
     Depends, 
@@ -42,6 +43,11 @@ from src.routes.session_routes import router as session_router, get_session_id_d
 from src.schemas.query_schemas import QueryRequest
 from src.utils.logger import Logger
 
+# File server configuration
+FILE_SERVER_URL = os.getenv("FILE_SERVER_URL", "http://localhost:8001")
+
+# In-memory cache for loaded datasets
+datasets_cache = {}
 
 logger = Logger("app", see_time=True, console_log=False)
 load_dotenv()
@@ -95,7 +101,7 @@ styling_instructions = [
         always use plotly_white template, reduce x & y axes line to 0.2 & x & y grid width to 1. 
         Always give a title and make bold using html tag axis label 
         Always display numbers in thousand(K) or Million(M) if larger than 1000/100000. Add annotations x values
-        Don't add K/M if number already in , or value is not a number
+        Dont add K/M if number already in , or value is not a number
         If variable is a percentage show in 2 decimal points with '%'
         Default size of chart should be height =1200 and width =1000
         """,
@@ -160,43 +166,132 @@ else:
 # Function to get model config from session or use default
 def get_session_lm(session_state):
     """Get the appropriate LM instance for a session, or default if not configured"""
-    # First check if we have a valid session-specific model config 
-    if session_state and isinstance(session_state, dict) and "model_config" in session_state:
-        model_config = session_state["model_config"]
-        if model_config and isinstance(model_config, dict) and "model" in model_config:
-            # Found valid session-specific model config, use it
-            provider = model_config.get("provider", "openai").lower()
+    # Define a fallback LM creator that ensures all required attributes
+    def create_fallback_lm():
+        import os
+        from dotenv import load_dotenv
+        load_dotenv()
+        
+        # Use environment variables with fallbacks
+        provider = os.getenv("MODEL_PROVIDER", "gemini").lower()
+        model = os.getenv("MODEL_NAME", "gemini-1.5-pro")
+        api_key = None
+        
+        # Get appropriate API key based on provider
+        if provider == "gemini":
+            api_key = os.getenv("GOOGLE_API_KEY")
+        elif provider == "groq":
+            api_key = os.getenv("GROQ_API_KEY")
+        elif provider == "anthropic":
+            api_key = os.getenv("ANTHROPIC_API_KEY")
+        else:  # Default to OpenAI
+            api_key = os.getenv("OPENAI_API_KEY")
+        
+        temperature = float(os.getenv("TEMPERATURE", 0.7))
+        max_tokens = int(os.getenv("MAX_TOKENS", 4000))
+        
+        logger.log_message(f"Creating fallback LM with provider={provider}, model={model}", level=logging.INFO)
+        
+        # Create appropriate LM based on provider
+        try:
             if provider == "groq":
                 return dspy.GROQ(
-                    model=model_config.get("model", DEFAULT_MODEL_CONFIG["model"]),
-                    api_key=model_config.get("api_key", DEFAULT_MODEL_CONFIG["api_key"]),
-                    temperature=model_config.get("temperature", DEFAULT_MODEL_CONFIG["temperature"]),
-                    max_tokens=model_config.get("max_tokens", DEFAULT_MODEL_CONFIG["max_tokens"])
-                )
-            elif provider == "anthropic":
-                return dspy.LM(
-                    model=model_config.get("model", DEFAULT_MODEL_CONFIG["model"]),
-                    api_key=model_config.get("api_key", DEFAULT_MODEL_CONFIG["api_key"]),
-                    temperature=model_config.get("temperature", DEFAULT_MODEL_CONFIG["temperature"]),
-                    max_tokens=model_config.get("max_tokens", DEFAULT_MODEL_CONFIG["max_tokens"])
+                    model=model,
+                    api_key=api_key,
+                    temperature=temperature,
+                    max_tokens=max_tokens
                 )
             elif provider == "gemini":
+                # For Gemini, create a custom LM object if regular dspy fails
+                try:
+                    lm = dspy.LM(
+                        model=f"gemini/{model}",
+                        api_key=api_key,
+                        temperature=temperature,
+                        max_tokens=max_tokens
+                    )
+                    return lm
+                except Exception as e:
+                    # If dspy LM initialization fails, create a simple object with required attributes
+                    logger.log_message(f"Failed to create dspy LM for Gemini: {str(e)}", level=logging.WARNING)
+                    from types import SimpleNamespace
+                    return SimpleNamespace(
+                        model=model,
+                        api_key=api_key,
+                        temperature=temperature,
+                        max_tokens=max_tokens
+                    )
+            else:  # Default to OpenAI-compatible LM
                 return dspy.LM(
-                    model=f"gemini/{model_config.get('model', DEFAULT_MODEL_CONFIG['model'])}",
-                    api_key=model_config.get("api_key", DEFAULT_MODEL_CONFIG["api_key"]),
-                    temperature=model_config.get("temperature", DEFAULT_MODEL_CONFIG["temperature"]),
-                    max_tokens=model_config.get("max_tokens", DEFAULT_MODEL_CONFIG["max_tokens"])
+                    model=model,
+                    api_key=api_key,
+                    temperature=temperature,
+                    max_tokens=max_tokens
                 )
-            else:  # OpenAI is the default
-                return dspy.LM(
-                    model=model_config.get("model", DEFAULT_MODEL_CONFIG["model"]),
-                    api_key=model_config.get("api_key", DEFAULT_MODEL_CONFIG["api_key"]),
-                    temperature=model_config.get("temperature", DEFAULT_MODEL_CONFIG["temperature"]),
-                    max_tokens=model_config.get("max_tokens", DEFAULT_MODEL_CONFIG["max_tokens"])
-                )
+        except Exception as e:
+            logger.log_message(f"Error creating LM: {str(e)}", level=logging.ERROR)
+            # Return a simple object with the required attributes
+            from types import SimpleNamespace
+            return SimpleNamespace(
+                model=model,
+                api_key=api_key,
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
     
-    # If no valid session config, use default
-    return default_lm
+    # Try to use session-specific model config if available
+    try:
+        if session_state and isinstance(session_state, dict) and "model_config" in session_state:
+            model_config = session_state["model_config"]
+            if model_config and isinstance(model_config, dict) and "model" in model_config:
+                # Found valid session-specific model config, use it
+                provider = model_config.get("provider", "openai").lower()
+                model = model_config.get("model", DEFAULT_MODEL_CONFIG["model"])
+                api_key = model_config.get("api_key", DEFAULT_MODEL_CONFIG["api_key"])
+                temperature = model_config.get("temperature", DEFAULT_MODEL_CONFIG["temperature"])
+                max_tokens = model_config.get("max_tokens", DEFAULT_MODEL_CONFIG["max_tokens"])
+                
+                # Check if API key is set
+                if not api_key:
+                    logger.log_message(f"No API key found for {provider}/{model}, using fallback", level=logging.WARNING)
+                    return create_fallback_lm()
+                
+                try:
+                    if provider == "groq":
+                        return dspy.GROQ(
+                            model=model,
+                            api_key=api_key,
+                            temperature=temperature,
+                            max_tokens=max_tokens
+                        )
+                    elif provider == "gemini":
+                        return dspy.LM(
+                            model=f"gemini/{model}",
+                            api_key=api_key,
+                            temperature=temperature,
+                            max_tokens=max_tokens
+                        )
+                    else:  # OpenAI is the default
+                        return dspy.LM(
+                            model=model,
+                            api_key=api_key,
+                            temperature=temperature,
+                            max_tokens=max_tokens
+                        )
+                except Exception as e:
+                    logger.log_message(f"Error creating LM from session config: {str(e)}", level=logging.WARNING)
+                    return create_fallback_lm()
+        
+        # If no valid session config or error occurred, try using default_lm
+        if default_lm and hasattr(default_lm, 'model'):
+            return default_lm
+            
+        # If default_lm is not available or incomplete, create a fallback LM
+        return create_fallback_lm()
+        
+    except Exception as e:
+        logger.log_message(f"Error in get_session_lm: {str(e)}", level=logging.ERROR)
+        return create_fallback_lm()
 
 # Initialize retrievers with empty data first
 def initialize_retrievers(styling_instructions: List[str], doc: List[str]):
@@ -363,6 +458,22 @@ async def chat_with_agent(
         # Extract and validate query parameters
         _update_session_from_query_params(request_obj, session_state)
         
+        # Check if this is a data analysis request targeting uploaded files
+        query = request.query
+        if any(keyword in query.lower() for keyword in ["analyze", "dataset", "data", "csv", "file", "files", "uploaded"]):
+            # Check for any available file server datasets
+            try:
+                datasets_response = await get_available_datasets()
+                if "files" in datasets_response and datasets_response["files"]:
+                    # This seems to be a request about file analysis, forward to analyze-file endpoint
+                    logger.log_message(f"Forwarding agent-specific data analysis request to analyze-file: {query}", level=logging.INFO)
+                    
+                    analysis_request = DataAnalysisRequest(query=query)
+                    return await analyze_file(analysis_request, request_obj, session_id)
+            except Exception as e:
+                logger.log_message(f"Error checking file server datasets: {str(e)}", level=logging.ERROR)
+                # Continue with regular processing if file server integration fails
+        
         # Validate dataset and agent name
         if session_state["current_df"] is None:
             raise HTTPException(status_code=400, detail=RESPONSE_ERROR_NO_DATASET)
@@ -444,6 +555,22 @@ async def chat_with_all(
     try:
         # Extract and validate query parameters
         _update_session_from_query_params(request_obj, session_state)
+        
+        # Check if this is a data analysis request targeting uploaded files
+        query = request.query
+        if any(keyword in query.lower() for keyword in ["analyze", "dataset", "data", "csv", "file", "files", "uploaded"]):
+            # Check for any available file server datasets
+            try:
+                datasets_response = await get_available_datasets()
+                if "files" in datasets_response and datasets_response["files"]:
+                    # This seems to be a request about file analysis, forward to analyze-file endpoint
+                    logger.log_message(f"Forwarding data analysis request to analyze-file: {query}", level=logging.INFO)
+                    
+                    analysis_request = DataAnalysisRequest(query=query)
+                    return await analyze_file(analysis_request, request_obj, session_id)
+            except Exception as e:
+                logger.log_message(f"Error checking file server datasets: {str(e)}", level=logging.ERROR)
+                # Continue with regular processing if file server integration fails
         
         # Validate dataset
         if session_state["current_df"] is None:
@@ -543,6 +670,15 @@ def _track_model_usage(session_state: dict, enhanced_query: str, response, proce
     try:
         ai_manager = app.state.get_ai_manager()
         
+        # Validate required fields for database operations
+        user_id = session_state.get("user_id") if session_state else None
+        chat_id = session_state.get("chat_id") if session_state else None
+        
+        # Skip tracking if user_id or chat_id are missing
+        if not user_id or not chat_id:
+            logger.log_message("Skipping usage tracking: user_id or chat_id missing", level=logging.INFO)
+            return
+        
         # Get model configuration
         model_config = session_state.get("model_config", DEFAULT_MODEL_CONFIG)
         model_name = model_config.get("model", DEFAULT_MODEL_CONFIG["model"])
@@ -567,20 +703,23 @@ def _track_model_usage(session_state: dict, enhanced_query: str, response, proce
         cost = ai_manager.calculate_cost(model_name, prompt_tokens, completion_tokens)
         
         # Save usage to database
-        ai_manager.save_usage_to_db(
-            user_id=session_state.get("user_id"),
-            chat_id=session_state.get("chat_id"),
-            model_name=model_name,
-            provider=provider,
-            prompt_tokens=int(prompt_tokens),
-            completion_tokens=int(completion_tokens),
-            total_tokens=int(total_tokens),
-            query_size=len(enhanced_query),
-            response_size=len(str(response)),
-            cost=round(cost, 7),
-            request_time_ms=processing_time_ms,
-            is_streaming=False
-        )
+        try:
+            ai_manager.save_usage_to_db(
+                user_id=user_id,
+                chat_id=chat_id,
+                model_name=model_name,
+                provider=provider,
+                prompt_tokens=int(prompt_tokens),
+                completion_tokens=int(completion_tokens),
+                total_tokens=int(total_tokens),
+                query_size=len(enhanced_query),
+                response_size=len(str(response)),
+                cost=round(cost, 7),
+                request_time_ms=processing_time_ms,
+                is_streaming=False
+            )
+        except Exception as db_error:
+            logger.log_message(f"Database error when saving usage: {str(db_error)}", level=logging.ERROR)
     except Exception as e:
         # Log but don't fail the request if usage tracking fails
         logger.log_message(f"Failed to track model usage: {str(e)}", level=logging.ERROR)
@@ -858,6 +997,227 @@ app.include_router(analytics_router)
 app.include_router(code_router)
 app.include_router(session_router)
 app.include_router(automotive_router)
+
+# Add these new routes for file server integration
+class DataAnalysisRequest(BaseModel):
+    query: str
+    filename: Optional[str] = None
+
+@app.get("/api/file-server/datasets", response_model=dict)
+async def get_available_datasets():
+    """Get a list of available datasets from the file server"""
+    try:
+        response = requests.get(f"{FILE_SERVER_URL}/files")
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return {"error": f"Failed to fetch datasets: {response.status_code}", "files": []}
+    except Exception as e:
+        logger.log_message(f"Error fetching datasets from file server: {str(e)}", level=logging.ERROR)
+        return {"error": f"Exception: {str(e)}", "files": []}
+
+@app.get("/api/file-server/health", response_model=dict)
+async def check_file_server_health():
+    """Check if the file server is running"""
+    try:
+        response = requests.get(f"{FILE_SERVER_URL}/health")
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return {"status": "error", "message": f"File server returned status code {response.status_code}"}
+    except Exception as e:
+        logger.log_message(f"Error connecting to file server: {str(e)}", level=logging.ERROR)
+        return {"status": "error", "message": f"Connection error: {str(e)}"}
+
+@app.get("/api/file-server/default-dataset", response_model=dict)
+async def get_default_dataset():
+    """Get the default dataset from the file server"""
+    try:
+        response = requests.get(f"{FILE_SERVER_URL}/api/default-dataset")
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return {"error": f"Failed to fetch default dataset: {response.status_code}"}
+    except Exception as e:
+        logger.log_message(f"Error fetching default dataset from file server: {str(e)}", level=logging.ERROR)
+        return {"error": f"Exception: {str(e)}"}
+
+def load_dataset_from_file_server(filename):
+    """Load a dataset from the file server"""
+    # Check if dataset is already in cache
+    if filename in datasets_cache:
+        return datasets_cache[filename], None
+    
+    try:
+        # Try to get the file from the exports directory
+        response = requests.get(f"{FILE_SERVER_URL}/exports/{filename}")
+        
+        if response.status_code == 200:
+            # Parse CSV data
+            csv_data = response.text
+            df = pd.read_csv(StringIO(csv_data))
+            
+            # Cache the dataframe for future use
+            datasets_cache[filename] = df
+            
+            return df, None
+        else:
+            return None, f"Failed to load dataset {filename}: {response.status_code}"
+    except Exception as e:
+        return None, f"Exception loading dataset {filename}: {str(e)}"
+
+def create_analysis_prompt(query, dataframe):
+    """Generate analysis prompt for the AI model based on the query and dataframe"""
+    # Get dataframe info
+    num_rows, num_cols = dataframe.shape
+    columns = dataframe.columns.tolist()
+    data_sample = dataframe.head(5).to_csv(index=False)
+    
+    # Create enhanced prompt with data context
+    enhanced_prompt = f"""Analyze the following dataset based on this query: {query}
+
+Dataset Information:
+- Number of rows: {num_rows}
+- Number of columns: {num_cols}
+- Columns: {', '.join(columns)}
+
+Here's a sample of the data:
+{data_sample}
+
+Please provide a detailed analysis addressing the query. Include relevant statistics, trends, and insights. If appropriate, suggest visualizations that would help understand the data better.
+"""
+    return enhanced_prompt
+
+@app.post("/api/analyze-file")
+async def analyze_file(
+    request: DataAnalysisRequest,
+    request_obj: Request,
+    session_id: str = Depends(get_session_id_dependency)
+):
+    """Analyze a dataset from the file server"""
+    session_state = app.state.get_session_state(session_id)
+    
+    try:
+        # Get the query and filename
+        query = request.query
+        filename = request.filename
+        
+        # If no filename provided, check available datasets and use the first one
+        if not filename:
+            datasets_response = await get_available_datasets()
+            if "error" in datasets_response:
+                return {"error": datasets_response["error"], "success": False}
+            
+            if "files" in datasets_response and datasets_response["files"]:
+                filename = datasets_response["files"][0]
+            else:
+                return {"error": "No datasets available", "success": False}
+        
+        # Load the dataset
+        df, error = load_dataset_from_file_server(filename)
+        if error:
+            return {"error": error, "success": False}
+        
+        # Create enhanced prompt for analysis
+        enhanced_prompt = create_analysis_prompt(query, df)
+        
+        # Get session-specific model for this request
+        session_lm = get_session_lm(session_state)
+        
+        # Record start time for timing
+        start_time = time.time()
+        
+        # Execute the query
+        with dspy.context(lm=session_lm):
+            response = await asyncio.wait_for(
+                asyncio.to_thread(lambda: query_gemini(enhanced_prompt, session_lm)),
+                timeout=REQUEST_TIMEOUT_SECONDS
+            )
+        
+        # Calculate processing time
+        processing_time_ms = int((time.time() - start_time) * 1000)
+        
+        # Only track usage if user_id and chat_id are present
+        if session_state and "user_id" in session_state and "chat_id" in session_state:
+            try:
+                # Add tracking and usage data
+                _track_model_usage(session_state, enhanced_prompt, response, processing_time_ms)
+            except Exception as usage_error:
+                # Log but don't fail the entire request
+                logger.log_message(f"Error tracking usage: {str(usage_error)}", level=logging.ERROR)
+        
+        # Add dataset name to response
+        response_data = {
+            "response": response,
+            "dataset": filename,
+            "success": True,
+            "processing_time_ms": processing_time_ms
+        }
+        
+        return response_data
+    
+    except asyncio.TimeoutError:
+        logger.log_message(f"Analysis request timed out for {filename}", level=logging.WARNING)
+        return {"error": "Request timed out. Please try a simpler query.", "success": False}
+    except Exception as e:
+        logger.log_message(f"Error in analyze_file: {str(e)}", level=logging.ERROR)
+        return {"error": f"Error: {str(e)}", "success": False}
+
+def query_gemini(prompt, session_lm):
+    """Execute a query using Gemini"""
+    try:
+        # Extract model name and normalize it for Gemini
+        model = session_lm.model if hasattr(session_lm, 'model') else "gemini-1.5-pro"
+        if model.startswith("gemini/"):
+            model = model.replace("gemini/", "")
+            
+        # Get the API key (with fallback to environment variable)
+        api_key = None
+        if hasattr(session_lm, 'api_key'):
+            api_key = session_lm.api_key
+        else:
+            import os
+            from dotenv import load_dotenv
+            load_dotenv()
+            api_key = os.getenv("GOOGLE_API_KEY")
+            
+        if not api_key:
+            logger.log_message("No API key found for Gemini", level=logging.ERROR)
+            return "Error: No API key configured for Gemini. Please check your settings."
+            
+        # Get temperature and max tokens with fallbacks
+        temperature = getattr(session_lm, 'temperature', 0.7)
+        max_tokens = getattr(session_lm, 'max_tokens', 4000)
+        
+        # Create the API request
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+        headers = {"Content-Type": "application/json"}
+        data = {
+            "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+            "generationConfig": {
+                "maxOutputTokens": max_tokens,
+                "temperature": temperature
+            }
+        }
+        
+        # Make the API request
+        response = requests.post(url, headers=headers, json=data, timeout=30)
+        
+        # Check if the request was successful
+        if response.status_code == 200:
+            result = response.json()
+            
+            # Extract the generated text
+            if "candidates" in result and len(result["candidates"]) > 0:
+                generated_text = result["candidates"][0]["content"]["parts"][0]["text"]
+                return generated_text
+            else:
+                return f"No candidates in response: {str(result)}"
+        else:
+            return f"API error: {response.status_code} - {response.text}"
+    except Exception as e:
+        logger.log_message(f"Error in query_gemini: {str(e)}", level=logging.ERROR)
+        return f"Error: {str(e)}"
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
