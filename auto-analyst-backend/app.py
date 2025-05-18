@@ -179,7 +179,7 @@ def get_session_lm(session_state):
         
         # Get appropriate API key based on provider
         if provider == "gemini":
-            api_key = os.getenv("GEMINI_API_KEY")
+            api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
         elif provider == "groq":
             api_key = os.getenv("GROQ_API_KEY")
         elif provider == "anthropic":
@@ -202,26 +202,21 @@ def get_session_lm(session_state):
                     max_tokens=max_tokens
                 )
             elif provider == "gemini":
-                # For Gemini, create a custom LM object if regular dspy fails
-                try:
-                    lm = dspy.LM(
-                        model=f"gemini/{model}",
-                        api_key=api_key,
-                        temperature=temperature,
-                        max_tokens=max_tokens
-                    )
-                    return lm
-                except Exception as e:
-                    # If dspy LM initialization fails, create a simple object with required attributes
-                    logger.log_message(f"Failed to create dspy LM for Gemini: {str(e)}", level=logging.WARNING)
-                    from types import SimpleNamespace
-                    return SimpleNamespace(
-                        model=model,
-                        api_key=api_key,
-                        temperature=temperature,
-                        max_tokens=max_tokens
-                    )
-            else:  # Default to OpenAI-compatible LM
+                lm = dspy.LM(
+                    model=f"gemini/{model}",
+                    api_key=api_key,
+                    temperature=temperature,
+                    max_tokens=max_tokens
+                )
+                return lm
+            elif provider == "anthropic":
+                return dspy.LM(
+                    model=f"anthropic/{model}",
+                    api_key=api_key,
+                    temperature=temperature,
+                    max_tokens=max_tokens
+                )
+            else:
                 return dspy.LM(
                     model=model,
                     api_key=api_key,
@@ -230,67 +225,61 @@ def get_session_lm(session_state):
                 )
         except Exception as e:
             logger.log_message(f"Error creating LM: {str(e)}", level=logging.ERROR)
-            # Return a simple object with the required attributes
-            from types import SimpleNamespace
-            return SimpleNamespace(
-                model=model,
-                api_key=api_key,
-                temperature=temperature,
-                max_tokens=max_tokens
+            # Create a minimal default LM that won't crash
+            lm = dspy.LM(
+                model="gemini/gemini-1.5-pro",
+                api_key=os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY") or "missing-api-key",
+                temperature=0.7,
+                max_tokens=4000
             )
+            return lm
     
-    # Try to use session-specific model config if available
-    try:
-        if session_state and isinstance(session_state, dict) and "model_config" in session_state:
-            model_config = session_state["model_config"]
-            if model_config and isinstance(model_config, dict) and "model" in model_config:
-                # Found valid session-specific model config, use it
-                provider = model_config.get("provider", "openai").lower()
-                model = model_config.get("model", DEFAULT_MODEL_CONFIG["model"])
-                api_key = model_config.get("api_key", DEFAULT_MODEL_CONFIG["api_key"])
-                temperature = model_config.get("temperature", DEFAULT_MODEL_CONFIG["temperature"])
-                max_tokens = model_config.get("max_tokens", DEFAULT_MODEL_CONFIG["max_tokens"])
-                
-                # Check if API key is set
-                if not api_key:
-                    logger.log_message(f"No API key found for {provider}/{model}, using fallback", level=logging.WARNING)
-                    return create_fallback_lm()
-                
-                try:
-                    if provider == "groq":
-                        return dspy.GROQ(
-                            model=model,
-                            api_key=api_key,
-                            temperature=temperature,
-                            max_tokens=max_tokens
-                        )
-                    elif provider == "gemini":
-                        return dspy.LM(
-                            model=f"gemini/{model}",
-                            api_key=api_key,
-                            temperature=temperature,
-                            max_tokens=max_tokens
-                        )
-                    else:  # OpenAI is the default
-                        return dspy.LM(
-                            model=model,
-                            api_key=api_key,
-                            temperature=temperature,
-                            max_tokens=max_tokens
-                        )
-                except Exception as e:
-                    logger.log_message(f"Error creating LM from session config: {str(e)}", level=logging.WARNING)
-                    return create_fallback_lm()
-        
-        # If no valid session config or error occurred, try using default_lm
-        if default_lm and hasattr(default_lm, 'model'):
-            return default_lm
-            
-        # If default_lm is not available or incomplete, create a fallback LM
+    # If no session or no model config, use default
+    if not session_state or "model_config" not in session_state:
         return create_fallback_lm()
-        
+    
+    # Get model config from session
+    model_config = session_state["model_config"]
+    
+    # Validate model config has required fields
+    required_fields = ["provider", "model", "api_key", "temperature", "max_tokens"]
+    if not all(field in model_config for field in required_fields):
+        logger.log_message("Model config missing required fields, using fallback", level=logging.WARNING)
+        return create_fallback_lm()
+    
+    # Create LM based on provider
+    provider = model_config["provider"].lower()
+    try:
+        if provider == "groq":
+            return dspy.GROQ(
+                model=model_config["model"],
+                api_key=model_config["api_key"],
+                temperature=model_config["temperature"],
+                max_tokens=model_config["max_tokens"]
+            )
+        elif provider == "gemini":
+            return dspy.LM(
+                model=f"gemini/{model_config['model']}",
+                api_key=model_config["api_key"],
+                temperature=model_config["temperature"],
+                max_tokens=model_config["max_tokens"]
+            )
+        elif provider == "anthropic":
+            return dspy.LM(
+                model=f"anthropic/{model_config['model']}",
+                api_key=model_config["api_key"],
+                temperature=model_config["temperature"],
+                max_tokens=model_config["max_tokens"]
+            )
+        else:
+            return dspy.LM(
+                model=model_config["model"],
+                api_key=model_config["api_key"],
+                temperature=model_config["temperature"],
+                max_tokens=model_config["max_tokens"]
+            )
     except Exception as e:
-        logger.log_message(f"Error in get_session_lm: {str(e)}", level=logging.ERROR)
+        logger.log_message(f"Error creating LM from session config: {str(e)}", level=logging.ERROR)
         return create_fallback_lm()
 
 # Initialize retrievers with empty data first
@@ -675,9 +664,13 @@ def _track_model_usage(session_state: dict, enhanced_query: str, response, proce
         chat_id = session_state.get("chat_id") if session_state else None
         
         # Skip tracking if user_id or chat_id are missing
-        if not user_id or not chat_id:
-            logger.log_message("Skipping usage tracking: user_id or chat_id missing", level=logging.INFO)
-            return
+        if not user_id:
+            logger.log_message("Skipping usage tracking: user_id missing", level=logging.INFO)
+            user_id = None  # Explicitly set to None for DB insertion
+        
+        if not chat_id:
+            logger.log_message("Skipping usage tracking: chat_id missing", level=logging.INFO)
+            chat_id = None  # Explicitly set to None for DB insertion
         
         # Get model configuration
         model_config = session_state.get("model_config", DEFAULT_MODEL_CONFIG)
@@ -702,7 +695,7 @@ def _track_model_usage(session_state: dict, enhanced_query: str, response, proce
         # Calculate cost
         cost = ai_manager.calculate_cost(model_name, prompt_tokens, completion_tokens)
         
-        # Save usage to database
+        # Save usage to database (only if at least one of user_id or chat_id is provided)
         try:
             ai_manager.save_usage_to_db(
                 user_id=user_id,
@@ -1173,13 +1166,13 @@ def query_gemini(prompt, session_lm):
             
         # Get the API key (with fallback to environment variable)
         api_key = None
-        if hasattr(session_lm, 'api_key'):
+        if hasattr(session_lm, 'api_key') and session_lm.api_key:
             api_key = session_lm.api_key
         else:
             import os
             from dotenv import load_dotenv
             load_dotenv()
-            api_key = os.getenv("GEMINI_API_KEY")
+            api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
             
         if not api_key:
             logger.log_message("No API key found for Gemini", level=logging.ERROR)
