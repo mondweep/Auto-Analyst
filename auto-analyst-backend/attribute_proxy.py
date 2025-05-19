@@ -22,10 +22,17 @@ logger = logging.getLogger("attribute-proxy")
 MAIN_APP_URL = os.getenv("MAIN_APP_URL", "http://localhost:8000")
 ATTRIBUTE_SERVER_URL = os.getenv("ATTRIBUTE_SERVER_URL", "http://localhost:8002")
 PROXY_PORT = int(os.getenv("PROXY_PORT", "8080"))
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
 app = Flask(__name__)
-# Enable CORS for all routes
-CORS(app, supports_credentials=True, resources={r"/*": {"origins": "*"}})
+# Enable CORS with more explicit configuration
+CORS(app, 
+     origins=[FRONTEND_URL, "*"],  # Allow frontend and any origin during development
+     supports_credentials=True,
+     allow_headers=["Content-Type", "Authorization", "X-Requested-With"],
+     methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+     expose_headers=["Content-Type", "Authorization"]
+)
 
 def check_server_health(url):
     """Check if a server is running by making a health check request"""
@@ -41,12 +48,12 @@ def forward_request(target_url, path="", method=None, headers=None, data=None, p
         headers = {}
     
     # Remove problematic headers that might cause issues
-    for header in ['Host', 'Content-Length', 'Content-Type']:
+    for header in ['Host', 'Content-Length']:
         if header in headers:
             del headers[header]
     
     # Add some headers that will help with CORS
-    headers['Origin'] = "http://localhost:3000"
+    headers['Origin'] = FRONTEND_URL
     
     url = f"{target_url}/{path}" if path else target_url
     method = method or request.method
@@ -70,7 +77,8 @@ def forward_request(target_url, path="", method=None, headers=None, data=None, p
             'Access-Control-Allow-Origin': '*',
             'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
             'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
-            'Access-Control-Allow-Credentials': 'true'
+            'Access-Control-Allow-Credentials': 'true',
+            'Access-Control-Expose-Headers': 'Content-Type, Authorization'
         })
         
         return Response(
@@ -112,6 +120,8 @@ def handle_options_request():
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With')
     response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
     response.headers.add('Access-Control-Allow-Credentials', 'true')
+    response.headers.add('Access-Control-Expose-Headers', 'Content-Type, Authorization')
+    response.headers.add('Access-Control-Max-Age', '86400')  # 24 hours
     return response
 
 @app.route('/health', methods=['GET'])

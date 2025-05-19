@@ -1,0 +1,46 @@
+2025-05-19 22:06:15,152 - attribute-server - INFO - Loading dataset from: exports/vehicles.csv
+2025-05-19 22:06:15,153 - attribute-server - INFO - ✅ Loaded dataset with 200 vehicles
+2025-05-19 22:06:15,153 - attribute-server - INFO - Starting Attribute Server on port 8002...
+2025-05-19 22:06:15,153 - attribute-server - INFO - Available endpoints:
+2025-05-19 22:06:15,153 - attribute-server - INFO -   - /health - Health check
+2025-05-19 22:06:15,153 - attribute-server - INFO -   - /api/attribute-query - Detect and process attribute queries
+2025-05-19 22:06:15,153 - attribute-server - INFO -   - /api/direct-count - Direct counting by attribute name and value
+2025-05-19 22:06:15,153 - attribute-server - INFO -   - /api/chat-attribute - Chat integration for attribute queries
+2025-05-19 22:06:15,153 - attribute-server - INFO -   - /model - Get available models
+2025-05-19 22:06:15,153 - attribute-server - INFO -   - /model/<model_id> - Get specific model
+2025-05-19 22:06:15,153 - attribute-server - INFO -   - /model-settings - Get model settings
+2025-05-19 22:06:15,154 - attribute-server - INFO -   - /api/model-settings - Alternative model settings endpoint
+2025-05-19 22:06:15,154 - attribute-server - INFO -   - /settings/model - Alternative model settings endpoint
+2025-05-19 22:06:15,154 - attribute-server - INFO -   - /model-settings/<model_id> - Get specific model setting
+2025-05-19 22:06:15,154 - attribute-server - INFO -   - /agents - Get available agents
+2025-05-19 22:06:15,154 - attribute-server - INFO -   - /agents/<agent_id> - Get specific agent
+2025-05-19 22:06:15,154 - attribute-server - INFO -   - /api/session-info - Get session info
+ * Tip: There are .env files present. Install python-dotenv to use them.
+ * Serving Flask app 'standalone_attribute_server'
+ * Debug mode: on
+2025-05-19 22:06:15,200 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8002
+ * Running on http://192.168.68.113:8002
+2025-05-19 22:06:15,200 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-05-19 22:06:15,200 - werkzeug - INFO -  * Restarting with stat
+2025-05-19 22:06:15,300 - attribute-server - INFO - Loading dataset from: exports/vehicles.csv
+2025-05-19 22:06:15,300 - attribute-server - INFO - ✅ Loaded dataset with 200 vehicles
+2025-05-19 22:06:15,300 - attribute-server - INFO - Starting Attribute Server on port 8002...
+2025-05-19 22:06:15,300 - attribute-server - INFO - Available endpoints:
+2025-05-19 22:06:15,300 - attribute-server - INFO -   - /health - Health check
+2025-05-19 22:06:15,300 - attribute-server - INFO -   - /api/attribute-query - Detect and process attribute queries
+2025-05-19 22:06:15,300 - attribute-server - INFO -   - /api/direct-count - Direct counting by attribute name and value
+2025-05-19 22:06:15,300 - attribute-server - INFO -   - /api/chat-attribute - Chat integration for attribute queries
+2025-05-19 22:06:15,300 - attribute-server - INFO -   - /model - Get available models
+2025-05-19 22:06:15,300 - attribute-server - INFO -   - /model/<model_id> - Get specific model
+2025-05-19 22:06:15,300 - attribute-server - INFO -   - /model-settings - Get model settings
+2025-05-19 22:06:15,300 - attribute-server - INFO -   - /api/model-settings - Alternative model settings endpoint
+2025-05-19 22:06:15,300 - attribute-server - INFO -   - /settings/model - Alternative model settings endpoint
+2025-05-19 22:06:15,300 - attribute-server - INFO -   - /model-settings/<model_id> - Get specific model setting
+2025-05-19 22:06:15,300 - attribute-server - INFO -   - /agents - Get available agents
+2025-05-19 22:06:15,300 - attribute-server - INFO -   - /agents/<agent_id> - Get specific agent
+2025-05-19 22:06:15,300 - attribute-server - INFO -   - /api/session-info - Get session info
+ * Tip: There are .env files present. Install python-dotenv to use them.
+2025-05-19 22:06:15,316 - werkzeug - WARNING -  * Debugger is active!
+2025-05-19 22:06:15,324 - werkzeug - INFO -  * Debugger PIN: 782-584-937

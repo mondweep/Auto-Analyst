@@ -15,17 +15,41 @@
   // Store the original fetch
   const originalFetch = window.fetch;
   
+  // Define backend API routes that need redirection
+  const backendRoutes = ['/api/', '/health', '/agents', '/model', '/model-settings', '/settings/model', '/chat', '/api/session-info'];
+  
   // Patch fetch to intercept CORS issues
   window.fetch = function(url, options = {}) {
     // Only process if this is a URL string
     if (typeof url === 'string') {
-      console.log(`📡 Request: ${url}`);
+      let shouldRedirect = false;
       
-      // Redirect all localhost:8000 requests to localhost:8080 (our proxy)
+      // Case 1: Direct localhost:8000 URLs
       if (url.includes('localhost:8000')) {
-        const newUrl = url.replace('localhost:8000', 'localhost:8080');
-        console.log(`🔀 Redirecting to: ${newUrl}`);
-        url = newUrl;
+        shouldRedirect = true;
+      }
+      
+      // Case 2: Relative URLs that should go to the backend
+      if (url.startsWith('/') && !url.startsWith('/_next/') && !url.startsWith('/static/')) {
+        for (const route of backendRoutes) {
+          if (url.startsWith(route)) {
+            shouldRedirect = true;
+            break;
+          }
+        }
+      }
+      
+      // Redirect appropriate requests to proxy
+      if (shouldRedirect) {
+        // Handle absolute URLs
+        if (url.includes('://')) {
+          url = url.replace(/https?:\/\/[^\/]+/, 'http://localhost:8080');
+        } 
+        // Handle relative URLs
+        else if (url.startsWith('/')) {
+          url = `http://localhost:8080${url}`;
+        }
+        console.log(`🔀 Redirecting to proxy: ${url}`);
       }
       
       // Add CORS headers to all requests
@@ -78,14 +102,48 @@
   // Also patch XMLHttpRequest for legacy code
   const originalXHROpen = XMLHttpRequest.prototype.open;
   XMLHttpRequest.prototype.open = function(method, url, async, user, password) {
-    // Redirect all localhost:8000 requests to localhost:8080
-    if (typeof url === 'string' && url.includes('localhost:8000')) {
-      const newUrl = url.replace('localhost:8000', 'localhost:8080');
-      console.log(`🔀 Redirecting XHR from ${url} to ${newUrl}`);
-      url = newUrl;
+    // Check if this is a backend route that needs redirection
+    let shouldRedirect = false;
+    
+    if (typeof url === 'string') {
+      // Case 1: Direct localhost:8000 URLs
+      if (url.includes('localhost:8000')) {
+        shouldRedirect = true;
+      }
+      
+      // Case 2: Relative URLs that should go to the backend
+      if (url.startsWith('/') && !url.startsWith('/_next/') && !url.startsWith('/static/')) {
+        for (const route of backendRoutes) {
+          if (url.startsWith(route)) {
+            shouldRedirect = true;
+            break;
+          }
+        }
+      }
+      
+      // Redirect appropriate requests to proxy
+      if (shouldRedirect) {
+        // Handle absolute URLs
+        if (url.includes('://')) {
+          url = url.replace(/https?:\/\/[^\/]+/, 'http://localhost:8080');
+        } 
+        // Handle relative URLs
+        else if (url.startsWith('/')) {
+          url = `http://localhost:8080${url}`;
+        }
+        console.log(`🔀 Redirecting XHR to proxy: ${url}`);
+      }
     }
+    
     return originalXHROpen.call(this, method, url, async, user, password);
   };
+  
+  // Add global event listener to help debug CORS issues
+  window.addEventListener('error', function(e) {
+    if (e && e.target && e.target.tagName === 'SCRIPT' && e.target.src && e.target.src.includes('localhost')) {
+      console.error('Script loading error (possible CORS issue):', e.target.src);
+    }
+  }, true);
   
   console.log('✅ CORS bypass and request redirect initialized');
 })(); 
