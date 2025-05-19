@@ -1,0 +1,267 @@
+from flask import Flask, request, jsonify
+import os
+import requests
+import json
+import pandas as pd
+from flask_cors import CORS
+import csv
+from io import StringIO
+
+app = Flask(__name__)
+CORS(app)
+
+# Set Gemini API key manually
+GEMINI_API_KEY = "AIzaSyBdZJNOA_w8lpyX4HUQzicoVWlN9xYINQ0"
+DEFAULT_MODEL = "gemini-1.5-pro"
+DEFAULT_PROVIDER = "gemini"
+
+# File server configuration
+FILE_SERVER_URL = "http://localhost:8001"
+
+# Global settings
+model_settings = {
+    "provider": DEFAULT_PROVIDER,
+    "model": DEFAULT_MODEL,
+    "api_key": GEMINI_API_KEY,
+    "temperature": 0.7,
+    "max_tokens": 1000
+}
+
+# In-memory cache for loaded datasets
+datasets_cache = {}
+
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({"status": "healthy", "message": "Simple API server is running"})
+
+@app.route('/api/model-settings', methods=['GET'])
+def get_model_settings():
+    return jsonify(model_settings)
+
+@app.route('/settings/model', methods=['GET', 'POST'])
+def update_model_settings():
+    global model_settings
+    
+    if request.method == 'POST':
+        new_settings = request.json
+        for key, value in new_settings.items():
+            if key in model_settings:
+                model_settings[key] = value
+    
+    return jsonify(model_settings)
+
+def fetch_available_datasets():
+    """Fetch the list of available datasets from the file server"""
+    try:
+        response = requests.get(f"{FILE_SERVER_URL}/files")
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return {"error": f"Failed to fetch datasets: {response.status_code}", "files": []}
+    except Exception as e:
+        return {"error": f"Exception fetching datasets: {str(e)}", "files": []}
+
+def load_dataset(filename):
+    """Load a dataset from the file server"""
+    # Check if dataset is already in cache
+    if filename in datasets_cache:
+        return datasets_cache[filename], None
+    
+    try:
+        # Try to get the file from the exports directory
+        response = requests.get(f"{FILE_SERVER_URL}/exports/{filename}")
+        
+        if response.status_code == 200:
+            # Parse CSV data
+            csv_data = response.text
+            df = pd.read_csv(StringIO(csv_data))
+            
+            # Cache the dataframe for future use
+            datasets_cache[filename] = df
+            
+            return df, None
+        else:
+            return None, f"Failed to load dataset {filename}: {response.status_code}"
+    except Exception as e:
+        return None, f"Exception loading dataset {filename}: {str(e)}"
+
+def analyze_data(query, dataframe):
+    """Generate analysis prompt for the AI model based on the query and dataframe"""
+    # Get dataframe info
+    num_rows, num_cols = dataframe.shape
+    columns = dataframe.columns.tolist()
+    data_sample = dataframe.head(5).to_csv(index=False)
+    
+    # Create enhanced prompt with data context
+    enhanced_prompt = f"""Analyze the following dataset based on this query: {query}
+
+Dataset Information:
+- Number of rows: {num_rows}
+- Number of columns: {num_cols}
+- Columns: {', '.join(columns)}
+
+Here's a sample of the data:
+{data_sample}
+
+Please provide a detailed analysis addressing the query. Include relevant statistics, trends, and insights. If appropriate, suggest visualizations that would help understand the data better.
+"""
+    return enhanced_prompt
+
+@app.route('/api/datasets', methods=['GET'])
+def get_datasets():
+    """Endpoint to get available datasets"""
+    datasets = fetch_available_datasets()
+    return jsonify(datasets)
+
+@app.route('/api/analyze', methods=['POST'])
+def analyze_dataset():
+    """Endpoint to analyze a specific dataset"""
+    data = request.json
+    filename = data.get('filename')
+    query = data.get('query', 'Analyze this dataset and provide insights')
+    
+    if not filename:
+        return jsonify({"error": "No filename provided", "success": False})
+    
+    # Load the dataset
+    df, error = load_dataset(filename)
+    if error:
+        return jsonify({"error": error, "success": False})
+    
+    # Create enhanced prompt for analysis
+    enhanced_prompt = analyze_data(query, df)
+    
+    # Use the AI model to analyze the data
+    provider = model_settings.get('provider')
+    model = model_settings.get('model')
+    api_key = model_settings.get('api_key')
+    
+    if provider == 'gemini':
+        response = query_gemini(enhanced_prompt, [], model, api_key)
+    else:
+        response = {"error": f"Provider {provider} not supported for data analysis"}
+    
+    return jsonify(response)
+
+@app.route('/api/chat', methods=['POST'])
+def chat():
+    data = request.json
+    user_message = data.get('query', '')  # Support both 'message' and 'query' parameters
+    if not user_message:
+        user_message = data.get('message', '')
+    history = data.get('history', [])
+    
+    provider = model_settings.get('provider')
+    model = model_settings.get('model')
+    api_key = model_settings.get('api_key')
+    
+    # Check if this is a data analysis request
+    if "analyze" in user_message.lower() and any(keyword in user_message.lower() for keyword in ["data", "dataset", "csv", "file"]):
+        # Fetch list of available datasets
+        datasets = fetch_available_datasets()
+        if "error" in datasets:
+            return jsonify({"error": datasets["error"], "success": False})
+        
+        # If datasets are available, use the first one or try to extract from the query
+        if datasets and "files" in datasets and datasets["files"]:
+            # Default to first dataset
+            dataset_name = datasets["files"][0]
+            
+            # Try to extract dataset name from query if mentioned
+            for filename in datasets["files"]:
+                if filename.lower() in user_message.lower():
+                    dataset_name = filename
+                    break
+            
+            # Load and analyze the dataset
+            df, error = load_dataset(dataset_name)
+            if error:
+                return jsonify({"error": error, "success": False})
+            
+            enhanced_prompt = analyze_data(user_message, df)
+            response = query_gemini(enhanced_prompt, history, model, api_key)
+            
+            # Add dataset name to response
+            response["dataset"] = dataset_name
+            return jsonify(response)
+        else:
+            # No datasets available, inform the user
+            return jsonify({
+                "response": "No datasets are available for analysis. Please upload a CSV file to the file server first.",
+                "success": False
+            })
+    
+    # Regular chat request
+    if provider == 'gemini':
+        response = query_gemini(user_message, history, model, api_key)
+    else:
+        response = {"error": f"Provider {provider} not supported in simple app"}
+    
+    return jsonify(response)
+
+def query_gemini(message, history, model, api_key):
+    try:
+        # Prepare conversation history if available
+        contents = []
+        
+        # Add history to the contents
+        for entry in history:
+            if entry.get('role') == 'user':
+                contents.append({"role": "user", "parts": [{"text": entry.get('content', '')}]})
+            elif entry.get('role') == 'assistant':
+                contents.append({"role": "model", "parts": [{"text": entry.get('content', '')}]})
+        
+        # Add current message if not in history
+        if not history or history[-1].get('role') != 'user' or history[-1].get('content') != message:
+            contents.append({"role": "user", "parts": [{"text": message}]})
+        
+        # If no previous content, just send the user message
+        if not contents:
+            contents = [{"role": "user", "parts": [{"text": message}]}]
+        
+        # Set up the API request
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}"
+        headers = {"Content-Type": "application/json"}
+        data = {
+            "contents": contents,
+            "generationConfig": {
+                "maxOutputTokens": model_settings.get('max_tokens', 1000),
+                "temperature": model_settings.get('temperature', 0.7)
+            }
+        }
+        
+        # Make the API request
+        response = requests.post(url, headers=headers, json=data, timeout=30)
+        
+        # Check if the request was successful
+        if response.status_code == 200:
+            result = response.json()
+            
+            # Extract the generated text
+            if "candidates" in result and len(result["candidates"]) > 0:
+                generated_text = result["candidates"][0]["content"]["parts"][0]["text"]
+                return {
+                    "response": generated_text,
+                    "success": True,
+                    "model": model,
+                    "provider": "gemini"
+                }
+            else:
+                return {"error": "No candidates in response", "response": str(result)}
+        else:
+            return {"error": f"API error: {response.status_code}", "response": response.text}
+    
+    except Exception as e:
+        return {"error": f"Exception: {str(e)}", "response": "Error processing request"}
+
+if __name__ == '__main__':
+    print(f"Starting simple app server on http://localhost:8000")
+    print(f"Using model: {DEFAULT_PROVIDER}/{DEFAULT_MODEL}")
+    print(f"Available endpoints:")
+    print(f"  - /health")
+    print(f"  - /api/model-settings (GET)")
+    print(f"  - /settings/model (GET/POST)")
+    print(f"  - /api/chat (POST)")
+    print(f"  - /api/datasets (GET)")
+    print(f"  - /api/analyze (POST)")
+    app.run(host='0.0.0.0', port=8000, debug=True) 

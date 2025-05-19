@@ -201,7 +201,7 @@ async def update_model_settings(
             elif settings.provider.lower() == "anthropic":
                 settings.api_key = os.getenv("ANTHROPIC_API_KEY")
             elif settings.provider.lower() == "gemini":
-                settings.api_key = os.getenv("GEMINI_API_KEY")
+                settings.api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
         
         # Get session state to update model config
         session_state = app_state.get_session_state(session_id)
@@ -244,9 +244,15 @@ async def update_model_settings(
                 max_tokens=settings.max_tokens
             )
         elif settings.provider.lower() == "gemini":
-            logger.log_message(f"Gemini Model: {settings.model}, API Key: {settings.api_key}, Temperature: {settings.temperature}, Max Tokens: {settings.max_tokens}", level=logging.INFO)
+            logger.log_message(f"Gemini Model: {settings.model}, API Key: {settings.api_key[:10]}..., Temperature: {settings.temperature}, Max Tokens: {settings.max_tokens}", level=logging.INFO)
+            
+            # Use the correct Gemini model format (gemini-pro or gemini-1.5-pro)
+            model_name = settings.model
+            if not model_name.startswith("gemini/"):
+                model_name = f"gemini/{model_name}"
+                
             lm = dspy.LM(
-                model=f"gemini/{settings.model}",
+                model=model_name,
                 api_key=settings.api_key,
                 temperature=settings.temperature,
                 max_tokens=settings.max_tokens
@@ -260,7 +266,6 @@ async def update_model_settings(
                 max_tokens=settings.max_tokens
             )
         
-
         # Test the model configuration without setting it globally
         try:
             resp = lm("Hello, are you working?")
@@ -268,12 +273,13 @@ async def update_model_settings(
             # REMOVED: dspy.configure(lm=lm) - no longer set globally
             return {"message": "Model settings updated successfully"}
         except Exception as model_error:
-            if "auth" in str(model_error).lower() or "api" in str(model_error).lower():
+            error_message = str(model_error).lower()
+            if "auth" in error_message or "api" in error_message or "key" in error_message or "invalid api key" in error_message or "401" in error_message:
                 raise HTTPException(
                     status_code=401,
                     detail=f"Invalid API key for {settings.model}. Please check your API key and try again."
                 )
-            elif "model" in str(model_error).lower():
+            elif "model" in error_message:
                 raise HTTPException(
                     status_code=400,
                     detail=f"Invalid model selection: {settings.model}. Please check if you have access to this model. {model_error}"

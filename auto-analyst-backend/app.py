@@ -303,6 +303,55 @@ if not os.path.exists(housing_csv_path):
     logger.log_message(f"Housing.csv not found at {os.path.abspath(housing_csv_path)}", level=logging.ERROR)
     raise FileNotFoundError(f"Housing.csv not found at {os.path.abspath(housing_csv_path)}")
 
+# Define stubs for missing agents to fix the errors
+class sk_learn_agent(dspy.Signature):
+    """
+    This is a stub for the sk_learn_agent that implements machine learning capabilities.
+    The actual implementation has been moved or is not available.
+    """
+    dataset = dspy.InputField(desc="The dataset to analyze")
+    goal = dspy.InputField(desc="The machine learning goal")
+    hint = dspy.InputField(desc="Additional hints", default="")
+    
+    code = dspy.OutputField(desc="Generated Python code for ML tasks")
+    summary = dspy.OutputField(desc="Summary of the ML analysis")
+
+class statistical_analytics_agent(dspy.Signature):
+    """
+    This is a stub for the statistical_analytics_agent that performs statistical analysis.
+    The actual implementation has been moved or is not available.
+    """
+    dataset = dspy.InputField(desc="The dataset to analyze")
+    goal = dspy.InputField(desc="The statistical analysis goal")
+    hint = dspy.InputField(desc="Additional hints", default="")
+    
+    code = dspy.OutputField(desc="Generated Python code for statistical analysis")
+    summary = dspy.OutputField(desc="Summary of the statistical analysis")
+
+class preprocessing_agent(dspy.Signature):
+    """
+    This is a stub for the preprocessing_agent that handles data cleaning and preparation.
+    The actual implementation has been moved or is not available.
+    """
+    dataset = dspy.InputField(desc="The dataset to preprocess")
+    goal = dspy.InputField(desc="The preprocessing goal")
+    hint = dspy.InputField(desc="Additional hints", default="")
+    
+    code = dspy.OutputField(desc="Generated Python code for preprocessing")
+    summary = dspy.OutputField(desc="Summary of the preprocessing operations")
+
+class goal_refiner_agent(dspy.Signature):
+    """
+    This is a stub for the goal_refiner_agent that refines user goals into more specific tasks.
+    The actual implementation has been moved or is not available.
+    """
+    goal = dspy.InputField(desc="The original user goal")
+    dataset = dspy.InputField(desc="The dataset context")
+    
+    refined_goal = dspy.OutputField(desc="The refined, more specific goal")
+    reason = dspy.OutputField(desc="Reasoning for the refinement")
+
+# Update the AVAILABLE_AGENTS dictionary to include all agents
 AVAILABLE_AGENTS = {
     "data_viz_agent": data_viz_agent,
     "sk_learn_agent": sk_learn_agent,

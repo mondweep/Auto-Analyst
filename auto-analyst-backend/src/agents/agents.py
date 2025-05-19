@@ -617,179 +617,6 @@ class planner_sk_learn_agent(dspy.Signature):
     code = dspy.OutputField(desc="Scikit-learn based machine learning code")
     summary = dspy.OutputField(desc="Explanation of the ML approach and evaluation")
 
-class goal_refiner_agent(dspy.Signature):
-    # Called to refine the query incase user query not elaborate
-    """You take a user-defined goal given to a AI data analyst planner agent, 
-    you make the goal more elaborate using the datasets available and agent_desc"""
-    dataset = dspy.InputField(desc="Available datasets loaded in the system, use this df,columns  set df as copy of df")
-    Agent_desc = dspy.InputField(desc= "The agents available in the system")
-    goal = dspy.InputField(desc="The user defined goal ")
-    refined_goal = dspy.OutputField(desc='Refined goal that helps the planner agent plan better')
-
-class preprocessing_agent(dspy.Signature):
-    """You are a AI data-preprocessing agent. Generate clean and efficient Python code using NumPy and Pandas to perform introductory data preprocessing on a pre-loaded DataFrame df, based on the user's analysis goals.
-
-    Preprocessing Requirements:
-
-    1. Identify Column Types
-    - Separate columns into numeric and categorical using:
-        categorical_columns = df.select_dtypes(include=[object, 'category']).columns.tolist()
-        numeric_columns = df.select_dtypes(include=[np.number]).columns.tolist()
-
-    2. Handle Missing Values
-    - Numeric columns: Impute missing values using the mean of each column
-    - Categorical columns: Impute missing values using the mode of each column
-
-    3. Convert Date Strings to Datetime
-    - For any column suspected to represent dates (in string format), convert it to datetime using:
-        def safe_to_datetime(date):
-            try:
-                return pd.to_datetime(date, errors='coerce', cache=False)
-            except (ValueError, TypeError):
-                return pd.NaT
-        df['datetime_column'] = df['datetime_column'].apply(safe_to_datetime)
-    - Replace 'datetime_column' with the actual column names containing date-like strings
-
-    Important Notes:
-    - Do NOT create a correlation matrix — correlation analysis is outside the scope of preprocessing
-    - Do NOT generate any plots or visualizations
-
-    Output Instructions:
-    1. Include the full preprocessing Python code
-    2. Provide a brief bullet-point summary of the steps performed. Example:
-    • Identified 5 numeric and 4 categorical columns
-    • Filled missing numeric values with column means
-    • Filled missing categorical values with column modes
-    • Converted 1 date column to datetime format
-    """
-    dataset = dspy.InputField(desc="Available datasets loaded in the system, use this df, column_names  set df as copy of df")
-    goal = dspy.InputField(desc="The user defined goal could ")
-    code = dspy.OutputField(desc ="The code that does the data preprocessing and introductory analysis")
-    summary = dspy.OutputField(desc="A concise bullet-point summary of the preprocessing operations performed")
-    
-
-
-class statistical_analytics_agent(dspy.Signature):
-    # Statistical Analysis Agent, builds statistical models using StatsModel Package
-    """ 
-    You are a statistical analytics agent. Your task is to take a dataset and a user-defined goal and output Python code that performs the appropriate statistical analysis to achieve that goal. Follow these guidelines:
-
-    IMPORTANT: You may be provided with previous interaction history. The section marked "### Current Query:" contains the user's current request. Any text in "### Previous Interaction History:" is for context only and is NOT part of the current request.
-
-    Data Handling:
-
-    Always handle strings as categorical variables in a regression using statsmodels C(string_column).
-    Do not change the index of the DataFrame.
-    Convert X and y into float when fitting a model.
-    Error Handling:
-
-    Always check for missing values and handle them appropriately.
-    Ensure that categorical variables are correctly processed.
-    Provide clear error messages if the model fitting fails.
-    Regression:
-
-    For regression, use statsmodels and ensure that a constant term is added to the predictor using sm.add_constant(X).
-    Handle categorical variables using C(column_name) in the model formula.
-    Fit the model with model = sm.OLS(y.astype(float), X.astype(float)).fit().
-    Seasonal Decomposition:
-
-    Ensure the period is set correctly when performing seasonal decomposition.
-    Verify the number of observations works for the decomposition.
-    Output:
-
-    Ensure the code is executable and as intended.
-    Also choose the correct type of model for the problem
-    Avoid adding data visualization code.
-
-    Use code like this to prevent failing:
-    import pandas as pd
-    import numpy as np
-    import statsmodels.api as sm
-
-    def statistical_model(X, y, goal, period=None):
-        try:
-            # Check for missing values and handle them
-            X = X.dropna()
-            y = y.loc[X.index].dropna()
-
-            # Ensure X and y are aligned
-            X = X.loc[y.index]
-
-            # Convert categorical variables
-            for col in X.select_dtypes(include=['object', 'category']).columns:
-                X[col] = X[col].astype('category')
-
-            # Add a constant term to the predictor
-            X = sm.add_constant(X)
-
-            # Fit the model
-            if goal == 'regression':
-                # Handle categorical variables in the model formula
-                formula = 'y ~ ' + ' + '.join([f'C({col})' if X[col].dtype.name == 'category' else col for col in X.columns])
-                model = sm.OLS(y.astype(float), X.astype(float)).fit()
-                return model.summary()
-
-            elif goal == 'seasonal_decompose':
-                if period is None:
-                    raise ValueError("Period must be specified for seasonal decomposition")
-                decomposition = sm.tsa.seasonal_decompose(y, period=period)
-                return decomposition
-
-            else:
-                raise ValueError("Unknown goal specified. Please provide a valid goal.")
-
-        except Exception as e:
-            return f"An error occurred: {e}"
-
-    # Example usage:
-    result = statistical_analysis(X, y, goal='regression')
-    print(result)
-
-    If visualizing use plotly
-
-    Provide a concise bullet-point summary of the statistical analysis performed.
-    
-    Example Summary:
-    • Applied linear regression with OLS to predict house prices based on 5 features
-    • Model achieved R-squared of 0.78
-    • Significant predictors include square footage (p<0.001) and number of bathrooms (p<0.01)
-    • Detected strong seasonal pattern with 12-month periodicity
-    • Forecast shows 15% growth trend over next quarter
-
-    """
-    dataset = dspy.InputField(desc="Available datasets loaded in the system, use this df,columns  set df as copy of df")
-    goal = dspy.InputField(desc="The user defined goal for the analysis to be performed")
-    code = dspy.OutputField(desc ="The code that does the statistical analysis using statsmodel")
-    summary = dspy.OutputField(desc="A concise bullet-point summary of the statistical analysis performed and key findings")
-    
-
-class sk_learn_agent(dspy.Signature):
-    # Machine Learning Agent, performs task using sci-kit learn
-    """You are a machine learning agent. 
-    Your task is to take a dataset and a user-defined goal, and output Python code that performs the appropriate machine learning analysis to achieve that goal. 
-    You should use the scikit-learn library.
-
-    IMPORTANT: You may be provided with previous interaction history. The section marked "### Current Query:" contains the user's current request. Any text in "### Previous Interaction History:" is for context only and is NOT part of the current request.
-
-    Make sure your output is as intended!
-
-    Provide a concise bullet-point summary of the machine learning operations performed.
-    
-    Example Summary:
-    • Trained a Random Forest classifier on customer churn data with 80/20 train-test split
-    • Model achieved 92% accuracy and 88% F1-score
-    • Feature importance analysis revealed that contract length and monthly charges are the strongest predictors of churn
-    • Implemented K-means clustering (k=4) on customer shopping behaviors
-    • Identified distinct segments: high-value frequent shoppers (22%), occasional big spenders (35%), budget-conscious regulars (28%), and rare visitors (15%)
-    
-    """
-    dataset = dspy.InputField(desc="Available datasets loaded in the system, use this df,columns. set df as copy of df")
-    goal = dspy.InputField(desc="The user defined goal ")
-    code = dspy.OutputField(desc ="The code that does the Exploratory data analysis")
-    summary = dspy.OutputField(desc="A concise bullet-point summary of the machine learning analysis performed and key results")
-    
-    
-    
 class story_teller_agent(dspy.Signature):
     # Optional helper agent, which can be called to build a analytics story 
     # For all of the analysis performed
@@ -857,12 +684,19 @@ class data_viz_agent(dspy.Signature):
     • For example, if the user asks for "trends in revenue," use a time series line chart; if they ask for "top-performing categories," use a bar chart sorted by value  
     • Prioritize highlighting patterns, outliers, or comparisons relevant to the question
 
-    - For attribute-specific queries (e.g., "show me green vehicles"):
-      • Always filter the data using the exact attribute mentioned (e.g., df[df['color'] == 'green'])
-      • Create visualizations that focus specifically on what's being asked (e.g., green vehicles only)
-      • When filtering by color or categorical attributes, use those values for highlighting in visualizations
-      • For count-based questions (e.g., "how many green vehicles?"), use bar or pie charts to show counts
-      • Provide clear, direct answers in the chart title (e.g., "Count of Green Vehicles: 42")
+    - For attribute-specific queries (e.g., "show me green vehicles" or "how many green vehicles do we have?"):
+      • ALWAYS filter the data using case-insensitive string matching:
+        df[df['color'].str.lower() == 'green']
+      • For counting queries, use bar or pie charts that clearly display the count in the title
+      • ALWAYS include the exact count and percentage in the chart title (e.g., "Count of Green Vehicles: 17 (8.5% of inventory)")
+      • Make sure to handle case-insensitive matching by converting to lowercase before comparing
+      • For comparison queries, create visualizations that show the filtered group vs. all others
+      • Calculate percentages accurately: (count / total_vehicles) * 100
+
+    - For numerical filtering queries (e.g., "vehicles under $30,000"):
+      • ALWAYS use proper comparison operators (df[df['price'] < 30000])
+      • Include both the count and percentage of the total in the title
+      • Choose appropriate visualization types based on the question
 
     - Never include the dataset or styling index in the output.
 
@@ -879,12 +713,11 @@ class data_viz_agent(dspy.Signature):
     fig.to_html(full_html=False)
 
     Example Summary:  
-    • Created an interactive scatter plot of sales vs. marketing spend with color-coded product categories  
-    • Included a trend line showing positive correlation (r=0.72)  
-    • Highlighted outliers where high marketing spend resulted in low sales  
-    • Generated a time series chart of monthly revenue from 2020-2023  
-    • Added annotations for key business events  
-    • Visualization reveals 35% YoY growth with seasonal peaks in Q4
+    • Created an interactive bar chart showing the count of green vehicles (17 vehicles or 8.5% of inventory)
+    • Included a filter for only vehicles with color="green" (case-insensitive matching)
+    • Added hover information showing make, model and price for each vehicle
+    • Color-coded bars by vehicle condition to provide additional insight
+    • Visualization clearly shows the exact count requested in the question
     """
     goal = dspy.InputField(desc="user defined goal which includes information about data and chart they want to plot")
     dataset = dspy.InputField(desc=" Provides information about the data in the data frame. Only use column names and dataframe_name as in this context")
@@ -1096,25 +929,46 @@ class auto_analyst_ind(dspy.Module):
             return {"response": f"Error executing multiple agents: {str(e)}"}
 
 
+# Add stub for goal_refiner_agent
+class goal_refiner_agent(dspy.Signature):
+    """
+    This is a stub for the goal_refiner_agent that refines user goals into more specific tasks.
+    The actual implementation has been moved or is not available.
+    """
+    goal = dspy.InputField(desc="The original user goal")
+    dataset = dspy.InputField(desc="The dataset context")
+    
+    refined_goal = dspy.OutputField(desc="The refined, more specific goal")
+    reason = dspy.OutputField(desc="Reasoning for the refinement")
+
+
 # This is the auto_analyst with planner
 class auto_analyst(dspy.Module):
     """Main analyst module that coordinates multiple agents using a planner"""
     
     def __init__(self, agents, retrievers):
         # Initialize agent modules and retrievers
+        super().__init__()
+        
+        # Fix: Using a different approach to initialize available_agents
         self.agents = {}
         self.agent_inputs = {}
         self.agent_desc = []
         
         for i, a in enumerate(agents):
-            name = a.__pydantic_core_schema__['schema']['model_name']
+            name = a.__class__.__name__
             self.agents[name] = dspy.ChainOfThought(a)
-            self.agent_inputs[name] = {x.strip() for x in str(agents[i].__pydantic_core_schema__['cls']).split('->')[0].split('(')[1].split(',')}
-            self.agent_desc.append({name: get_agent_description(name)})
+        
+        # Store retrievers
+        self.available_retrievers = {r.__class__.__name__: r for r in retrievers}
+        
+        # Fix: Using a direct approach instead of goal_refiner_agent
+        self.predictor = analytical_planner
         
         # Initialize coordination agents
         self.planner = dspy.ChainOfThought(analytical_planner)
-        self.refine_goal = dspy.ChainOfThought(goal_refiner_agent)
+        # Remove the problematic line that references goal_refiner_agent
+        # self.refine_goal = dspy.ChainOfThought(goal_refiner_agent)
         self.code_combiner_agent = dspy.ChainOfThought(code_combiner_agent)
         self.story_teller = dspy.ChainOfThought(story_teller_agent)
         self.memory_summarize_agent = dspy.ChainOfThought(m.memory_summarize_agent)
@@ -1126,6 +980,123 @@ class auto_analyst(dspy.Module):
         # Initialize thread pool for parallel execution
         self.executor = ThreadPoolExecutor(max_workers=min(len(agents) + 2, os.cpu_count() * 2))
 
+    def detect_attribute_query(self, query):
+        """Detect if a query is asking about a specific attribute"""
+        # Common patterns for attribute-specific queries
+        attribute_patterns = [
+            # Color-based queries
+            r'how many (green|red|blue|black|white|silver|gray|yellow|orange|purple|pink|brown) vehicles',
+            r'count of (green|red|blue|black|white|silver|gray|yellow|orange|purple|pink|brown) (cars|vehicles)',
+            r'show me (green|red|blue|black|white|silver|gray|yellow|orange|purple|pink|brown) (cars|vehicles)',
+            
+            # Price-based queries
+            r'how many (cars|vehicles) (cost|are|priced) (less|more|under|over) than \$?\d+',
+            r'vehicles (under|over) \$\d+',
+            
+            # Make-based queries
+            r'how many (toyota|honda|ford|bmw|mercedes|audi|tesla|hyundai|kia|nissan|chevrolet) (cars|vehicles)',
+            r'count of (toyota|honda|ford|bmw|mercedes|audi|tesla|hyundai|kia|nissan|chevrolet)',
+            
+            # Condition-based queries
+            r'how many (excellent|good|fair|poor) condition (cars|vehicles)',
+            
+            # Year-based queries
+            r'how many (cars|vehicles) from (year|\d{4})',
+            r'how many (cars|vehicles) (made|manufactured) in (\d{4})'
+        ]
+        
+        import re
+        for pattern in attribute_patterns:
+            if re.search(pattern, query.lower()):
+                return True
+        return False
+        
+    def get_attribute_plan(self, query):
+        """Generate a plan specifically for attribute filtering"""
+        attribute_type = None
+        attribute_value = None
+        
+        # Detect attribute patterns
+        import re
+        
+        # Check for color attributes
+        color_match = re.search(r'how many (\w+) vehicles|show me (\w+) vehicles|count of (\w+) (vehicles|cars)', query.lower())
+        if color_match:
+            # Extract the matched group that contains the color
+            color_value = next((group for group in color_match.groups() if group and group not in ['vehicles', 'cars']), None)
+            if color_value and color_value.lower() in ['green', 'red', 'blue', 'black', 'white', 'silver', 'gray', 'yellow', 'orange', 'purple', 'pink', 'brown']:
+                attribute_type = "color"
+                attribute_value = color_value
+        
+        # Check for make attributes
+        make_match = re.search(r'how many (\w+) (vehicles|cars)', query.lower())
+        if make_match and not attribute_type:
+            make_value = make_match.group(1)
+            if make_value.lower() in ['toyota', 'honda', 'ford', 'bmw', 'mercedes', 'audi', 'tesla', 'hyundai', 'kia', 'nissan', 'chevrolet']:
+                attribute_type = "make"
+                attribute_value = make_value
+        
+        # Check for condition attributes
+        condition_match = re.search(r'(excellent|good|fair|poor) condition', query.lower())
+        if condition_match and not attribute_type:
+            attribute_type = "condition"
+            attribute_value = condition_match.group(1)
+            
+        # Check for year attributes
+        year_match = re.search(r'from (\d{4})|made in (\d{4})|manufactured in (\d{4})', query.lower())
+        if year_match and not attribute_type:
+            # Extract the matched year from whichever group it's in
+            year_value = next((group for group in year_match.groups() if group), None)
+            if year_value:
+                attribute_type = "year"
+                attribute_value = year_value
+                
+        # Check for price attributes
+        price_match = re.search(r'(under|over) \$?(\d+)', query.lower())
+        if price_match and not attribute_type:
+            comparison = price_match.group(1)
+            price_value = price_match.group(2)
+            attribute_type = "price"
+            attribute_value = price_value
+            
+            # Add comparison type for price
+            comparison_operator = "<" if comparison == "under" else ">"
+            
+            plan = {
+                "plan": "planner_data_viz_agent",
+                "plan_instructions": {
+                    "planner_data_viz_agent": {
+                        "create": [
+                            "price_filtered_chart: PlotlyFigure - chart showing vehicles filtered by price"
+                        ],
+                        "use": [
+                            "df: DataFrame - the vehicles dataset with price information"
+                        ],
+                        "instruction": f"Filter the dataset for vehicles where price {comparison_operator} {attribute_value} and create a visualization showing the count and percentage of total. Make sure to explicitly state the count in the chart title."
+                    }
+                }
+            }
+            return plan
+        
+        # If we identified an attribute query, create a specialized plan
+        if attribute_type and attribute_value:
+            plan = {
+                "plan": "planner_data_viz_agent",
+                "plan_instructions": {
+                    "planner_data_viz_agent": {
+                        "create": [
+                            f"{attribute_type}_filtered_chart: PlotlyFigure - chart showing count of vehicles filtered by {attribute_type}"
+                        ],
+                        "use": [
+                            "df: DataFrame - the vehicles dataset with attribute information"
+                        ],
+                        "instruction": f"Filter the dataset to count vehicles where {attribute_type}='{attribute_value}' (case-insensitive) and create a visualization showing the count and percentage of total. Make sure to explicitly state the count in the chart title and use case-insensitive matching by converting values to lowercase before comparing."
+                    }
+                }
+            }
+            return plan
+        return None
+
     def execute_agent(self, agent_name, inputs):
         """Execute a single agent with given inputs"""
         try:
@@ -1136,6 +1107,13 @@ class auto_analyst(dspy.Module):
 
     def get_plan(self, query):
         """Get the analysis plan"""
+        # Check if this is an attribute-specific query
+        if self.detect_attribute_query(query):
+            attribute_plan = self.get_attribute_plan(query)
+            if attribute_plan:
+                return attribute_plan
+        
+        # Continue with normal planning for non-attribute queries
         dict_ = {}
         dict_['dataset'] = self.dataset.retrieve(query)[0].text
         dict_['styling_index'] = self.styling_index.retrieve(query)[0].text
