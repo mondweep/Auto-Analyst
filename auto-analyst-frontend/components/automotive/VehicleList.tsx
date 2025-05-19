@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import AUTOMOTIVE_API_URL from '@/config/automotive-api';
+import API_URL from '@/config/api';
 
 // Define vehicle type
 interface Vehicle {
@@ -49,7 +49,7 @@ export default function VehicleList() {
     const fetchVehicles = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${AUTOMOTIVE_API_URL}/api/vehicles`);
+        const response = await fetch(`${API_URL}/api/vehicles`);
         
         if (!response.ok) {
           throw new Error(`API error: ${response.status}`);
@@ -257,11 +257,11 @@ export default function VehicleList() {
                 </TableRow>
               ))
             ) : (
-              <TableRow>
-                <TableCell className="text-center py-6 text-gray-500" colSpan={8}>
+              <tr>
+                <td colSpan={8} className="text-center py-6 text-gray-500">
                   No vehicles match your current filters
-                </TableCell>
-              </TableRow>
+                </td>
+              </tr>
             )}
           </TableBody>
         </Table>

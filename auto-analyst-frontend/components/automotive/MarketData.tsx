@@ -9,7 +9,11 @@ import { Button } from '@/components/ui/button';
 import { ArrowUpDown, Search } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
+
+// Fix API import to use the correct export
 import { AUTOMOTIVE_API_URL } from '@/config/api';
+// Import the demo mode flag
+import { DEMO_MODE } from '@/config/api';
 
 // Define interfaces
 interface MarketData {

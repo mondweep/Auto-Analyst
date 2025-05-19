@@ -5,8 +5,10 @@ import logging
 import os
 import time
 import uuid
+import csv
+import re
 from io import StringIO
-from typing import List, Optional
+from typing import List, Optional, Dict, Any, Tuple
 
 # Third-party imports
 import groq
@@ -1260,6 +1262,279 @@ def query_gemini(prompt, session_lm):
     except Exception as e:
         logger.log_message(f"Error in query_gemini: {str(e)}", level=logging.ERROR)
         return f"Error: {str(e)}"
+
+# Add these new models for attribute filtering
+class AttributeQueryRequest(BaseModel):
+    query: str
+
+class DirectCountRequest(BaseModel):
+    attribute_name: str
+    attribute_value: str
+
+# Add this before/after the FILE_SERVER_URL definition
+EXPORTS_DIR = os.getenv("EXPORTS_DIR", "exports")
+DEFAULT_VEHICLES_FILE = os.path.join(EXPORTS_DIR, "vehicles.csv")
+
+# Add these utility functions for attribute filtering
+def load_csv_data(file_path: str) -> List[Dict[str, Any]]:
+    """Load CSV data without using pandas to avoid NumPy compatibility issues"""
+    if not os.path.exists(file_path):
+        logger.log_message(f"File not found: {file_path}", level=logging.ERROR)
+        return []
+    
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            return list(reader)
+    except Exception as e:
+        logger.log_message(f"Error loading CSV: {str(e)}", level=logging.ERROR)
+        return []
+
+def detect_attribute_query(query: str) -> Tuple[bool, Optional[str], Optional[str]]:
+    """Detect if a query is about counting vehicles with a specific attribute"""
+    # Common patterns for attribute queries
+    patterns = [
+        r"how many (.*?) (vehicles|cars) (do we have|are there)",
+        r"(count|show|find|get) (all|the) (.*?) (vehicles|cars)",
+        r"number of (.*?) (vehicles|cars)",
+        r"(vehicles|cars) that are (.*?)",
+        r"(vehicles|cars) with (.*?)$"
+    ]
+    
+    query = query.lower().strip()
+    
+    for pattern in patterns:
+        match = re.search(pattern, query)
+        if match:
+            attribute_value = None
+            attribute_name = None
+            
+            # Extract potential attribute information
+            if 'color' in query:
+                attribute_name = 'color'
+                colors = ["black", "white", "red", "blue", "green", "silver", "gray", "yellow", "brown", "orange"]
+                for color in colors:
+                    if color in query:
+                        attribute_value = color
+                        break
+            
+            elif 'make' in query or 'brand' in query:
+                attribute_name = 'make'
+                brands = ["toyota", "honda", "ford", "chevrolet", "bmw", "audi", "mercedes", "tesla", "volkswagen"]
+                for brand in brands:
+                    if brand in query:
+                        attribute_value = brand
+                        break
+            
+            elif 'year' in query:
+                attribute_name = 'year'
+                # Extract years like 2020, 2021, 2022, etc.
+                year_match = re.search(r'(20\d{2})', query)
+                if year_match:
+                    attribute_value = year_match.group(1)
+            
+            elif 'fuel' in query or 'electric' in query or 'gas' in query:
+                attribute_name = 'fuel_type'
+                if 'electric' in query:
+                    attribute_value = 'electric'
+                elif 'gas' in query or 'gasoline' in query:
+                    attribute_value = 'gasoline'
+                elif 'hybrid' in query:
+                    attribute_value = 'hybrid'
+                elif 'diesel' in query:
+                    attribute_value = 'diesel'
+            
+            return True, attribute_name, attribute_value
+    
+    return False, None, None
+
+def filter_vehicles_by_attribute(vehicles: List[Dict[str, Any]], 
+                               attribute_name: str, 
+                               attribute_value: str) -> List[Dict[str, Any]]:
+    """Filter vehicles by a specific attribute without using pandas"""
+    if not attribute_name or not attribute_value:
+        return vehicles
+    
+    # Handle case-insensitive and partial matching
+    attribute_value = attribute_value.lower().strip()
+    
+    filtered_vehicles = []
+    for vehicle in vehicles:
+        # Skip if attribute doesn't exist in this vehicle
+        if attribute_name not in vehicle:
+            continue
+            
+        # Get the vehicle's attribute value and handle None/empty values
+        vehicle_attr_value = vehicle[attribute_name]
+        if vehicle_attr_value is None or vehicle_attr_value == "":
+            continue
+            
+        # Compare as strings with case-insensitivity
+        vehicle_attr_value = str(vehicle_attr_value).lower().strip()
+        
+        # Match if the attribute value contains or equals the search value
+        if attribute_value in vehicle_attr_value or vehicle_attr_value in attribute_value:
+            filtered_vehicles.append(vehicle)
+    
+    return filtered_vehicles
+
+def format_attribute_count_response(count: int, total: int, attribute_name: str, attribute_value: str) -> Dict[str, Any]:
+    """Format the response for attribute counting"""
+    percentage = (count / total * 100) if total > 0 else 0
+    
+    return {
+        "count": count,
+        "total": total,
+        "percentage": round(percentage, 1),
+        "attribute_name": attribute_name,
+        "attribute_value": attribute_value,
+        "message": f"Found {count} vehicles ({percentage:.1f}%) with {attribute_name} '{attribute_value}' out of {total} total vehicles."
+    }
+
+# Add these new routes near the end, before "if __name__ == "__main__":"
+
+@app.post("/api/attribute-query", response_model=Dict[str, Any])
+async def attribute_query(request: AttributeQueryRequest):
+    """Detect and process attribute-specific queries about vehicles"""
+    try:
+        # Load the vehicles dataset without pandas
+        vehicles = load_csv_data(DEFAULT_VEHICLES_FILE)
+        if not vehicles:
+            return {"error": f"Could not load vehicles data from {DEFAULT_VEHICLES_FILE}", "success": False}
+        
+        query = request.query.lower()
+        
+        # Detect if this is an attribute query
+        is_attribute_query, attribute_name, attribute_value = detect_attribute_query(query)
+        
+        if not is_attribute_query:
+            return {
+                "is_attribute_query": False,
+                "message": "This query doesn't appear to be about counting vehicles by attributes.",
+                "success": True
+            }
+            
+        if not attribute_name or not attribute_value:
+            return {
+                "is_attribute_query": True,
+                "detected": True,
+                "attribute_detected": False,
+                "message": "This seems to be an attribute query, but couldn't determine the specific attribute or value.",
+                "success": True
+            }
+            
+        # Filter vehicles by attribute
+        filtered_vehicles = filter_vehicles_by_attribute(vehicles, attribute_name, attribute_value)
+        count = len(filtered_vehicles)
+        total = len(vehicles)
+        
+        # Format the response
+        return {
+            "is_attribute_query": True,
+            "detected": True,
+            "attribute_detected": True,
+            "success": True,
+            **format_attribute_count_response(count, total, attribute_name, attribute_value)
+        }
+        
+    except Exception as e:
+        logger.log_message(f"Error in attribute_query: {str(e)}", level=logging.ERROR)
+        return {"error": str(e), "success": False}
+
+@app.post("/api/direct-count", response_model=Dict[str, Any])
+async def direct_count(request: DirectCountRequest):
+    """Directly count vehicles by attribute name and value"""
+    try:
+        # Load the vehicles dataset without pandas
+        vehicles = load_csv_data(DEFAULT_VEHICLES_FILE)
+        if not vehicles:
+            return {"error": f"Could not load vehicles data from {DEFAULT_VEHICLES_FILE}", "success": False}
+        
+        attribute_name = request.attribute_name
+        attribute_value = request.attribute_value
+        
+        # Filter vehicles by attribute
+        filtered_vehicles = filter_vehicles_by_attribute(vehicles, attribute_name, attribute_value)
+        count = len(filtered_vehicles)
+        total = len(vehicles)
+        
+        # Format the response
+        return {
+            "success": True,
+            **format_attribute_count_response(count, total, attribute_name, attribute_value)
+        }
+        
+    except Exception as e:
+        logger.log_message(f"Error in direct_count: {str(e)}", level=logging.ERROR)
+        return {"error": str(e), "success": False}
+
+@app.middleware("http")
+async def check_for_attribute_queries(request: Request, call_next):
+    """Check if an incoming chat request is an attribute query and handle it appropriately"""
+    
+    # Only intercept POST requests to chat endpoints
+    if request.method == "POST" and ("/chat" in request.url.path):
+        try:
+            # Clone the request body since we can only read it once
+            body_bytes = await request.body()
+            
+            # If this is a chat request, check if it's about attributes
+            if body_bytes:
+                # Create a new receive method that returns the saved body
+                async def receive():
+                    return {"type": "http.request", "body": body_bytes}
+                
+                # Recreate the request with the same body
+                request._receive = receive
+                
+                # Parse the body as JSON (most chat requests use JSON)
+                try:
+                    body = json.loads(body_bytes)
+                    if "query" in body:
+                        query = body["query"]
+                        
+                        # Detect if this is an attribute query
+                        is_attribute_query, attribute_name, attribute_value = detect_attribute_query(query)
+                        
+                        if is_attribute_query and attribute_name and attribute_value:
+                            # This is a valid attribute query, handle it directly
+                            # Load the vehicles dataset
+                            vehicles = load_csv_data(DEFAULT_VEHICLES_FILE)
+                            if vehicles:
+                                # Filter vehicles by attribute
+                                filtered_vehicles = filter_vehicles_by_attribute(vehicles, attribute_name, attribute_value)
+                                count = len(filtered_vehicles)
+                                total = len(vehicles)
+                                
+                                # Format the response as if it came from an agent
+                                result = format_attribute_count_response(count, total, attribute_name, attribute_value)
+                                formatted_message = f"**Vehicle Count Analysis**\n\n{result['message']}\n\n"
+                                
+                                # For more complex queries, add extra context
+                                if attribute_name == "color" and count > 0:
+                                    formatted_message += f"**Note:** Out of all vehicles, {result['percentage']}% are {attribute_value}.\n"
+                                elif attribute_name == "make" and count > 0:
+                                    formatted_message += f"**Note:** {attribute_value.title()} represents {result['percentage']}% of our inventory.\n"
+                                
+                                # Return a response that mimics the chat endpoint format
+                                agent_name = "data_viz_agent"  # Use the visualization agent name
+                                
+                                return JSONResponse({
+                                    "agent_name": agent_name,
+                                    "query": query,
+                                    "response": formatted_message,
+                                    "session_id": request.headers.get("X-Session-ID", "default-session"),
+                                    "_source": "attribute_query_middleware"  # Add this for tracking
+                                })
+                except:
+                    # If there's any error parsing, just continue with normal processing
+                    pass
+        except Exception as e:
+            # Log the error but continue with normal processing
+            logger.log_message(f"Error in attribute query middleware: {str(e)}", level=logging.ERROR)
+
+    # Pass the request through to the normal handler
+    return await call_next(request)
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

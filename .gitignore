@@ -29,3 +29,21 @@ run_app.sh
 auto-analyst-backend/archive/simple_app.py.bak
 temp.env
 simple_test.py
+
+# Python virtual environments
+venv/
+*venv/
+fresh_venv/
+.venv/
+env/
+ENV/
+virtualenv/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/

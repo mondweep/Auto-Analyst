@@ -25,15 +25,29 @@ export default function ChatPage() {
       
       // Force free trial to always be available
       setHasFreeTrial(true)
+
+      // Set model provider (default to gemini if not set)
+      const defaultProvider = 'gemini'
+      localStorage.setItem('modelProvider', defaultProvider)
+    
+    // Get API key from environment variables based on provider
+    const apiKeys = {
+      openai: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+      anthropic: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY,
+      groq: process.env.NEXT_PUBLIC_GROQ_API_KEY,
+      gemini: process.env.NEXT_PUBLIC_GEMINI_API_KEY
     }
     
-    // Always set the model provider to gemini for demo purposes
-    localStorage.setItem('modelProvider', 'gemini')
-    
-    // Set a default API key to force chat to work without requiring user input
-    localStorage.setItem('userApiKey', 'demo-api-key')
-    
-    console.log(`Using model provider: gemini (Demo mode)`)
+    // Set the API key for the current provider
+    const apiKey = apiKeys[defaultProvider as keyof typeof apiKeys] || 'demo-api-key'
+    if (apiKey && apiKey !== 'your_') {
+      localStorage.setItem('userApiKey', apiKey)
+      console.log(`Using ${defaultProvider} with provided API key`)
+    } else {
+      console.warn('Using demo mode - no valid API key found')
+      localStorage.setItem('userApiKey', 'demo-api-key')
+    }
+  }
   }, [status, queriesUsed, setHasFreeTrial])
 
   const handleApiKeySet = () => {

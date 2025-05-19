@@ -10,6 +10,7 @@ This application demonstrates how an AI-powered analytics platform can enhance t
 - **Interactive Data Exploration** - Conversational interface for exploring vehicle data
 - **Proactive Alerts** - Notifications about undervalued vehicles and pricing opportunities
 - **Comprehensive Dashboards** - Visualizations for tracking inventory performance
+- **Efficient Attribute Filtering** - Fast, accurate counting of vehicles by attributes like color, make, and year
 
 ## 🏗️ Architecture
 
@@ -19,10 +20,11 @@ This application is built as an AI-powered presentation layer on top of a data c
 - **Backend**: FastAPI providing AI-enhanced analytics capabilities
 - **Synthetic Data**: Mock automotive pricing data simulating a real dealer management system
 - **AI Integration**: Conversational interface for natural language data exploration
+- **Attribute Filtering**: Zero-dependency system for efficient vehicle attribute queries
 
 ## 🖥️ System Components
 
-The Auto-Analyst system consists of three servers working together:
+The Auto-Analyst system consists of the following servers working together:
 
 1. **Frontend Server (Next.js)** - Default port: 3000
    - Serves the React-based user interface
@@ -30,17 +32,29 @@ The Auto-Analyst system consists of three servers working together:
    - Renders data visualizations using Plotly
    - Supports fallback mode for offline operation
 
-2. **File Server (Python)** - Default port: 8001
+2. **Attribute Proxy Server (Flask)** - Default port: 8080
+   - Routes requests between frontend and appropriate backend servers
+   - Intelligently directs attribute queries to the standalone attribute server
+   - Forwards other requests to the main application server
+   - Handles CORS and connection issues transparently
+
+3. **Standalone Attribute Server (Flask)** - Default port: 8002
+   - Provides efficient, zero-dependency attribute filtering
+   - Handles vehicle counting by color, make, model, year, etc.
+   - Serves mock endpoints for model settings and agents
+   - Works without NumPy/pandas to avoid compatibility issues
+
+4. **Main Application Server (FastAPI)** - Default port: 8000
+   - Provides LLM-powered chat and analysis features
+   - Handles complex data processing and visualization
+   - Serves the primary API endpoints
+   - Note: May have NumPy compatibility issues in some environments
+
+5. **File Server (Python)** - Default port: 8001
    - Manages CSV file uploads and processing
    - Serves the default dataset and historical data
    - Provides RESTful endpoints for file operations
    - Includes fallback data generation for testing
-
-3. **Automotive Server (Python)** - Default port: 8003
-   - Provides automotive-specific data analysis
-   - Serves endpoints for vehicles, market data, and opportunities
-   - Generates statistics and insights from automotive data
-   - Supports the domain-specific analytics features
 
 ## 📊 Current Status
 
@@ -51,6 +65,25 @@ As of May 2025, the system has the following status:
   - Visualization components are working properly
   - UI updated to handle network errors gracefully
   - Chat interface running with fallback responses
+  - CORS bypass implemented for compatibility with attribute server
+
+- **Attribute Proxy**: Operational (http://localhost:8080)
+  - Successfully routing requests between frontend and backends
+  - Handling attribute queries efficiently
+  - Providing mock responses when backends are unavailable
+  - Resolving CORS issues transparently
+
+- **Standalone Attribute Server**: Operational (http://localhost:8002)
+  - Zero-dependency implementation avoids NumPy compatibility issues
+  - Successfully serving attribute filtering endpoints
+  - Providing mock model/agent endpoints for UI compatibility
+  - Handling direct count and attribute queries
+
+- **Main Application Server**: Limited (http://localhost:8000)
+  - May face NumPy compatibility issues in environments with NumPy 2.x
+  - LLM features available when operational
+  - Vehicle data API responding correctly when running
+  - Best used through the proxy server to ensure reliable operation
 
 - **File Server**: Operational (http://localhost:8001)
   - API endpoints enhanced for reliability
@@ -58,143 +91,135 @@ As of May 2025, the system has the following status:
   - File upload/download functionality working
   - Improved error handling and fallback data
 
-- **Automotive Server**: Operational (http://localhost:8003)
-  - Vehicle data API responding correctly
-  - Market data endpoints functional
-  - Opportunities and statistics APIs available
-  - Test data generation working properly
+## 🔄 Recent Updates
 
-- **Feature Tests**: 
-  - All tests passing (100% success rate)
-  - Robust fallback mode when services are unavailable
-  - Improved timeout and retry handling
-  - Comprehensive test coverage for all components
+### Attribute Filtering System (May 2025)
+- Implemented zero-dependency attribute filtering to avoid NumPy compatibility issues
+- Added direct API endpoints for efficiently counting vehicles by various attributes
+- Created proxy server architecture to handle routing between different backends
+- Integrated client-side CORS bypass to ensure seamless frontend operation
+- Enhanced chat capabilities to detect and accurately answer attribute queries
 
-## 🛠️ Key Features
+### Visualization Engine Improvements (May 2025)
+- Fixed Plotly chart rendering issues in the chat interface
+- Added error boundaries to prevent crashes due to malformed data
+- Enhanced the chart component with better responsiveness
+- Implemented better fallback visualization patterns
 
-### Buying Radar Dashboard
-- List of undervalued vehicles to acquire with profit potential
-- Market comparison and automated pricing intelligence
-- Filtering by vehicle type, age, condition, and profit margin
+### NumPy Compatibility Workaround
+- Created a standalone attribute server that works without NumPy/pandas dependencies
+- Implemented a proxy architecture to route requests appropriately
+- Added client-side fixes for handling CORS and connection issues
+- Enhanced system resilience when the main backend cannot start
 
-### Daily Digest Feed
-- Daily summary of pricing changes and market shifts
-- Urgent action items for inventory optimization
-- Performance metrics for current inventory
+### Error Handling & Resilience
+- Implemented comprehensive fallback mechanisms throughout the application
+- Enhanced network timeout detection and retries
+- Added graceful degradation when services are unavailable
+- Improved user feedback during error conditions
 
-### Conversational Search Agent
-- Natural language queries like "Which SUVs under £10k are likely to appreciate?"
-- AI-powered recommendations for price adjustments
-- Market trend analysis through conversational interface
+## 🛠️ Running the Application
 
-### Competitive Advantage Over Traditional BI
-| Feature | Traditional BI (Spark) | This POV Demo |
-|---------|------------------------|---------------|
-| Static Reports | ✅ | ✅ |
-| Real-time Chat with AI | ❌ | ✅ |
-| Proactive Daily Insights | ❌ | ✅ |
-| Custom ML/AI Recommendations | ❌ | ✅ |
-| Extensible React UI | ❌ | ✅ |
+The system now supports multiple setup options to handle environments with NumPy compatibility issues:
 
-## 📊 Synthetic Data Components
+### Full System Setup (Recommended)
 
-This demo uses synthetic data to simulate:
-
-1. **Vehicle Inventory** - Current stock with details on make, model, year, mileage, etc.
-2. **Market Pricing Data** - Competitor pricing and market trends
-3. **Historical Sales** - Past transaction data for price optimization
-4. **Profit Margins** - Estimated profit potential for different vehicles
-5. **Market Demand Indicators** - Search frequency, time on lot, seasonal trends
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js 18+
-- Python 3.10+
-- OpenAI API key (or other LLM provider)
-
-### Installation
-```bash
-# Clone this repository
-git clone https://github.com/your-org/automotive-pricing-demo.git
-
-# Install frontend dependencies
-cd automotive-pricing-demo/auto-analyst-frontend
-npm install
-
-# Install backend dependencies
-cd ../auto-analyst-backend
-pip install -r requirements.txt
-
-# Set up environment variables
-cp .env-template .env
-# Edit .env with your API keys and configuration
-```
-
-### Running the Application
-
-You need to start all three servers for full functionality:
+Start all components for complete functionality:
 
 ```bash
-# Start the file server (in one terminal)
+# 1. Start the standalone attribute server (handles attribute filtering)
 cd auto-analyst-backend
-python file_server.py
+python3 standalone_attribute_server.py
 
-# Start the automotive server (in another terminal)
+# 2. Start the attribute proxy (routes requests between frontend and backends)
 cd auto-analyst-backend
-python automotive_server.py
+python3 attribute_proxy.py
 
-# Start the frontend (in a third terminal)
+# 3. Start the frontend
 cd auto-analyst-frontend
-npm run dev
+npm run dev -- -p 3000
+
+# 4. (Optional) Start the main application server if your environment supports it
+cd auto-analyst-backend
+uvicorn app:app --host 0.0.0.0 --port 8000
 ```
 
-Visit `http://localhost:3000` to access the application.
+### Minimal Setup (For environments with NumPy compatibility issues)
 
-### Fallback Mechanisms
-
-The system includes robust fallback mechanisms:
-
-- The frontend operates in demo mode when backends are unavailable
-- The file server provides default synthetic data when files don't exist
-- All components have retry/timeout handling for network issues
-- Tests can run in fallback mode to verify component functionality
-- Visualization components work offline with local data processing
-
-### Running Tests
+If you face NumPy compatibility errors, you can run with this minimal setup:
 
 ```bash
-# Test the full system
+# 1. Start the standalone attribute server
+cd auto-analyst-backend
+python3 standalone_attribute_server.py
+
+# 2. Start the attribute proxy
+cd auto-analyst-backend
+python3 attribute_proxy.py
+
+# 3. Start the frontend
 cd auto-analyst-frontend
-node tests/feature-tests.js
+npm run dev -- -p 3000
 ```
 
-## 📑 Implementation Plan
+### Automated Setup
 
-1. **Data Modeling** - Design schemas for automotive data
-2. **Synthetic Data Generation** - Create realistic mock data
-3. **Backend API Enhancement** - Add automotive-specific endpoints
-4. **Frontend Dashboard Development** - Build specialized UI for dealers
-5. **AI Query Agent Customization** - Train for automotive domain knowledge
-6. **Daily Digest Implementation** - Create scheduled insights
+Use the provided setup script to automate configuration:
 
-## 🔗 Demo Scenarios
+```bash
+cd auto-analyst-backend
+./setup_attribute_filtering.sh
+```
 
-### Scenario 1: Market-Based Pricing
-Demonstrate how the AI can analyze market data to suggest optimal pricing for new inventory items.
+## 🔍 Using Attribute Filtering
 
-### Scenario 2: Inventory Optimization
-Show how the system identifies underperforming vehicles and recommends price adjustments.
+The system now provides multiple ways to filter and count vehicles by attributes:
 
-### Scenario 3: Opportunity Detection
-Highlight how the AI identifies vehicles in the market that are undervalued and represent buying opportunities.
+### Through the Chat Interface
 
-### Scenario 4: Conversational Analytics
-Demonstrate natural language queries about inventory performance and market trends.
+Simply ask questions like:
+- "How many green vehicles do we have?"
+- "Count all Toyota cars in the inventory"
+- "Show me the number of electric vehicles"
+- "What percentage of our inventory is from 2022?"
+
+### Through Direct API Endpoints
+
+For programmatic access, use these endpoints:
+
+- `GET /api/direct-count?attribute=color&value=green`
+- `POST /api/attribute-query` with JSON body: `{"query": "how many toyota vehicles?"}`
+
+## 🔧 Troubleshooting
+
+### NumPy Compatibility Issues
+
+If you see errors like:
+```
+A module that was compiled using NumPy 1.x cannot be run in
+NumPy 2.2.2 as it may crash.
+```
+
+Use the standalone attribute server and proxy setup described above. This configuration provides attribute filtering functionality without NumPy dependencies.
+
+### Connection Refused Errors
+
+If the frontend shows connection refused errors:
+1. Ensure the attribute proxy is running on port 8080
+2. Verify the standalone attribute server is running on port 8002
+3. Check that frontend API URLs are pointing to port 8080 (the proxy)
+
+### CORS Issues
+
+If you see CORS errors in the browser console:
+1. Ensure the frontend is properly loading the CORS bypass script
+2. Verify the attribute proxy has appropriate CORS headers enabled
+3. Try clearing browser cache and reloading the application
 
 ## 📚 Resources
 
 - [Auto-Analyst Documentation](https://github.com/your-org/auto-analyst/docs)
 - [Implementation Guide](./docs/implementation-guide.md)
 - [Data Schema](./docs/data-schema.md)
-- [API Documentation](./docs/api-docs.md) 
+- [API Documentation](./docs/api-docs.md)
+- [NumPy Compatibility Fix](./auto-analyst-backend/NUMPY_COMPATIBILITY_FIX.md) 

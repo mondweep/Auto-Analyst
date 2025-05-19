@@ -1,4 +1,85 @@
-# 🚗 Auto-Analyst Automotive Pricing Intelligence Demo
+# Auto-Analyst
+
+A data analysis and visualization platform with a focus on automotive data.
+
+## Current Status
+
+The application is currently functioning with the following servers:
+- Frontend server (Next.js) on port 3000
+- File server (Python) on port 8001
+- Automotive server (Python) on port 8003
+
+Several issues have been identified and fixed:
+1. TypeScript error in the PlotlyMessage interface - fixed by correcting the "as const" syntax
+2. Visualization rendering issues in the PlotlyChart component - enhanced with better error handling and loading states
+3. File upload issues - fixed by properly implementing the UPLOAD_API_URL and improving error handling
+4. CSV parsing in file_server.py - enhanced with better data type detection and quote handling
+
+## Architecture
+
+The Auto-Analyst consists of three main components:
+
+1. **Frontend (Next.js)**: 
+   - A modern React application built with Next.js
+   - Uses TypeScript for type safety
+   - Implements Plotly.js for data visualization
+   - Located in `auto-analyst-frontend/`
+
+2. **File Server (Python)**:
+   - A simple HTTP server for file uploads and processing
+   - Handles CSV parsing and data extraction
+   - Serves demo files for development
+   - Located in `auto-analyst-backend/file_server.py`
+
+3. **Automotive API (Python)**:
+   - Provides automotive data-specific endpoints
+   - Includes vehicles, market data, opportunities, and statistics
+   - Located in `auto-analyst-backend/automotive_server.py`
+
+## Running the Application
+
+To run the application locally:
+
+1. Start the file server:
+   ```bash
+   cd auto-analyst-backend
+   python file_server.py
+   ```
+
+2. Start the automotive server:
+   ```bash
+   cd auto-analyst-backend
+   python automotive_server.py
+   ```
+
+3. Start the frontend:
+   ```bash
+   cd auto-analyst-frontend
+   npm run dev
+   ```
+
+## Features
+
+- Interactive data visualization with Plotly
+- CSV file upload and processing
+- Automotive data analysis
+- Chat interface for data queries
+- Demo mode with fallback responses
+
+## Recent Improvements
+
+1. Enhanced error handling in the PlotlyChart component
+2. Improved CSV parsing with quoted value support
+3. Better handling of file uploads with proper error messages
+4. Fixed TypeScript issues in the frontend
+5. Improved column type detection in CSV files
+6. Added detailed data visualizations for automotive data
+
+## Demo Mode
+
+The application includes a demo mode that provides fallback responses and visualizations when backend services are unavailable. This ensures the application remains functional for demonstration purposes even without a running backend.
+
+## 🚗 Auto-Analyst Automotive Pricing Intelligence Demo
 
 A powerful AI-driven analytics platform designed to help automotive dealers optimize inventory pricing and identify market opportunities.
 

@@ -3,8 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart, Pie, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
-
-const AUTOMOTIVE_API_URL = process.env.NEXT_PUBLIC_AUTOMOTIVE_API_URL || 'http://localhost:8003';
+import API_URL from '@/config/api';
 
 // Define types
 interface Statistics {
@@ -38,7 +37,7 @@ export default function Statistics() {
         setLoading(true);
         
         // Call the API to get statistics data
-        const response = await fetch(`${AUTOMOTIVE_API_URL}/api/statistics`);
+        const response = await fetch(`${API_URL}/api/statistics`);
         
         if (!response.ok) {
           throw new Error(`API error: ${response.status}`);
@@ -48,7 +47,7 @@ export default function Statistics() {
         const data = responseData?.statistics || responseData || {};
         
         // Generate default data for testing or when API doesn't return expected format
-        const defaultStats = {
+        const defaultStats: Statistics = {
           total_vehicles: data?.total_vehicles || 150,
           available_vehicles: data?.available_vehicles || 120,
           sold_vehicles: data?.sold_vehicles || 30,
@@ -81,7 +80,7 @@ export default function Statistics() {
         if (data && typeof data === 'object') {
           // Extract summary data
           const summary = data.summary || {};
-          const processedStats = {
+          const processedStats: Statistics = {
             total_vehicles: summary.total_vehicles || defaultStats.total_vehicles,
             available_vehicles: summary.available_vehicles || defaultStats.available_vehicles,
             sold_vehicles: summary.sold_vehicles || defaultStats.sold_vehicles,
@@ -164,7 +163,7 @@ export default function Statistics() {
         setLoading(false);
         
         // Use default data in case of error
-        const defaultStats = {
+        const defaultStats: Statistics = {
           total_vehicles: 150,
           available_vehicles: 120,
           sold_vehicles: 30,

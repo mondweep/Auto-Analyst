@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation"
 import { AwardIcon, User, Menu } from "lucide-react"
 import { useSessionStore } from '@/lib/store/sessionStore'
 import API_URL from '@/config/api'
+import { PREVIEW_API_URL, UPLOAD_API_URL, AUTOMOTIVE_API_URL } from '@/config/api'
 import { useCredits } from '@/lib/contexts/credit-context'
 import { getModelCreditCost } from '@/lib/model-tiers'
 import InsufficientCreditsModal from '@/components/chat/InsufficientCreditsModal'
@@ -38,26 +39,64 @@ import { useModelSettings } from '@/lib/hooks/useModelSettings'
 import logger from '@/lib/utils/logger'
 import { OnboardingTooltip } from '../onboarding/OnboardingTooltips'
 
-// This ensures we can still use the app without a backend server
-const DEMO_MODE = true;
-
-// Automotive API URL for data integration
-const AUTOMOTIVE_API_URL = process.env.NEXT_PUBLIC_AUTOMOTIVE_API_URL || 'http://localhost:8003';
+// Add a demo mode flag for when servers are not available
+const DEMO_MODE = true; // Set to true to enable offline/demo mode
 
 interface PlotlyMessage {
-  type: "plotly"
-  data: any
-  layout: any
+  type: "plotly";
+  data: any[];
+  layout: {
+    title?: string;
+    xaxis?: {
+      title?: string;
+      [key: string]: any;
+    };
+    yaxis?: {
+      title?: string;
+      titlefont?: {
+        color?: string;
+        [key: string]: any;
+      };
+      tickfont?: {
+        color?: string;
+        [key: string]: any;
+      };
+      [key: string]: any;
+    };
+    yaxis2?: {
+      title?: string;
+      titlefont?: {
+        color?: string;
+        [key: string]: any;
+      };
+      tickfont?: {
+        color?: string;
+        [key: string]: any;
+      };
+      overlaying?: string;
+      side?: string;
+      [key: string]: any;
+    };
+    legend?: {
+      x?: number;
+      y?: number;
+      xanchor?: string;
+      orientation?: string;
+      [key: string]: any;
+    };
+    autosize?: boolean;
+    [key: string]: any;
+  };
 }
 
 interface Message {
-  text: string | PlotlyMessage
-  sender: "user" | "ai"
+  text: string | PlotlyMessage;
+  sender: "user" | "ai";
 }
 
 interface AgentInfo {
-  name: string
-  description: string
+  name: string;
+  description: string;
 }
 
 interface ChatMessage {
@@ -81,6 +120,150 @@ const generateFallbackResponse = (message: string): string | PlotlyMessage => {
   // Simple logic to generate fallback responses for demo/testing purposes
   const lowerMessage = message.toLowerCase();
   
+  // Handle chart/visualization requests
+  if (lowerMessage.includes('plot') || 
+      lowerMessage.includes('chart') || 
+      lowerMessage.includes('graph') || 
+      lowerMessage.includes('visualization') || 
+      lowerMessage.includes('visualize')) {
+    
+    // Choose appropriate visualization based on the message content
+    if (lowerMessage.includes('price') && lowerMessage.includes('make')) {
+      return {
+        type: "plotly",
+        data: [
+          {
+            type: 'bar',
+            x: ['Toyota', 'Honda', 'Ford', 'BMW', 'Audi', 'Others'],
+            y: [28500, 24700, 38900, 43200, 47800, 32000],
+            marker: {
+              color: ['#f44336', '#2196f3', '#4caf50', '#9c27b0', '#ff9800', '#607d8b']
+            }
+          }
+        ],
+        layout: {
+          title: 'Price Distribution by Make',
+          xaxis: { title: 'Vehicle Makes' },
+          yaxis: { title: 'Average Price ($)' },
+          autosize: true
+        }
+      };
+    }
+    else if (lowerMessage.includes('mileage')) {
+      return {
+        type: "plotly",
+        data: [
+          {
+            type: 'scatter',
+            mode: 'markers',
+            x: [28500, 24700, 38900, 43200, 47800, 32000, 22500, 35600],
+            y: [32000, 18000, 45000, 22000, 18500, 28000, 12000, 30000],
+            text: ['Toyota Camry', 'Honda Civic', 'Ford F-150', 'BMW 3 Series', 'Audi Q5', 'Lexus RX', 'Kia Forte', 'Jeep Cherokee'],
+            marker: {
+              size: 10,
+              color: ['#f44336', '#2196f3', '#4caf50', '#9c27b0', '#ff9800', '#607d8b', '#e91e63', '#00bcd4'],
+            }
+          }
+        ],
+        layout: {
+          title: 'Price vs Mileage',
+          xaxis: { title: 'Price ($)' },
+          yaxis: { title: 'Mileage (miles)' },
+          autosize: true
+        }
+      };
+    }
+    else if (lowerMessage.includes('pie') || lowerMessage.includes('distribution')) {
+      return {
+        type: "plotly",
+        data: [
+          {
+            type: 'pie',
+            labels: ['Toyota', 'Honda', 'Ford', 'BMW', 'Audi', 'Others'],
+            values: [20, 18, 15, 12, 10, 25],
+            marker: {
+              colors: ['#f44336', '#2196f3', '#4caf50', '#9c27b0', '#ff9800', '#607d8b']
+            }
+          }
+        ],
+        layout: {
+          title: 'Vehicle Make Distribution',
+          autosize: true
+        }
+      };
+    }
+    // Sales trend over time
+    else if (lowerMessage.includes('sales') || lowerMessage.includes('trend') || lowerMessage.includes('time')) {
+      return {
+        type: "plotly",
+        data: [
+          {
+            type: 'scatter',
+            mode: 'lines+markers',
+            x: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            y: [145, 132, 158, 175, 192, 210, 222, 198, 187, 195, 203, 235],
+            name: 'Sales Units',
+            marker: {
+              color: '#4caf50'
+            }
+          },
+          {
+            type: 'scatter',
+            mode: 'lines+markers',
+            x: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            y: [5.8, 5.3, 6.2, 7.0, 7.7, 8.4, 8.9, 7.9, 7.5, 7.8, 8.1, 9.4],
+            name: 'Revenue ($ millions)',
+            yaxis: 'y2',
+            marker: {
+              color: '#2196f3'
+            }
+          }
+        ],
+        layout: {
+          title: 'Vehicle Sales Trend Over Time',
+          xaxis: { title: 'Month' },
+          yaxis: { 
+            title: 'Sales Units',
+            titlefont: {color: '#4caf50'},
+            tickfont: {color: '#4caf50'}
+          },
+          yaxis2: {
+            title: 'Revenue ($ millions)',
+            titlefont: {color: '#2196f3'},
+            tickfont: {color: '#2196f3'},
+            overlaying: 'y',
+            side: 'right'
+          },
+          legend: {x: 0.5, xanchor: 'center', y: 1.1, orientation: 'h'},
+          autosize: true
+        }
+      };
+    }
+    // Default chart if request is not specific
+    else {
+      return {
+        type: "plotly",
+        data: [
+          {
+            type: 'bar',
+            x: ['Toyota', 'Honda', 'Ford', 'BMW', 'Audi', 'Others'],
+            y: [28500, 24700, 38900, 43200, 47800, 32000],
+            marker: {
+              color: ['#f44336', '#2196f3', '#4caf50', '#9c27b0', '#ff9800', '#607d8b']
+            }
+          }
+        ],
+        layout: {
+          title: 'Vehicle Data Visualization',
+          xaxis: { title: 'Makes' },
+          yaxis: { title: 'Value' },
+          autosize: true
+        }
+      };
+    }
+  }
+  
+  // Standard text-based responses for various query types
   if (lowerMessage.includes('vehicle') || lowerMessage.includes('inventory') || lowerMessage.includes('car')) {
     return `Based on the automotive inventory data:
 
@@ -91,196 +274,25 @@ The dealership inventory includes several vehicles with varying specifications:
 - BMW 3 Series (2021), priced at $43,200, with 22,000 miles in excellent condition
 - Audi Q5 (2022), priced at $47,800, with 18,500 miles in excellent condition
 
-This inventory provides a good mix of economy vehicles, luxury sedans, and trucks to meet diverse customer needs.`;
+Is there a specific aspect of the inventory you're interested in?`;
   }
   
-  if (lowerMessage.includes('price') || lowerMessage.includes('market') || lowerMessage.includes('pricing')) {
-    return `Based on the automotive market analysis data:
+  if (lowerMessage.includes('price') || lowerMessage.includes('cost')) {
+    return `Based on the pricing data:
 
-- The Toyota Camry is priced at $28,500, which is $1,700 below the market average of $30,200
-- The Honda Civic is priced at $24,700, which is $1,200 below the market average of $25,900
-- The Ford F-150 is priced at $38,900, which is $2,200 above the market average of $36,700
-- The BMW 3 Series is priced at $43,200, which is $1,800 below the market average of $45,000
-- The Audi Q5 is priced at $47,800, which is at market value
+The current price ranges in our automotive inventory are:
+- Economy vehicles: $22,000 - $28,000
+- Mid-range vehicles: $28,000 - $40,000
+- Luxury vehicles: $40,000 - $55,000
 
-Most vehicles are competitively priced relative to the market, with the Toyota, Honda, and BMW models offering the best value compared to market prices.`;
+Toyota and Honda models offer the best value in terms of price-to-feature ratio, while BMW and Audi vehicles command premium prices due to their luxury features and brand reputation.
+
+Would you like specific pricing information about certain models?`;
   }
   
-  if (lowerMessage.includes('opportunit') || lowerMessage.includes('profit') || lowerMessage.includes('best deal')) {
-    return `Based on automotive pricing opportunities analysis:
-
-Top undervalued vehicles with potential for higher pricing:
-1. BMW 3 Series: $1,800 below market value (3.8% discount)
-2. Toyota Camry: $1,700 below market value (5.6% discount)
-3. Honda Civic: $1,200 below market value (4.6% discount)
-
-Vehicles that may need price adjustments:
-- Ford F-150: $2,200 above market value (6.0% premium)
-
-These undervalued vehicles represent approximately $4,700 in potential additional revenue if prices were adjusted to match market values.`;
-  }
-  
-  if (lowerMessage.includes('statistic') || lowerMessage.includes('analytic') || lowerMessage.includes('summary')) {
-    return `Automotive Inventory Statistics:
-
-Inventory Summary:
-- Total vehicles: 50
-- Available vehicles: 40 (80%)
-- Sold vehicles: 10 (20%)
-- Average price: $34,560
-- Average days in inventory: 45.3
-
-Distribution by Make:
-- Toyota: 18%
-- Honda: 16%
-- Ford: 14%
-- BMW: 12%
-- Audi: 10%
-- Others: 30%
-
-Inventory by Condition:
-- Excellent: 45%
-- Good: 35%
-- Fair: 15%
-- Poor: 5%
-
-These statistics indicate a healthy inventory with good turnover and a balanced mix of vehicle makes and conditions.`;
-  }
-  
-  // If visualization or chart is requested
-  if (lowerMessage.includes('visualiz') || lowerMessage.includes('chart') || lowerMessage.includes('graph')) {
-    // If the message includes "yes" or "please" after describing charts, generate an actual visualization
-    if (lowerMessage.includes('yes') || lowerMessage.includes('please') || lowerMessage.includes('generate') || lowerMessage.includes('show me')) {
-      // Create a Plotly chart object
-      if (lowerMessage.includes('price distribution') || lowerMessage.includes('make') || lowerMessage.includes('brand')) {
-        // Return a price distribution by make chart
-        const plotlyMessage: PlotlyMessage = {
-          type: "plotly",
-          data: [
-            {
-              type: 'bar',
-              x: ['Toyota', 'Honda', 'Ford', 'BMW', 'Audi', 'Others'],
-              y: [28500, 24700, 38900, 43200, 47800, 32000],
-              marker: {
-                color: ['#f44336', '#2196f3', '#4caf50', '#9c27b0', '#ff9800', '#607d8b']
-              }
-            }
-          ],
-          layout: {
-            title: 'Price Distribution by Make',
-            xaxis: { title: 'Vehicle Makes' },
-            yaxis: { title: 'Average Price ($)' }
-          }
-        };
-        return plotlyMessage;
-      } else if (lowerMessage.includes('inventory age') || lowerMessage.includes('age distribution') || lowerMessage.includes('pie')) {
-        // Return an inventory age distribution pie chart
-        const plotlyMessage: PlotlyMessage = {
-          type: "plotly",
-          data: [
-            {
-              type: 'pie',
-              labels: ['0-30 days', '31-60 days', '61-90 days', '90+ days'],
-              values: [45, 30, 15, 10],
-              marker: {
-                colors: ['#4caf50', '#2196f3', '#ff9800', '#f44336']
-              }
-            }
-          ],
-          layout: {
-            title: 'Inventory Age Distribution'
-          }
-        };
-        return plotlyMessage;
-      } else if (lowerMessage.includes('price vs market') || lowerMessage.includes('scatter') || lowerMessage.includes('comparison')) {
-        // Return a price vs market comparison scatter plot
-        const plotlyMessage: PlotlyMessage = {
-          type: "plotly",
-          data: [
-            {
-              type: 'scatter',
-              mode: 'markers',
-              x: [28500, 24700, 38900, 43200, 47800],
-              y: [30200, 25900, 36700, 45000, 47800],
-              text: ['Toyota Camry', 'Honda Civic', 'Ford F-150', 'BMW 3 Series', 'Audi Q5'],
-              marker: {
-                size: 12,
-                color: ['#f44336', '#2196f3', '#4caf50', '#9c27b0', '#ff9800']
-              }
-            },
-            {
-              type: 'scatter',
-              mode: 'lines',
-              x: [20000, 50000],
-              y: [20000, 50000],
-              line: {
-                color: 'rgba(0,0,0,0.3)',
-                width: 2,
-                dash: 'dash'
-              }
-            }
-          ],
-          layout: {
-            title: 'Price vs. Market Comparison',
-            xaxis: { title: 'Your Price ($)' },
-            yaxis: { title: 'Market Price ($)' }
-          }
-        };
-        return plotlyMessage;
-      } else {
-        // Default to the first chart type if specific type not mentioned
-        const plotlyMessage: PlotlyMessage = {
-          type: "plotly",
-          data: [
-            {
-              type: 'bar',
-              x: ['Toyota', 'Honda', 'Ford', 'BMW', 'Audi', 'Others'],
-              y: [28500, 24700, 38900, 43200, 47800, 32000],
-              marker: {
-                color: ['#f44336', '#2196f3', '#4caf50', '#9c27b0', '#ff9800', '#607d8b']
-              }
-            }
-          ],
-          layout: {
-            title: 'Price Distribution by Make',
-            xaxis: { title: 'Vehicle Makes' },
-            yaxis: { title: 'Average Price ($)' }
-          }
-        };
-        return plotlyMessage;
-      }
-    }
-    
-    // If just asking about what visualizations are possible
-    return `To visualize the automotive data, I recommend the following charts:
-
-1. Price Distribution by Make (Bar Chart)
-   - X-axis: Vehicle makes (Toyota, Honda, Ford, BMW, etc.)
-   - Y-axis: Average price
-   - This would show which brands have higher value inventory
-
-2. Inventory Age Distribution (Pie Chart)
-   - Categories: 0-30 days, 31-60 days, 61-90 days, 90+ days
-   - This would help identify aging inventory that may need attention
-
-3. Price vs. Market Comparison (Scatter Plot)
-   - X-axis: Your price
-   - Y-axis: Market price
-   - Points above the diagonal indicate vehicles priced below market
-   - Points below the diagonal indicate vehicles priced above market
-
-Would you like me to generate any of these visualizations for your data?`;
-  }
-  
-  return `I've analyzed the automotive inventory data. Your dealership has 50 vehicles in stock across multiple makes including Toyota, Honda, Ford, BMW, and Audi. 
-
-Based on the market analysis, most of your vehicles are priced competitively, with several models (particularly the Toyota Camry, Honda Civic, and BMW 3 Series) priced below market value.
-
-What specific aspect of the automotive data would you like me to analyze further?
-- Vehicle inventory details
-- Market pricing comparisons
-- Profit opportunities`;
-};
+  // Default fallback response
+  return `I don't have specific information about that query. I can help with vehicle inventory, pricing trends, market analysis, and sales forecasts. Would you like me to visualize any of this data for you?`;
+}
 
 const ChatInterface: React.FC = () => {
   const router = useRouter()
@@ -298,6 +310,7 @@ const ChatInterface: React.FC = () => {
   const chatInputRef = useRef<{ 
     handlePreviewDefaultDataset: () => void;
     handleSilentDefaultDataset: () => void;
+    setFilePreview: (preview: any) => void;
   }>(null);
   const [activeChatId, setActiveChatId] = useState<number | null>(null);
   const [chatHistories, setChatHistories] = useState<ChatHistory[]>([]);
@@ -748,118 +761,147 @@ const ChatInterface: React.FC = () => {
     }
   }
 
-  // Move these function definitions to appear BEFORE handleSendMessage
   const processRegularMessage = async (
     message: string, 
     controller: AbortController, 
     currentId: number | null
   ) => {
     try {
-      // If a dataset was just uploaded, make sure the URL includes that context
-      let url = `${API_URL}/query/stream`;
-      if (recentlyUploadedDataset) {
-        url += `?custom_dataset=true`;
-      }
-      
-      try {
-        // Check if we're in demo mode and shouldn't make real API calls
-        if (DEMO_MODE) {
-          // Simulate a response delay for realistic UX
-          await new Promise(resolve => setTimeout(resolve, 1500));
-          
-          // Generate a fallback response based on the message content
-          const fallbackResponse = generateFallbackResponse(message);
-          
-          // Add the response to the chat
+      // Check for agent commands (messages starting with @)
+      if (message.startsWith('@')) {
+        const parts = message.split(' ');
+        const agentName = parts[0].substring(1).toLowerCase();
+        const agentMessage = parts.slice(1).join(' ');
+        
+        // Check if it's a valid agent name
+        const agent = agents.find(a => a.name.toLowerCase() === agentName);
+        
+        if (agent && agentMessage.trim()) {
+          // Process with the selected agent
+          return processAgentMessage(agent.name, agentMessage, controller, currentId);
+        } else if (agent && !agentMessage.trim()) {
+          // If agent exists but no message provided
           addMessage({
-            text: fallbackResponse,
-      sender: "ai"
+            text: `Please provide a query for the ${agent.name} agent. For example: @${agent.name} analyze the data.`,
+            sender: "ai"
           });
-          
-          // Simulate API call completion
-          setIsLoading(false);
-          setAbortController(null);
-          
-          // Auto-generate a title for new chats in demo mode
-          if (currentId !== null && !chatHistories.find(ch => ch.chat_id === currentId)?.title) {
-            // Create a simple title based on the message content
-            const simpleTitle = message.slice(0, 30) + (message.length > 30 ? '...' : '');
-            // Update the chat title in the store
-            if (setChatHistories) {
-              setChatHistories(prev => 
-                prev.map(chat => 
-                  chat.chat_id === currentId 
-                    ? { ...chat, title: simpleTitle } 
-                    : chat
-                )
-              );
-            }
-          }
-          
-          // We're done with fallback response
           return;
-        }
-        
-        // Original API call logic continues for non-demo mode
-        const headers: HeadersInit = {
-          "Content-Type": "application/json",
-        };
-        
-        // Only add session ID to headers if it exists
-        if (sessionId) {
-          headers["X-Session-ID"] = sessionId;
-        }
-        
-        const response = await fetch(url, {
-          method: "POST",
-          headers,
-          signal: controller.signal,
-          body: JSON.stringify({
-            query: message,
-            chat_id: currentId,
-            user_id: userId,
-            model_settings: modelSettings,
-            is_admin: isAdmin
-          }),
-        });
-        
-        // Rest of the existing function remains unchanged
-        
-          } catch (error) {
-        // Check for abort error first (user clicked stop)
-        if (error instanceof DOMException && error.name === "AbortError") {
-          return;
-        }
-        
-        // Log the error for debugging
-        console.error("Error in processRegularMessage:", error);
-        
-        // If we're in demo mode, provide a fallback response instead of error
-        if (DEMO_MODE) {
-          const fallbackResponse = generateFallbackResponse(message);
-          
+        } else {
+          // If agent doesn't exist
+          // Provide information about available agents
+          const availableAgents = agents.map(a => `@${a.name}`).join(', ');
           addMessage({
+            text: `Agent "${agentName}" not found. Available agents: ${availableAgents}`,
+            sender: "ai"
+          });
+          return;
+        }
+      }
+
+      // If we're in demo mode, use the fallback response
+      if (DEMO_MODE) {
+        const fallbackResponse = generateFallbackResponse(message);
+        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate delay
+        
+        if (typeof fallbackResponse === 'string') {
+          addMessage({ 
             text: fallbackResponse,
             sender: "ai"
           });
         } else {
-          // Original error handling for non-demo mode
+          // Handle PlotlyMessage
           addMessage({
-            text: "Sorry, there was an error processing your request. Please try again.",
+            text: fallbackResponse,
             sender: "ai"
           });
         }
+        return;
       }
-      
-      // Original logic continues...
-      } catch (error) {
-      console.error("Error in processRegularMessage:", error);
+
+      // If we get here, we're not in demo mode and should try to use the API
+      // Add an initial message that we'll replace with the real response
       addMessage({
-        text: "Sorry, there was an error processing your request. Please try again.",
-        sender: "ai"
+        text: "Thinking...",
+        sender: "ai",
+      });
+
+      try {
+        // Regular API call processing
+        const response = await fetch(`${API_URL}/api/chat`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ 
+            message,
+            chat_id: currentId
+          }),
+          signal: controller.signal
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+
+        // Get the response text
+        const data = await response.json();
+        const responseText = data.text || data.response || data.message || "Sorry, I couldn't process that request.";
+        
+        // Replace our "thinking" message with the actual response
+        clearMessages(); // Remove all messages
+        
+        // Re-add all previous messages except the last "thinking" one
+        const messagesToKeep = storedMessages.slice(0, -1);
+        for (const msg of messagesToKeep) {
+          addMessage(msg);
+        }
+        
+        // Add the final response
+        addMessage({
+          text: responseText,
+          sender: "ai",
+        });
+      } catch (error) {
+        console.error("Error in API request:", error);
+        
+        // Clear the thinking message
+        clearMessages();
+        
+        // Re-add all previous messages except the last "thinking" one
+        const messagesToKeep = storedMessages.slice(0, -1);
+        for (const msg of messagesToKeep) {
+          addMessage(msg);
+        }
+        
+        if (error instanceof Error && error.name === 'AbortError') {
+          // Handle user-initiated abort
+          addMessage({
+            text: "Generation stopped.",
+            sender: "ai",
+          });
+        } else {
+          // For other errors, use the fallback
+          const fallback = generateFallbackResponse(message);
+          addMessage({
+            text: typeof fallback === 'string'
+              ? fallback
+              : "I'm having trouble connecting to the server. Please try again later.",
+            sender: "ai",
+          });
+        }
+      }
+    } catch (outerError) {
+      console.error("Unexpected error:", outerError);
+      
+      // If all else fails, add a simple fallback message
+      addMessage({
+        text: "Sorry, something went wrong. Please try again.",
+        sender: "ai",
       });
     }
-  }
+    
+    setIsLoading(false);
+  };
 
   const processAgentMessage = async (
     agentName: string, 
@@ -1209,170 +1251,107 @@ const ChatInterface: React.FC = () => {
       return;
     }
 
-      // Force close any open dataset popup and set short-term suppression
-      setShowDatasetResetConfirm(false);
-      localStorage.setItem('suppressDatasetPopup', 'true');
-      setTimeout(() => localStorage.removeItem('suppressDatasetPopup'), 5000);
-      
-    // Define a reusable function for local file processing
-    const processFileLocally = async (fileContent: string) => {
+    // Display processing message
+    addMessage({
+      text: "Processing your file. Please wait a moment...",
+      sender: "ai"
+    });
+
+    try {
+      // Close dataset popup if open
+      if (typeof setShowDatasetResetConfirm === 'function') {
+        setShowDatasetResetConfirm(false);
+      }
+
+      // First try uploading to the server
       try {
-        // Parse CSV data
-        const lines = fileContent.split('\n');
-        const headers = lines[0].split(',');
-        const rows = [];
-        for (let i = 1; i <= 10 && i < lines.length; i++) {
-          if (lines[i].trim()) {
-            rows.push(lines[i].split(','));
-          }
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        console.log('Uploading to:', `${UPLOAD_API_URL}/upload`);
+        const response = await fetch(`${UPLOAD_API_URL}/upload`, {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (!response.ok) {
+          throw new Error(`File upload failed with status ${response.status}`);
         }
         
-        // Update dataset state
-        setRecentlyUploadedDataset(true);
-        setHasUploadedDataset(true);
+        const result = await response.json();
         
-        // Mark current chat to prevent popup
-        if (activeChatId) {
-          popupShownForChatIdsRef.current.add(activeChatId);
-        }
-        
-        // Add a temporary ID for any new chat created immediately after upload
-        popupShownForChatIdsRef.current.add(Date.now());
-        datasetPopupShownRef.current = true;
-        
-        // Add a success message
+        // Show success message with stats about the file
         addMessage({
-          text: `Successfully processed ${file.name}. You can now ask questions about this data.`,
+          text: `File uploaded successfully! Processed ${result.rows || 'all'} rows of data.`,
           sender: "ai"
         });
         
-        // Return success
-        return true;
-      } catch (error) {
-        console.error("Error processing file locally:", error);
-        return false;
-      }
-    };
-    
-    // Function to read the file locally
-    const readFileThenProcess = () => {
-      return new Promise<boolean>((resolve) => {
-        const reader = new FileReader();
+        // Now prompt user to ask questions about the data
+        addMessage({
+          text: "You can now ask questions about your data. For example, try asking for a summary of the dataset, or request specific visualizations.",
+          sender: "ai"
+        });
         
-        reader.onload = async (e) => {
-          const content = e.target?.result as string;
-          if (!content) {
+        return true;
+      } catch (uploadError) {
+        console.error('Server upload failed, trying local fallback:', uploadError);
+        
+        // Try to process the file locally as a fallback
+        try {
+          const reader = new FileReader();
+          
+          reader.onload = (event) => {
+            if (!event.target || !event.target.result) {
+              throw new Error('Failed to read file');
+            }
+            
+            const csvText = event.target.result.toString();
+            const lines = csvText.split('\n');
+            const headers = lines[0].split(',');
+            
+            // Basic data stats for feedback
+            const rowCount = lines.length - 1; // Exclude header
+            const columnCount = headers.length;
+            
             addMessage({
-              text: "Error: Failed to read the uploaded file. Please try again.",
+              text: `File processed locally. Found ${rowCount} rows and ${columnCount} columns.`,
               sender: "ai"
             });
-            resolve(false);
-            return;
-          }
+            
+            addMessage({
+              text: "You can now ask questions about your data. For example, try asking for a summary of the dataset, or request specific visualizations.",
+              sender: "ai"
+            });
+          };
           
-          const success = await processFileLocally(content);
-          resolve(success);
-        };
-        
-        reader.onerror = () => {
-          addMessage({
-            text: "Error: Failed to read the uploaded file. Please try again.",
-            sender: "ai"
-          });
-          resolve(false);
-        };
-        
-        reader.readAsText(file);
-      });
-    };
-
-    // If in demo mode, handle file upload locally
-    if (DEMO_MODE) {
-      console.log("Using demo mode for file upload");
-      const success = await readFileThenProcess();
-      return;
-    }
-    
-    // For non-demo mode, try server upload first
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("styling_instructions", "Please analyze the data and provide a detailed report.");
-      
-      const baseUrl = API_URL;
-     
-      const uploadResponse = await axios.post(`${baseUrl}/upload_dataframe`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          ...(sessionId && { 'X-Session-ID': sessionId }),
-        },
-        timeout: 30000,
-        maxContentLength: 30 * 1024 * 1024,
-      });
-      
-      // Update dataset state
-      setRecentlyUploadedDataset(true);
-      setHasUploadedDataset(true);
-      
-      // Mark current chat to prevent popup
-      if (activeChatId) {
-        popupShownForChatIdsRef.current.add(activeChatId);
-      }
-      
-      // Add a temporary ID for any new chat created immediately after upload
-      popupShownForChatIdsRef.current.add(Date.now());
-      datasetPopupShownRef.current = true;
-      
-      // Add a success message from the server response
-      if (uploadResponse.data?.message) {
-        addMessage({
-          text: uploadResponse.data.message,
-          sender: "ai"
-        });
-      } else {
-        addMessage({
-          text: `Successfully uploaded ${file.name}. You can now ask questions about this data.`,
-          sender: "ai"
-        });
-      }
-      
-      // Refresh session info to avoid race conditions
-      try {
-        await axios.get(`${baseUrl}/api/session-info`, {
-          headers: { 'X-Session-ID': sessionId }
-        });
-        await new Promise(resolve => setTimeout(resolve, 100));
-      } catch (sessionError) {
-        console.error("Error refreshing session info:", sessionError);
-        // Non-critical error, can continue
-      }
-    } catch (error) {
-      console.error("Upload error:", error);
-      let errorMessage = "An error occurred while uploading the file.";
-      
-      if (axios.isAxiosError(error)) {
-        if (error.code === 'ECONNABORTED') {
-          errorMessage = "Upload timeout: The request took too long to complete. Please try again with a smaller file.";
-        } else if (error.response) {
-          errorMessage = `Upload failed: ${error.response.data?.message || error.message}`;
-        } else if (error.request) {
-          errorMessage = "Network error: Could not connect to the server. Using local processing as fallback.";
+          reader.onerror = () => {
+            throw new Error('Failed to read file');
+          };
+          
+          reader.readAsText(file);
+          return true;
+        } catch (localError) {
+          console.error('Local fallback also failed:', localError);
+          // Continue to general error handler
         }
       }
       
-      // For network errors or in demo mode, fall back to local processing
-      console.log("Upload failed, attempting local fallback");
-      const success = await readFileThenProcess();
-      
-      if (!success) {
-        // Only show error message if both server upload and local processing failed
+      // If both server and local processing failed, show a general error
       addMessage({
-        text: errorMessage,
+        text: "There was an issue processing your file. Please try again or use a different file.",
         sender: "ai"
       });
-      }
+      return false;
+    } catch (error) {
+      console.error('File upload error:', error);
+      
+      addMessage({
+        text: `Error uploading file: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        sender: "ai"
+      });
+      return false;
     }
-  }
+  };
 
   const isInputDisabled = () => {
     if (session) return false // Allow input if user is signed in
@@ -1523,21 +1502,25 @@ const ChatInterface: React.FC = () => {
           if (sessionResponse.data && sessionResponse.data.is_custom_dataset) {
             setHasUploadedDataset(true);
             
-            if (chatInputRef.current && sessionResponse.data.dataset_name) {
-              const datasetName = sessionResponse.data.dataset_name;
+            if (chatInputRef.current && sessionResponse.data.is_custom_dataset) {
+              setHasUploadedDataset(true);
               
-              const fileInfo = {
-                name: datasetName.endsWith('.csv') ? datasetName : `${datasetName}.csv`,
-                type: 'text/csv',
-                lastModified: new Date().getTime()
-              };
-              
-              localStorage.setItem('lastUploadedFile', JSON.stringify(fileInfo));
-              
-              setTimeout(() => {
-                setHasUploadedDataset(prev => !prev);
-                setTimeout(() => setHasUploadedDataset(true), 10);
-              }, 10);
+              if (chatInputRef.current && sessionResponse.data.dataset_name) {
+                const datasetName = sessionResponse.data.dataset_name;
+                
+                const fileInfo = {
+                  name: datasetName.endsWith('.csv') ? datasetName : `${datasetName}.csv`,
+                  type: 'text/csv',
+                  lastModified: new Date().getTime()
+                };
+                
+                localStorage.setItem('lastUploadedFile', JSON.stringify(fileInfo));
+                
+                setTimeout(() => {
+                  setHasUploadedDataset(prev => !prev);
+                  setTimeout(() => setHasUploadedDataset(true), 10);
+                }, 10);
+              }
             }
           }
         } catch (error) {

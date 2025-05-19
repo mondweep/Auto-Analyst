@@ -685,13 +685,15 @@ class data_viz_agent(dspy.Signature):
     • Prioritize highlighting patterns, outliers, or comparisons relevant to the question
 
     - For attribute-specific queries (e.g., "show me green vehicles" or "how many green vehicles do we have?"):
-      • ALWAYS filter the data using case-insensitive string matching:
-        df[df['color'].str.lower() == 'green']
+      • ALWAYS filter the data using case-insensitive string matching and handle NaN values:
+        df['color'] = df['color'].astype(str)  # Convert to string to handle NaN
+        filtered_df = df[df['color'].str.lower() == 'green']
       • For counting queries, use bar or pie charts that clearly display the count in the title
       • ALWAYS include the exact count and percentage in the chart title (e.g., "Count of Green Vehicles: 17 (8.5% of inventory)")
       • Make sure to handle case-insensitive matching by converting to lowercase before comparing
       • For comparison queries, create visualizations that show the filtered group vs. all others
       • Calculate percentages accurately: (count / total_vehicles) * 100
+      • Always ensure the query result directly answers the specific question asked
 
     - For numerical filtering queries (e.g., "vehicles under $30,000"):
       • ALWAYS use proper comparison operators (df[df['price'] < 30000])

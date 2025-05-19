@@ -1,11 +1,17 @@
-
 flask_app/_pycache__
 flask_app/instance
 flask_app/*.env
 *.env
 __pycache__
 
+# Virtual environments
 venv/
+*venv/
+fresh_venv/
+.venv/
+env/
+ENV/
+virtualenv/
 
 .env
 
