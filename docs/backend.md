@@ -1,70 +1,156 @@
-## **Auto-Analyst API Overview**  
+# Auto-Analyst Backend Architecture
 
-The **Auto-Analyst** application provides a structured API for data analysis, AI-powered insights, and real-time analytics. The API is categorized into three main sections, each documented separately for better modularity:  
+The **Auto-Analyst** backend consists of multiple server components working together to provide data analysis, attribute filtering, and AI-powered insights. The system is designed for resilience, with fallback mechanisms to ensure operation even when some components are unavailable.
 
-1. **[Core Application Routes](/auto-analyst-backend/docs/routes/core.md)** – Handles data management, session control, and model configurations.  
-2. **[Chat & AI Analysis Routes](/auto-analyst-backend/docs/routes/chats.md)** – Provides AI-driven data insights and supports interaction with multiple specialized AI agents.  
-3. **[Analytics & WebSocket Routes](/auto-analyst-backend/docs/routes/analytics.md)** – Manages real-time updates, tracking, and logging of AI model usage.  
+## System Components
+
+The Auto-Analyst backend is comprised of the following servers:
+
+1. **Attribute Proxy Server (Port 8080)** - Routes requests between frontend and appropriate backend servers
+2. **Standalone Attribute Server (Port 8002)** - Provides efficient, zero-dependency attribute filtering
+3. **Main Application Server (Port 8000)** - Delivers LLM-powered analysis and complex data processing (optional)
+
+## Server Details
+
+### **1. Attribute Proxy Server**
+
+The Attribute Proxy server intelligently routes requests and provides fallback mechanisms:
+
+- **Core Functionality**
+  - Routes attribute queries to the Standalone Attribute Server
+  - Forwards other requests to the Main Application Server
+  - Handles CORS and connection issues transparently
+  - Provides fallback responses when backends are unavailable
+
+- **Primary Endpoints**
+  - `/health`: Health check endpoint
+  - `/chat`: Chat proxy (tries attribute server first)
+  - `/api/attribute-query`: Attribute query proxy
+  - `/api/direct-count`: Direct count proxy
+  - `/*`: Proxy for all other endpoints
+
+### **2. Standalone Attribute Server**
+
+The Standalone Attribute Server processes attribute queries without heavy dependencies:
+
+- **Core Functionality**
+  - Provides zero-dependency attribute filtering
+  - Handles vehicle counting by various attributes (color, make, model, year, etc.)
+  - Serves mock endpoints for model settings and agents
+  - Works without NumPy/pandas to avoid compatibility issues
+
+- **Primary Endpoints**
+  - `/health`: Health check endpoint
+  - `/api/attribute-query`: Detects and processes attribute queries
+  - `/api/direct-count`: Direct counting by attribute name and value
+  - `/api/chat-attribute`: Chat integration for attribute queries
+  - `/model`: Get available models
+  - `/model-settings`: Get model settings
+  - `/agents`: Get available agents
+  - `/api/session-info`: Get session info
+
+### **3. Main Application Server**
+
+The Main Application Server provides advanced AI capabilities (optional component):
+
+- **Core Functionality**
+  - Provides LLM-powered chat and analysis features
+  - Handles complex data processing and visualization
+  - Serves the primary API endpoints for vehicles, market data, opportunities, and statistics
+  - Note: May have NumPy compatibility issues in some environments
+
+- **Primary Endpoints**
+  - `/api/vehicles`: Vehicle inventory data
+  - `/api/market-data`: Market analysis data
+  - `/api/opportunities`: Market opportunities
+  - `/api/statistics`: Statistical analysis
+  - `/health`: Health check endpoint
+
+## API Categories
+
+The Auto-Analyst API functionality is categorized into three main sections:
+
+1. **Core Application Routes** – Handles data management, session control, and model configurations.
+2. **Chat & AI Analysis Routes** – Provides AI-driven data insights and supports interaction with multiple specialized AI agents.
+3. **Attribute Filtering Routes** – Efficient filtering and counting of vehicles by various attributes.
 
 ---
 
-### **1. Core Application Routes ([auto-analyst-backend/docs/routes/core.md](/auto-analyst-backend/docs/routes/core.md))**  
+### **1. Core Application Routes**
 
-These routes handle **data management, session handling, and model settings**.  
+These routes handle **data management, session handling, and model settings**.
 
-- **Data Management**  
-  - `POST /upload_dataframe`: Uploads a CSV dataset for analysis.  
-  - `GET /api/default-dataset`: Retrieves the default dataset for the session.  
-  - `POST /reset-session`: Resets the session to use the default dataset.  
+- **Data Management**
+  - `GET /api/vehicles`: Retrieves vehicle inventory data.
+  - `GET /api/market-data`: Retrieves market analysis data.
+  - `GET /api/opportunities`: Retrieves market opportunities.
+  - `GET /api/statistics`: Retrieves statistical analysis.
 
-- **Model Settings**  
-  - `GET /api/model-settings`: Retrieves the current AI model settings.  
-  - `POST /settings/model`: Updates model configurations, including provider, temperature, and token limits.  
+- **Model Settings**
+  - `GET /api/model-settings`: Retrieves the current AI model settings.
+  - `GET /model-settings`: Alternative endpoint for model settings.
+  - `POST /settings/model`: Updates model configurations, including provider, temperature, and token limits.
 
-- **Session Management**  
-  - Sessions track user interactions, datasets, and configurations.  
-  - Managed using `session_id` (via query parameters or headers).  
-  - Admin authentication requires an API key (`X-Admin-API-Key`).  
-
----
-
-### **2. Chat & AI Analysis Routes ([auto-analyst-backend/docs/routes/chats.md](/auto-analyst-backend/docs/routes/chats.md))**  
-
-These routes provide **AI-powered insights and query handling** using specialized agents.  
-
-- **AI Analysis**  
-  - `POST /chat/{agent_name}`: Processes a query using a specified AI agent.  
-  - `POST /chat`: Executes a query across multiple AI agents and streams responses.  
-  - `POST /execute_code`: Executes Python code for advanced data analysis and visualization.  
-
-- **Available AI Agents**  
-  - `data_viz_agent`: Creates visualizations using Plotly.  
-  - `sk_learn_agent`: Performs machine learning analysis with Scikit-learn.  
-  - `statistical_analytics_agent`: Conducts statistical analysis using StatsModels.  
-  - `preprocessing_agent`: Handles data preprocessing and transformation.  
-
-- **Agent Integration Flow**  
-  - Queries are dispatched based on intent.  
-  - Responses are formatted in Markdown and streamed.  
-  - Usage metrics are tracked for model optimization.  
+- **Session Management**
+  - `GET /api/session-info`: Retrieves session information.
+  - Sessions track user interactions, datasets, and configurations.
 
 ---
 
-### **3. Analytics & WebSocket Routes ([auto-analyst-backend/docs/routes/analytics.md](/auto-analyst-backend/docs/routes/analytics.md))**  
+### **2. Chat & AI Analysis Routes**
 
-These routes handle **real-time updates, logging, and error tracking**.  
+These routes provide **AI-powered insights and query handling** using specialized agents.
 
-- **Real-Time Updates**  
-  - WebSocket endpoints:  
-    - `/analytics/dashboard/realtime` (for dashboard updates).  
-    - `/analytics/realtime` (for live user updates).  
-  - Active connections are managed and updated when new data is available.  
+- **AI Analysis**
+  - `POST /chat/{agent_name}`: Processes a query using a specified AI agent.
+  - `POST /chat`: Executes a query across multiple AI agents and streams responses.
+  - `POST /api/chat-attribute`: Chat integration for attribute queries.
 
-- **Event Handling & Broadcasting**  
-  - `broadcast_dashboard_update()`: Sends model usage stats to connected clients.  
-  - `broadcast_user_update()`: Updates users on live data analysis.  
+- **Available AI Agents**
+  - `GET /agents`: Retrieves available agents.
+  - `GET /agents/{agent_id}`: Retrieves specific agent details.
 
-- **Error Handling & Logging**  
-  - **Try-Except blocks** ensure robust error management.  
-  - HTTP error responses (400, 401, 403, 404, 500) are standardized.  
-  - Logging tracks system events and AI interactions.  
+- **Agent Integration Flow**
+  - Queries are dispatched based on intent.
+  - Attribute queries are handled by the Standalone Attribute Server.
+  - Complex analysis queries are forwarded to the Main Application Server.
+  - Responses are formatted in Markdown and streamed.
+
+---
+
+### **3. Attribute Filtering Routes**
+
+These routes handle **efficient filtering and counting of vehicles by attributes**.
+
+- **Attribute Queries**
+  - `POST /api/attribute-query`: Processes natural language attribute queries.
+  - `POST /api/direct-count`: Counts vehicles directly by attribute name and value.
+
+- **Example Queries**
+  - "How many red Toyota Camrys do we have?"
+  - "Count vehicles with less than 30,000 miles"
+  - "Show me all Ford F-150s from 2020"
+
+- **Implementation**
+  - Zero-dependency implementation avoids NumPy compatibility issues.
+  - Efficient filtering with optimized algorithms.
+  - Direct integration with chat interface for natural language queries.
+
+## Error Handling and Resilience
+
+The system implements comprehensive error handling and resilience mechanisms:
+
+1. **Attribute Proxy**
+   - Routes requests intelligently based on availability
+   - Provides mock responses when backends are unavailable
+   - Handles CORS issues transparently
+
+2. **Standalone Attribute Server**
+   - Zero-dependency implementation to avoid compatibility issues
+   - Simple CSV parsing without NumPy/pandas dependencies
+   - Mock endpoints for UI compatibility
+
+3. **Main Application Server**
+   - Try-except blocks for robust operation
+   - Standardized error responses
+   - Logging for system monitoring
