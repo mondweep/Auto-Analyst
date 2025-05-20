@@ -37,24 +37,100 @@ The Auto-Analyst system consists of the following servers working together:
    - Intelligently directs attribute queries to the standalone attribute server
    - Forwards other requests to the main application server
    - Handles CORS and connection issues transparently
+   - Provides fallback responses when backends are unavailable
 
 3. **Standalone Attribute Server (Flask)** - Default port: 8002
    - Provides efficient, zero-dependency attribute filtering
    - Handles vehicle counting by color, make, model, year, etc.
    - Serves mock endpoints for model settings and agents
    - Works without NumPy/pandas to avoid compatibility issues
+   - Loads demo vehicle data from CSV files
 
 4. **Main Application Server (FastAPI)** - Default port: 8000
    - Provides LLM-powered chat and analysis features
    - Handles complex data processing and visualization
-   - Serves the primary API endpoints
+   - Serves the primary API endpoints for vehicles, market data, opportunities, and statistics
    - Note: May have NumPy compatibility issues in some environments
 
-5. **File Server (Python)** - Default port: 8001
-   - Manages CSV file uploads and processing
-   - Serves the default dataset and historical data
-   - Provides RESTful endpoints for file operations
-   - Includes fallback data generation for testing
+## 🚀 Get Started
+
+To quickly set up the project locally, follow these steps:
+
+### Prerequisites
+- Python 3.11+ (Python 3.12 recommended for latest features)
+- Node.js 18+ and npm
+- Git
+
+### Clone the Repository
+```bash
+git clone https://github.com/your-org/auto-analyst.git
+cd auto-analyst
+```
+
+### Backend Setup
+```bash
+# Navigate to the backend directory
+cd Auto-Analyst/auto-analyst-backend
+
+# Create a Python virtual environment (recommended)
+python -m venv venv
+source venv/bin/activate  # On Windows, use: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Start the standalone attribute server (for attribute filtering)
+python standalone_attribute_server.py
+# Keep this running in a terminal
+
+# In a new terminal, start the attribute proxy
+python attribute_proxy.py
+# Keep this running in a terminal
+
+# (Optional) Start the main application if your environment supports it
+# In a new terminal, with venv activated:
+uvicorn app:app --host 0.0.0.0 --port 8000
+```
+
+### Frontend Setup
+```bash
+# In a new terminal, navigate to the frontend directory
+cd Auto-Analyst/auto-analyst-frontend
+
+# Install dependencies
+npm install
+
+# Start the development server
+npm run dev -- -p 3000
+```
+
+### Access the Application
+Open your browser and navigate to: http://localhost:3000
+
+### Configure Environment (Optional)
+Create a `.env` file in the backend directory for custom configurations:
+```
+MODEL_PROVIDER=gemini
+MODEL_NAME=gemini-1.5-pro
+TEMPERATURE=0.7
+MAX_TOKENS=6000
+```
+
+## 📊 Demo Data
+
+The application uses synthetic automotive data to demonstrate functionality:
+
+- **Location**: Demo files are located in `Auto-Analyst/auto-analyst-frontend/public/demo-files/`
+- **Files**:
+  - `vehicles.csv` - Primary inventory data (make, model, year, price, etc.)
+  - `market_data.csv` - Market pricing and competitive data
+  - `automotive_analysis.csv` - Analysis results and insights
+
+If these files are not found, the system will fall back to:
+- Built-in JSON examples in the `auto-analyst-backend/data/` directory
+- Dynamically generated mock responses for core functionality
+
+To upload your own data, use the upload feature in the web interface or place CSV files in the demo-files directory.
 
 ## 📊 Current Status
 
@@ -84,12 +160,6 @@ As of May 2025, the system has the following status:
   - LLM features available when operational
   - Vehicle data API responding correctly when running
   - Best used through the proxy server to ensure reliable operation
-
-- **File Server**: Operational (http://localhost:8001)
-  - API endpoints enhanced for reliability
-  - Serving default datasets successfully
-  - File upload/download functionality working
-  - Improved error handling and fallback data
 
 ## 🔄 Recent Updates
 
