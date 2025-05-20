@@ -9,6 +9,10 @@ import re
 import sys
 from typing import Dict, List, Any, Tuple, Optional
 from flask import Flask, request, jsonify
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(
@@ -19,8 +23,18 @@ logging.basicConfig(
 logger = logging.getLogger("attribute-server")
 
 # Configuration
+FRONTEND_DEMO_DIR = os.getenv("FRONTEND_DEMO_DIR", 
+                             os.path.join(os.path.dirname(os.path.dirname(__file__)),
+                                         "Auto-Analyst/auto-analyst-frontend/public/demo-files"))
 EXPORTS_DIR = os.getenv("EXPORTS_DIR", "exports")
-DEFAULT_VEHICLES_FILE = os.path.join(EXPORTS_DIR, "vehicles.csv")
+# Prefer frontend demo files, fallback to exports dir
+DEFAULT_VEHICLES_FILE = os.path.join(FRONTEND_DEMO_DIR, "vehicles.csv")
+if not os.path.exists(DEFAULT_VEHICLES_FILE):
+    DEFAULT_VEHICLES_FILE = os.path.join(EXPORTS_DIR, "vehicles.csv")
+    logger.info(f"Frontend demo vehicles file not found, using {DEFAULT_VEHICLES_FILE} instead")
+else:
+    logger.info(f"Using frontend demo vehicles file: {DEFAULT_VEHICLES_FILE}")
+
 PORT = int(os.getenv("ATTRIBUTE_SERVER_PORT", "8002"))
 
 # Initialize Flask app
@@ -29,25 +43,41 @@ app = Flask(__name__)
 # Cached vehicles data
 vehicles_data = []
 
-# Model settings mock data (to prevent frontend errors)
+# Get model configuration from environment variables
+model_provider = os.getenv("MODEL_PROVIDER", "gemini")
+model_name = os.getenv("MODEL_NAME", "gemini-1.5-pro")
+temperature = float(os.getenv("TEMPERATURE", "0.7"))
+max_tokens = int(os.getenv("MAX_TOKENS", "1000"))
+
+# Map provider to a friendly name
+provider_names = {
+    "openai": "OpenAI",
+    "groq": "Groq",
+    "anthropic": "Anthropic",
+    "gemini": "Google"
+}
+
+provider_display = provider_names.get(model_provider, model_provider.capitalize())
+
+# Model settings from environment variables
 model_settings = {
     "default": {
         "id": "default",
         "name": "Default Model",
-        "description": "Default model settings for attribute filtering",
-        "temperature": 0.7,
-        "max_tokens": 1000,
-        "model": "attribute-filter-model"
+        "description": f"Default model settings from environment (.env)",
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+        "model": model_name
     }
 }
 
-# Mock models data
+# Models data from environment variables
 models = [
     {
-        "id": "attribute-filter-model",
-        "name": "Attribute Filter Model",
-        "description": "Specialized model for attribute filtering",
-        "provider": "internal"
+        "id": model_name,
+        "name": model_name.replace("-", " ").title(),
+        "provider": provider_display,
+        "description": f"{provider_display}'s {model_name.replace('-', ' ').title()} large language model"
     }
 ]
 

@@ -37,7 +37,7 @@ export default function Statistics() {
         setLoading(true);
         
         // Call the API to get statistics data
-        const response = await fetch(`${API_URL}/api/statistics`);
+        const response = await fetch(`${API_URL}/statistics`);
         
         if (!response.ok) {
           throw new Error(`API error: ${response.status}`);

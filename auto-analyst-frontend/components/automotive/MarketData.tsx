@@ -114,7 +114,7 @@ export default function MarketData() {
         
         // Call the API to get market data
         try {
-          const response = await fetch(`${AUTOMOTIVE_API_URL}/api/market-data`);
+          const response = await fetch(`${AUTOMOTIVE_API_URL}/market-data`);
           
           if (!response.ok) {
             console.warn(`API error: ${response.status}. Using fallback data.`);
@@ -122,12 +122,32 @@ export default function MarketData() {
           }
           
           const data = await response.json();
-          // Make sure we have a valid array, even if the API response format is unexpected
-          const marketDataArray = Array.isArray(data.market_data) 
-            ? data.market_data 
-            : Array.isArray(data) 
-              ? data 
-              : [];
+          console.log('Market data response:', data);
+          
+          // Handle different response structures
+          let marketDataArray = [];
+          if (Array.isArray(data)) {
+            marketDataArray = data;
+          } else if (data.market_data && Array.isArray(data.market_data)) {
+            marketDataArray = data.market_data;
+          } else if (data.trends && Array.isArray(data.trends)) {
+            // This is the current data structure we're getting
+            // Convert the trends data into the expected format for UI display
+            marketDataArray = FALLBACK_MARKET_DATA.map((item, index) => {
+              // Use the trends data to enhance our fallback data
+              const trendElement = data.trends[index % data.trends.length];
+              return {
+                ...item,
+                market_price: trendElement?.averagePrice || item.market_price,
+                // Recalculate price differences based on the new market price
+                price_difference: item.your_price - (trendElement?.averagePrice || item.market_price),
+                price_difference_percent: ((item.your_price - (trendElement?.averagePrice || item.market_price)) / (trendElement?.averagePrice || item.market_price) * 100).toFixed(2)
+              };
+            });
+          } else {
+            console.warn('Using fallback data due to unexpected API response format:', data);
+            marketDataArray = FALLBACK_MARKET_DATA;
+          }
           
           // Add market demand based on price difference percent and handle null values
           const enrichedData = marketDataArray.map((item: MarketData) => {

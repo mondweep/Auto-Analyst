@@ -48,6 +48,16 @@ from src.utils.logger import Logger
 # File server configuration
 FILE_SERVER_URL = os.getenv("FILE_SERVER_URL", "http://localhost:8001")
 
+# Demo files directory - use frontend demo files first, then fallback
+FRONTEND_DEMO_DIR = os.getenv("FRONTEND_DEMO_DIR", 
+                             os.path.join(os.path.dirname(__file__),
+                                         "Auto-Analyst/auto-analyst-frontend/public/demo-files"))
+if not os.path.exists(FRONTEND_DEMO_DIR):
+    FRONTEND_DEMO_DIR = os.path.join(os.path.dirname(__file__), "data")
+    print(f"Frontend demo directory not found, using {FRONTEND_DEMO_DIR} as fallback")
+else:
+    print(f"Using frontend demo directory: {FRONTEND_DEMO_DIR}")
+
 # In-memory cache for loaded datasets
 datasets_cache = {}
 
@@ -1049,15 +1059,30 @@ class DataAnalysisRequest(BaseModel):
 
 @app.get("/api/file-server/datasets", response_model=dict)
 async def get_available_datasets():
-    """Get a list of available datasets from the file server"""
+    """Get a list of available datasets from the frontend demo directory or file server"""
     try:
+        # First try the frontend demo directory
+        if os.path.exists(FRONTEND_DEMO_DIR):
+            try:
+                # List CSV files in the demo directory
+                demo_files = [f for f in os.listdir(FRONTEND_DEMO_DIR) if f.endswith('.csv')]
+                if demo_files:
+                    return {
+                        "success": True,
+                        "files": demo_files
+                    }
+            except Exception as e:
+                logger.log_message(f"Error listing files in frontend demo directory: {str(e)}", level=logging.ERROR)
+                # Fall through to try the file server
+        
+        # Fallback to file server
         response = requests.get(f"{FILE_SERVER_URL}/files")
         if response.status_code == 200:
             return response.json()
         else:
             return {"error": f"Failed to fetch datasets: {response.status_code}", "files": []}
     except Exception as e:
-        logger.log_message(f"Error fetching datasets from file server: {str(e)}", level=logging.ERROR)
+        logger.log_message(f"Error fetching datasets: {str(e)}", level=logging.ERROR)
         return {"error": f"Exception: {str(e)}", "files": []}
 
 @app.get("/api/file-server/health", response_model=dict)
@@ -1075,25 +1100,60 @@ async def check_file_server_health():
 
 @app.get("/api/file-server/default-dataset", response_model=dict)
 async def get_default_dataset():
-    """Get the default dataset from the file server"""
+    """Get the default dataset from the frontend demo directory or file server"""
     try:
+        # First try the frontend demo directory
+        default_csv_path = os.path.join(FRONTEND_DEMO_DIR, "vehicles.csv")
+        if os.path.exists(default_csv_path):
+            try:
+                # Load the CSV file
+                df = pd.read_csv(default_csv_path)
+                
+                # Convert to appropriate format
+                return {
+                    "success": True,
+                    "filename": "vehicles.csv",
+                    "rows": len(df),
+                    "columns": len(df.columns),
+                    "sample": df.head(5).to_dict(orient="records")
+                }
+            except Exception as e:
+                logger.log_message(f"Error loading default dataset from frontend demo directory: {str(e)}", level=logging.ERROR)
+                # Fall through to try the file server
+        
+        # Fallback to file server if frontend demo file doesn't exist
         response = requests.get(f"{FILE_SERVER_URL}/api/default-dataset")
         if response.status_code == 200:
             return response.json()
         else:
             return {"error": f"Failed to fetch default dataset: {response.status_code}"}
     except Exception as e:
-        logger.log_message(f"Error fetching default dataset from file server: {str(e)}", level=logging.ERROR)
+        logger.log_message(f"Error fetching default dataset: {str(e)}", level=logging.ERROR)
         return {"error": f"Exception: {str(e)}"}
 
 def load_dataset_from_file_server(filename):
-    """Load a dataset from the file server"""
+    """Load a dataset from the frontend demo directory or file server"""
     # Check if dataset is already in cache
     if filename in datasets_cache:
         return datasets_cache[filename], None
     
     try:
-        # Try to get the file from the exports directory
+        # First try the frontend demo directory
+        demo_file_path = os.path.join(FRONTEND_DEMO_DIR, filename)
+        if os.path.exists(demo_file_path):
+            try:
+                # Load the CSV file
+                df = pd.read_csv(demo_file_path)
+                
+                # Cache the dataframe for future use
+                datasets_cache[filename] = df
+                
+                return df, None
+            except Exception as e:
+                logger.log_message(f"Error loading dataset from frontend demo directory: {str(e)}", level=logging.ERROR)
+                # Fall through to try the file server
+        
+        # Fallback to file server if frontend demo file doesn't exist
         response = requests.get(f"{FILE_SERVER_URL}/exports/{filename}")
         
         if response.status_code == 200:
