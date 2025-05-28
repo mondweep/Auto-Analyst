@@ -1,4 +1,4 @@
-// port-redirect.js - Redirect requests from port 8000 to 8080
+// port-redirect.js - Redirect requests from port 8000 to 8000 (deprecated - using cors-bypass.js instead)
 // Add this script to the app or page layout to ensure all requests are properly routed
 
 if (typeof window !== 'undefined') {
@@ -6,10 +6,10 @@ if (typeof window !== 'undefined') {
   const originalFetch = window.fetch;
   
   window.fetch = function(url, options) {
-    // If this is a URL to port 8000, redirect it to port 8080
+    // If this is a URL to port 8000, keep it on port 8000 (updated to match backend)
     if (typeof url === 'string' && url.includes('localhost:8000')) {
-      const newUrl = url.replace('localhost:8000', 'localhost:8080');
-      console.log(`Redirecting request from ${url} to ${newUrl}`);
+      const newUrl = url; // No redirection needed anymore
+      console.log(`Request to ${url} (no redirection needed)`);
       return originalFetch(newUrl, options);
     }
     
@@ -17,5 +17,5 @@ if (typeof window !== 'undefined') {
     return originalFetch(url, options);
   };
   
-  console.log('✅ Port redirection initialized - redirecting requests from port 8000 to 8080');
+  console.log('✅ Port redirection initialized - keeping requests on port 8000 (deprecated script)');
 } 

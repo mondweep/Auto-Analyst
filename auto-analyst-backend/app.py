@@ -1596,5 +1596,87 @@ async def check_for_attribute_queries(request: Request, call_next):
     # Pass the request through to the normal handler
     return await call_next(request)
 
+# Add these routes before the existing routes section (around line 1050)
+
+# Missing API routes that frontend expects
+@app.get("/api/auth/session")
+async def get_auth_session():
+    """Mock auth session endpoint"""
+    return {
+        "user": {
+            "id": "demo-user",
+            "name": "Demo User",
+            "email": "demo@autoanalyst.com",
+            "image": None,
+            "isAdmin": False
+        },
+        "expires": "2030-12-31T23:59:59.999Z"
+    }
+
+@app.get("/api/user/credits")
+async def get_user_credits():
+    """Mock user credits endpoint"""
+    return {
+        "credits": 1000,
+        "subscription": {
+            "status": "active",
+            "tier": "pro"
+        }
+    }
+
+@app.post("/api/redis/hgetall")
+async def redis_hgetall(request: dict):
+    """Mock redis hgetall endpoint"""
+    return {
+        "success": True,
+        "data": {}
+    }
+
+# Also add direct routes without /api prefix for compatibility
+@app.get("/vehicles")
+async def get_vehicles_direct(
+    make: Optional[str] = None,
+    model: Optional[str] = None,
+    year: Optional[int] = None,
+    min_price: Optional[int] = None,
+    max_price: Optional[int] = None,
+    condition: Optional[str] = None,
+    sold: Optional[bool] = None,
+    limit: int = 100,
+    offset: int = 0,
+):
+    """Direct vehicle endpoint (redirect to API version)"""
+    from src.routes.automotive_routes import get_vehicles as api_get_vehicles
+    return await api_get_vehicles(make, model, year, min_price, max_price, condition, sold, limit, offset)
+
+@app.get("/market-data")
+async def get_market_data_direct(
+    make: Optional[str] = None,
+    model: Optional[str] = None,
+    year: Optional[int] = None,
+    is_opportunity: Optional[bool] = None,
+    limit: int = 100,
+    offset: int = 0,
+):
+    """Direct market data endpoint (redirect to API version)"""
+    from src.routes.automotive_routes import get_market_data as api_get_market_data
+    return await api_get_market_data(make, model, year, is_opportunity, limit, offset)
+
+@app.get("/opportunities")
+async def get_opportunities_direct(
+    min_percent_difference: float = 5.0,
+    limit: int = 100,
+    offset: int = 0,
+):
+    """Direct opportunities endpoint (redirect to API version)"""
+    from src.routes.automotive_routes import get_opportunities as api_get_opportunities
+    return await api_get_opportunities(min_percent_difference, limit, offset)
+
+@app.get("/statistics")
+async def get_statistics_direct():
+    """Direct statistics endpoint (redirect to API version)"""
+    from src.routes.automotive_routes import get_statistics as api_get_statistics
+    return await api_get_statistics()
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

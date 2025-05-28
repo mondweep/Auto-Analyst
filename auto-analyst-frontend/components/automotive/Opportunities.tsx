@@ -109,8 +109,22 @@ export default function Opportunities() {
             // If the response is a direct array
             opportunitiesData = data;
           } else if (data.opportunities && Array.isArray(data.opportunities)) {
-            // If the response has an opportunities property
-            opportunitiesData = data.opportunities;
+            // If the response has an opportunities property - transform the API data
+            opportunitiesData = data.opportunities.map((item: any) => ({
+              id: item.id,
+              make: item.make,
+              model: item.model,
+              year: item.year,
+              your_price: item.price, // Map 'price' to 'your_price'
+              market_price: item.market_data?.avg_market_price || 0, // Get from nested market_data
+              price_difference: item.market_data?.price_difference || 0, // Get from nested market_data
+              price_difference_percent: item.market_data?.percent_difference || 0, // Map percent_difference to price_difference_percent
+              days_in_inventory: item.days_in_inventory || 0,
+              potential_profit: Math.abs(item.market_data?.price_difference || 0),
+              color: item.color,
+              mileage: item.mileage,
+              condition: item.condition
+            }));
           } else {
             // If the response has a different structure than expected
             // Convert the new response format to match our component's expectations
@@ -139,10 +153,13 @@ export default function Opportunities() {
             }
           }
           
-          // Filter to only show items priced below market (or use all if we're using the new API format)
-          const relevantOpportunities = opportunitiesData.some((item: any) => item.apiCategory !== undefined) 
-            ? opportunitiesData 
-            : opportunitiesData.filter((item: any) => item.price_difference_percent < 0);
+          // For opportunities, we want to show vehicles with positive price differences (undervalued)
+          // The API returns opportunities where our price < market price (positive difference)
+          const relevantOpportunities = opportunitiesData.filter((item: any) => 
+            item.price_difference_percent > 0 || item.apiCategory !== undefined
+          );
+          
+          console.log('Processed opportunities:', relevantOpportunities);
           
           setOpportunities(relevantOpportunities);
           setFilteredOpportunities(relevantOpportunities);
@@ -169,7 +186,7 @@ export default function Opportunities() {
     if (opportunities.length === 0) return;
     
     const filtered = opportunities.filter(
-      opportunity => Math.abs(opportunity.price_difference_percent || 0) >= minPercentDifference
+      opportunity => (opportunity.price_difference_percent || 0) >= minPercentDifference
     );
     setFilteredOpportunities(filtered);
   }, [opportunities, minPercentDifference]);
@@ -197,15 +214,18 @@ export default function Opportunities() {
   
   // Get demand label based on price difference
   const getDemand = (difference: number) => {
-    if (difference <= -5) return 'High';
+    // For opportunities, higher positive difference = higher demand/better opportunity
+    if (difference >= 20) return 'High';
+    if (difference >= 10) return 'Medium';
     if (difference >= 5) return 'Low';
-    return 'Medium';
+    return 'Minimal';
   };
   
   // Get demand badge variant
   const getDemandVariant = (demand: string) => {
     if (demand === 'High') return 'default';
-    return 'secondary';
+    if (demand === 'Medium') return 'secondary';
+    return 'outline';
   };
   
   if (loading) {
@@ -272,10 +292,10 @@ export default function Opportunities() {
                   <TableCell>{formatCurrency(opportunity.your_price)}</TableCell>
                   <TableCell>{formatCurrency(opportunity.market_price)}</TableCell>
                   <TableCell className="text-green-600 font-semibold">
-                    {formatPercentage(Math.abs(opportunity.price_difference_percent))}
+                    {formatPercentage(opportunity.price_difference_percent)}
                   </TableCell>
                   <TableCell className="text-green-600 font-semibold">
-                    {formatCurrency(Math.abs(opportunity.price_difference))}
+                    {formatCurrency(opportunity.price_difference)}
                   </TableCell>
                   <TableCell>{opportunity.days_in_inventory} days</TableCell>
                   <TableCell>

@@ -102,11 +102,11 @@
     
     // Handle absolute URLs
     if (url.includes('://')) {
-      return url.replace(/https?:\/\/[^\/]+/, 'http://localhost:8080');
+      return url.replace(/https?:\/\/[^\/]+/, 'http://localhost:8000');
     } 
     // Handle relative URLs
     else if (url.startsWith('/')) {
-      return `http://localhost:8080${url}`;
+      return `http://localhost:8000${url}`;
     }
     
     return url;
