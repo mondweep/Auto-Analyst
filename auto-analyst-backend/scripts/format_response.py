@@ -542,9 +542,14 @@ def format_response_to_markdown(api_response, agent_name = None, dataframe=None)
 
         if isinstance(api_response, dict):
             for key in api_response:
-                if "error" in api_response[key] and "litellm.RateLimitError" in api_response[key]['error'].lower():
+                # Check if the value is a dictionary before trying to access its keys
+                if isinstance(api_response[key], dict) and "error" in api_response[key] and "litellm.RateLimitError" in api_response[key]['error'].lower():
                     return f"**Error**: Rate limit exceeded. Please try switching models from the settings."
-                # You can add more checks here if needed for other keys
+                # Handle the case where api_response[key] is a string containing error information
+                elif isinstance(api_response[key], str) and "litellm.AuthenticationError" in api_response[key]:
+                    return f"**Error**: Authentication failed. Please check your API key in settings and try again."
+                elif isinstance(api_response[key], str) and "API key not valid" in api_response[key]:
+                    return f"**Error**: Invalid API key. Please check your API key in settings and try again."
                        
         # Handle error responses
         if isinstance(api_response, dict) and "error" in api_response:
@@ -576,20 +581,6 @@ def format_response_to_markdown(api_response, agent_name = None, dataframe=None)
 
             if 'code' in content:
                 markdown.append(f"### Code Implementation\n{format_code_backticked_block(content['code'])}\n")
-                # if agent_name is not None:
-                #     # execute the code
-                #     clean_code = format_code_block(content['code'])
-                #     output, json_outputs = execute_code_from_markdown(clean_code, dataframe)
-                #     if output:
-                #         markdown.append("### Execution Output\n")
-                #         markdown.append(f"```output\n{output}\n```\n")
-
-                #     if json_outputs:
-                #         markdown.append("### Plotly JSON Outputs\n")
-                #         for idx, json_output in enumerate(json_outputs):
-                #             if len(json_output) > 1000000:  # If JSON is larger than 1MB
-                #                 logger.log_message(f"Large JSON output detected: {len(json_output)} bytes", level=logging.WARNING)
-                #             markdown.append(f"```plotly\n{json_output}\n```\n")
 
             if 'summary' in content:
                 # make the summary a bullet-point list
@@ -631,9 +622,6 @@ def format_response_to_markdown(api_response, agent_name = None, dataframe=None)
                     markdown.append("### Plotly JSON Outputs\n")
                     for idx, json_output in enumerate(json_outputs):
                         markdown.append(f"```plotly\n{json_output}\n```\n")
-            # if agent_name is not None:  
-            #     if f"memory_{agent_name}" in api_response:
-            #         markdown.append(f"### Memory\n{api_response[f'memory_{agent_name}']}\n")
 
     except Exception as e:
         logger.log_message(f"Error in format_response_to_markdown: {str(e)}", level=logging.ERROR)

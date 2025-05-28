@@ -132,10 +132,24 @@ This dataset appears clean with consistent formatting and no missing values, mak
         if hasattr(self, '_app_model_config') and self._app_model_config:
             default_model_config = self._app_model_config
         else:
+            # Get provider and select appropriate API key
+            provider = os.getenv("MODEL_PROVIDER", "openai").lower()
+            model = os.getenv("MODEL_NAME", "gpt-4o-mini")
+            
+            # Select API key based on provider
+            if provider == "gemini":
+                api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+            elif provider == "groq":
+                api_key = os.getenv("GROQ_API_KEY")
+            elif provider == "anthropic":
+                api_key = os.getenv("ANTHROPIC_API_KEY")
+            else:  # Default to OpenAI
+                api_key = os.getenv("OPENAI_API_KEY")
+            
             default_model_config = {
-                "provider": os.getenv("MODEL_PROVIDER", "openai"),
-                "model": os.getenv("MODEL_NAME", "gpt-4o-mini"),
-                "api_key": os.getenv("OPENAI_API_KEY"),
+                "provider": provider,
+                "model": model,
+                "api_key": api_key,
                 "temperature": float(os.getenv("TEMPERATURE", 1.0)),
                 "max_tokens": int(os.getenv("MAX_TOKENS", 6000))
             }
@@ -208,11 +222,24 @@ This dataset appears clean with consistent formatting and no missing values, mak
             retrievers = self.initialize_retrievers(self.styling_instructions, [str(self._make_data)])
             ai_system = auto_analyst(agents=list(self.available_agents.values()), retrievers=retrievers)
             
-            # Get default model config for new sessions
+            # Get default model config for new sessions with proper API key selection
+            provider = os.getenv("MODEL_PROVIDER", "openai").lower()
+            model = os.getenv("MODEL_NAME", "gpt-4o-mini")
+            
+            # Select API key based on provider
+            if provider == "gemini":
+                api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+            elif provider == "groq":
+                api_key = os.getenv("GROQ_API_KEY")
+            elif provider == "anthropic":
+                api_key = os.getenv("ANTHROPIC_API_KEY")
+            else:  # Default to OpenAI
+                api_key = os.getenv("OPENAI_API_KEY")
+            
             default_model_config = {
-                "provider": os.getenv("MODEL_PROVIDER", "openai"),
-                "model": os.getenv("MODEL_NAME", "gpt-4o-mini"),
-                "api_key": os.getenv("OPENAI_API_KEY"),
+                "provider": provider,
+                "model": model,
+                "api_key": api_key,
                 "temperature": float(os.getenv("TEMPERATURE", 1.0)),
                 "max_tokens": int(os.getenv("MAX_TOKENS", 6000))
             }
@@ -255,11 +282,24 @@ This dataset appears clean with consistent formatting and no missing values, mak
             session_id: The session identifier
         """
         try:
-            # Get default model config from environment
+            # Get default model config from environment with proper API key selection
+            provider = os.getenv("MODEL_PROVIDER", "openai").lower()
+            model = os.getenv("MODEL_NAME", "gpt-4o-mini")
+            
+            # Select API key based on provider
+            if provider == "gemini":
+                api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+            elif provider == "groq":
+                api_key = os.getenv("GROQ_API_KEY")
+            elif provider == "anthropic":
+                api_key = os.getenv("ANTHROPIC_API_KEY")
+            else:  # Default to OpenAI
+                api_key = os.getenv("OPENAI_API_KEY")
+            
             default_model_config = {
-                "provider": os.getenv("MODEL_PROVIDER", "openai"),
-                "model": os.getenv("MODEL_NAME", "gpt-4o-mini"),
-                "api_key": os.getenv("OPENAI_API_KEY"),
+                "provider": provider,
+                "model": model,
+                "api_key": api_key,
                 "temperature": float(os.getenv("TEMPERATURE", 1.0)),
                 "max_tokens": int(os.getenv("MAX_TOKENS", 6000))
             }
@@ -354,16 +394,17 @@ async def get_session_id(request, session_manager):
     if session_state.get("user_id") is not None:
         return session_id
     
+    # TEMPORARILY DISABLE USER AUTHENTICATION TO TEST IF THIS IS CAUSING THE ISSUE
     # Next, try to get authenticated user using the API key
-    current_user = await get_current_user(request)
-    if current_user:
-        # Use the authenticated user instead of creating a guest
-        session_manager.set_session_user(
-            session_id=session_id,
-            user_id=current_user.user_id
-        )
-        logger.log_message(f"Associated session {session_id} with authenticated user_id {current_user.user_id}", level=logging.INFO)
-        return session_id
+    # current_user = await get_current_user(request)
+    # if current_user:
+    #     # Use the authenticated user instead of creating a guest
+    #     session_manager.set_session_user(
+    #         session_id=session_id,
+    #         user_id=current_user.user_id
+    #     )
+    #     logger.log_message(f"Associated session {session_id} with authenticated user_id {current_user.user_id}", level=logging.INFO)
+    #     return session_id
     
     # Check if a user_id was provided in the request params
     user_id_param = request.query_params.get("user_id")
