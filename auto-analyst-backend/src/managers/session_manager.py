@@ -394,19 +394,7 @@ async def get_session_id(request, session_manager):
     if session_state.get("user_id") is not None:
         return session_id
     
-    # TEMPORARILY DISABLE USER AUTHENTICATION TO TEST IF THIS IS CAUSING THE ISSUE
-    # Next, try to get authenticated user using the API key
-    # current_user = await get_current_user(request)
-    # if current_user:
-    #     # Use the authenticated user instead of creating a guest
-    #     session_manager.set_session_user(
-    #         session_id=session_id,
-    #         user_id=current_user.user_id
-    #     )
-    #     logger.log_message(f"Associated session {session_id} with authenticated user_id {current_user.user_id}", level=logging.INFO)
-    #     return session_id
-    
-    # Check if a user_id was provided in the request params
+    # Check if a user_id was provided in the request params (prioritize this)
     user_id_param = request.query_params.get("user_id")
     if user_id_param:
         try:
@@ -416,6 +404,21 @@ async def get_session_id(request, session_manager):
             return session_id
         except (ValueError, TypeError):
             logger.log_message(f"Invalid user_id in query params: {user_id_param}", level=logging.WARNING)
+    
+    # Try to get authenticated user using the API key (but don't let it block the session)
+    try:
+        current_user = await get_current_user(request)
+        if current_user:
+            # Use the authenticated user instead of creating a guest
+            session_manager.set_session_user(
+                session_id=session_id,
+                user_id=current_user.user_id
+            )
+            logger.log_message(f"Associated session {session_id} with authenticated user_id {current_user.user_id}", level=logging.INFO)
+            return session_id
+    except Exception as e:
+        # Don't let authentication errors block the session creation
+        logger.log_message(f"User authentication failed, continuing with guest user: {str(e)}", level=logging.WARNING)
     
     # Only create a guest user if no authenticated user is found
     try:
