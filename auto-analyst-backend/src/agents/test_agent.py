@@ -664,179 +664,6 @@ class planner_sk_learn_agent(dspy.Signature):
     code = dspy.OutputField(desc="Scikit-learn based machine learning code")
     summary = dspy.OutputField(desc="Explanation of the ML approach and evaluation")
 
-class goal_refiner_agent(dspy.Signature):
-    # Called to refine the query incase user query not elaborate
-    """You take a user-defined goal given to a AI data analyst planner agent, 
-    you make the goal more elaborate using the datasets available and agent_desc"""
-    dataset = dspy.InputField(desc="Available datasets loaded in the system, use this df,columns  set df as copy of df")
-    Agent_desc = dspy.InputField(desc= "The agents available in the system")
-    goal = dspy.InputField(desc="The user defined goal ")
-    refined_goal = dspy.OutputField(desc='Refined goal that helps the planner agent plan better')
-
-class preprocessing_agent(dspy.Signature):
-    """You are a AI data-preprocessing agent. Generate clean and efficient Python code using NumPy and Pandas to perform introductory data preprocessing on a pre-loaded DataFrame df, based on the user's analysis goals.
-
-    Preprocessing Requirements:
-
-    1. Identify Column Types
-    - Separate columns into numeric and categorical using:
-        categorical_columns = df.select_dtypes(include=[object, 'category']).columns.tolist()
-        numeric_columns = df.select_dtypes(include=[np.number]).columns.tolist()
-
-    2. Handle Missing Values
-    - Numeric columns: Impute missing values using the mean of each column
-    - Categorical columns: Impute missing values using the mode of each column
-
-    3. Convert Date Strings to Datetime
-    - For any column suspected to represent dates (in string format), convert it to datetime using:
-        def safe_to_datetime(date):
-            try:
-                return pd.to_datetime(date, errors='coerce', cache=False)
-            except (ValueError, TypeError):
-                return pd.NaT
-        df['datetime_column'] = df['datetime_column'].apply(safe_to_datetime)
-    - Replace 'datetime_column' with the actual column names containing date-like strings
-
-    Important Notes:
-    - Do NOT create a correlation matrix — correlation analysis is outside the scope of preprocessing
-    - Do NOT generate any plots or visualizations
-
-    Output Instructions:
-    1. Include the full preprocessing Python code
-    2. Provide a brief bullet-point summary of the steps performed. Example:
-    • Identified 5 numeric and 4 categorical columns
-    • Filled missing numeric values with column means
-    • Filled missing categorical values with column modes
-    • Converted 1 date column to datetime format
-    """
-    dataset = dspy.InputField(desc="Available datasets loaded in the system, use this df, column_names  set df as copy of df")
-    goal = dspy.InputField(desc="The user defined goal could ")
-    code = dspy.OutputField(desc ="The code that does the data preprocessing and introductory analysis")
-    summary = dspy.OutputField(desc="A concise bullet-point summary of the preprocessing operations performed")
-    
-
-
-class statistical_analytics_agent(dspy.Signature):
-    # Statistical Analysis Agent, builds statistical models using StatsModel Package
-    """ 
-    You are a statistical analytics agent. Your task is to take a dataset and a user-defined goal and output Python code that performs the appropriate statistical analysis to achieve that goal. Follow these guidelines:
-
-    IMPORTANT: You may be provided with previous interaction history. The section marked "### Current Query:" contains the user's current request. Any text in "### Previous Interaction History:" is for context only and is NOT part of the current request.
-
-    Data Handling:
-
-    Always handle strings as categorical variables in a regression using statsmodels C(string_column).
-    Do not change the index of the DataFrame.
-    Convert X and y into float when fitting a model.
-    Error Handling:
-
-    Always check for missing values and handle them appropriately.
-    Ensure that categorical variables are correctly processed.
-    Provide clear error messages if the model fitting fails.
-    Regression:
-
-    For regression, use statsmodels and ensure that a constant term is added to the predictor using sm.add_constant(X).
-    Handle categorical variables using C(column_name) in the model formula.
-    Fit the model with model = sm.OLS(y.astype(float), X.astype(float)).fit().
-    Seasonal Decomposition:
-
-    Ensure the period is set correctly when performing seasonal decomposition.
-    Verify the number of observations works for the decomposition.
-    Output:
-
-    Ensure the code is executable and as intended.
-    Also choose the correct type of model for the problem
-    Avoid adding data visualization code.
-
-    Use code like this to prevent failing:
-    import pandas as pd
-    import numpy as np
-    import statsmodels.api as sm
-
-    def statistical_model(X, y, goal, period=None):
-        try:
-            # Check for missing values and handle them
-            X = X.dropna()
-            y = y.loc[X.index].dropna()
-
-            # Ensure X and y are aligned
-            X = X.loc[y.index]
-
-            # Convert categorical variables
-            for col in X.select_dtypes(include=['object', 'category']).columns:
-                X[col] = X[col].astype('category')
-
-            # Add a constant term to the predictor
-            X = sm.add_constant(X)
-
-            # Fit the model
-            if goal == 'regression':
-                # Handle categorical variables in the model formula
-                formula = 'y ~ ' + ' + '.join([f'C({col})' if X[col].dtype.name == 'category' else col for col in X.columns])
-                model = sm.OLS(y.astype(float), X.astype(float)).fit()
-                return model.summary()
-
-            elif goal == 'seasonal_decompose':
-                if period is None:
-                    raise ValueError("Period must be specified for seasonal decomposition")
-                decomposition = sm.tsa.seasonal_decompose(y, period=period)
-                return decomposition
-
-            else:
-                raise ValueError("Unknown goal specified. Please provide a valid goal.")
-
-        except Exception as e:
-            return f"An error occurred: {e}"
-
-    # Example usage:
-    result = statistical_analysis(X, y, goal='regression')
-    print(result)
-
-    If visualizing use plotly
-
-    Provide a concise bullet-point summary of the statistical analysis performed.
-    
-    Example Summary:
-    • Applied linear regression with OLS to predict house prices based on 5 features
-    • Model achieved R-squared of 0.78
-    • Significant predictors include square footage (p<0.001) and number of bathrooms (p<0.01)
-    • Detected strong seasonal pattern with 12-month periodicity
-    • Forecast shows 15% growth trend over next quarter
-
-    """
-    dataset = dspy.InputField(desc="Available datasets loaded in the system, use this df,columns  set df as copy of df")
-    goal = dspy.InputField(desc="The user defined goal for the analysis to be performed")
-    code = dspy.OutputField(desc ="The code that does the statistical analysis using statsmodel")
-    summary = dspy.OutputField(desc="A concise bullet-point summary of the statistical analysis performed and key findings")
-    
-
-class sk_learn_agent(dspy.Signature):
-    # Machine Learning Agent, performs task using sci-kit learn
-    """You are a machine learning agent. 
-    Your task is to take a dataset and a user-defined goal, and output Python code that performs the appropriate machine learning analysis to achieve that goal. 
-    You should use the scikit-learn library.
-
-    IMPORTANT: You may be provided with previous interaction history. The section marked "### Current Query:" contains the user's current request. Any text in "### Previous Interaction History:" is for context only and is NOT part of the current request.
-
-    Make sure your output is as intended!
-
-    Provide a concise bullet-point summary of the machine learning operations performed.
-    
-    Example Summary:
-    • Trained a Random Forest classifier on customer churn data with 80/20 train-test split
-    • Model achieved 92% accuracy and 88% F1-score
-    • Feature importance analysis revealed that contract length and monthly charges are the strongest predictors of churn
-    • Implemented K-means clustering (k=4) on customer shopping behaviors
-    • Identified distinct segments: high-value frequent shoppers (22%), occasional big spenders (35%), budget-conscious regulars (28%), and rare visitors (15%)
-    
-    """
-    dataset = dspy.InputField(desc="Available datasets loaded in the system, use this df,columns. set df as copy of df")
-    goal = dspy.InputField(desc="The user defined goal ")
-    code = dspy.OutputField(desc ="The code that does the Exploratory data analysis")
-    summary = dspy.OutputField(desc="A concise bullet-point summary of the machine learning analysis performed and key results")
-    
-    
-    
 class story_teller_agent(dspy.Signature):
     # Optional helper agent, which can be called to build a analytics story 
     # For all of the analysis performed
@@ -1118,19 +945,16 @@ class auto_analyst(dspy.Module):
     
     def __init__(self, agents, retrievers):
         # Initialize agent modules and retrievers
-        self.agents = {}
-        self.agent_inputs = {}
-        self.agent_desc = []
-        
-        for i, a in enumerate(agents):
-            name = a.__pydantic_core_schema__['schema']['model_name']
-            self.agents[name] = dspy.ChainOfThought(a)
-            self.agent_inputs[name] = {x.strip() for x in str(agents[i].__pydantic_core_schema__['cls']).split('->')[0].split('(')[1].split(',')}
-            self.agent_desc.append({name: get_agent_description(name)})
+        super().__init__()
+        self.memory = m.MessageMemory(ttl=3600)
+        self.retrievers = retrievers
+        for name, agent in agents.items():
+            setattr(self, name, dspy.Predict(agent))
+        # TODO: Fix this reference to a function generator
+        # self.refine_goal = dspy.ChainOfThought(goal_refiner_agent)
         
         # Initialize coordination agents
         self.planner = dspy.ChainOfThought(analytical_planner)
-        self.refine_goal = dspy.ChainOfThought(goal_refiner_agent)
         self.code_combiner_agent = dspy.ChainOfThought(code_combiner_agent)
         self.story_teller = dspy.ChainOfThought(story_teller_agent)
         self.memory_summarize_agent = dspy.ChainOfThought(m.memory_summarize_agent)

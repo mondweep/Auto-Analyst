@@ -1,0 +1,138 @@
+2025-05-19 17:01:27,224 - attribute-proxy - INFO - Starting Attribute Proxy on port 8080...
+2025-05-19 17:01:27,224 - attribute-proxy - INFO - Main App URL: http://localhost:8000
+2025-05-19 17:01:27,224 - attribute-proxy - INFO - Attribute Server URL: http://localhost:8002
+2025-05-19 17:01:27,224 - attribute-proxy - INFO - Available endpoints:
+2025-05-19 17:01:27,224 - attribute-proxy - INFO -   - /health - Health check
+2025-05-19 17:01:27,224 - attribute-proxy - INFO -   - /chat - Chat proxy (tries attribute server first)
+2025-05-19 17:01:27,224 - attribute-proxy - INFO -   - /api/attribute-query - Attribute query proxy
+2025-05-19 17:01:27,224 - attribute-proxy - INFO -   - /api/direct-count - Direct count proxy
+2025-05-19 17:01:27,224 - attribute-proxy - INFO -   - /* - Proxy for all other endpoints
+2025-05-19 17:01:27,354 - attribute-proxy - INFO - ✅ Both attribute server and main app are available
+ * Tip: There are .env files present. Install python-dotenv to use them.
+ * Serving Flask app 'attribute_proxy'
+ * Debug mode: on
+2025-05-19 17:01:27,396 - werkzeug - INFO - [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:8080
+ * Running on http://192.168.68.113:8080
+2025-05-19 17:01:27,396 - werkzeug - INFO - [33mPress CTRL+C to quit[0m
+2025-05-19 17:01:27,397 - werkzeug - INFO -  * Restarting with stat
+2025-05-19 17:01:27,582 - attribute-proxy - INFO - Starting Attribute Proxy on port 8080...
+2025-05-19 17:01:27,582 - attribute-proxy - INFO - Main App URL: http://localhost:8000
+2025-05-19 17:01:27,582 - attribute-proxy - INFO - Attribute Server URL: http://localhost:8002
+2025-05-19 17:01:27,582 - attribute-proxy - INFO - Available endpoints:
+2025-05-19 17:01:27,582 - attribute-proxy - INFO -   - /health - Health check
+2025-05-19 17:01:27,582 - attribute-proxy - INFO -   - /chat - Chat proxy (tries attribute server first)
+2025-05-19 17:01:27,582 - attribute-proxy - INFO -   - /api/attribute-query - Attribute query proxy
+2025-05-19 17:01:27,582 - attribute-proxy - INFO -   - /api/direct-count - Direct count proxy
+2025-05-19 17:01:27,582 - attribute-proxy - INFO -   - /* - Proxy for all other endpoints
+2025-05-19 17:01:27,596 - attribute-proxy - INFO - ✅ Both attribute server and main app are available
+ * Tip: There are .env files present. Install python-dotenv to use them.
+2025-05-19 17:01:27,628 - werkzeug - WARNING -  * Debugger is active!
+2025-05-19 17:01:27,636 - werkzeug - INFO -  * Debugger PIN: 782-584-937
+2025-05-19 17:01:46,001 - attribute-proxy - INFO - Processing request for agents - attribute endpoint: True
+2025-05-19 17:01:46,093 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:01:46] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:01:46,133 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:01:46] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:01:46,161 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:01:46] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:01:46,170 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:01:46] "OPTIONS /settings/model HTTP/1.1" 200 -
+2025-05-19 17:01:46,173 - attribute-proxy - INFO - Forwarding GET request to http://localhost:8002/agents
+2025-05-19 17:01:46,175 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:01:46] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:01:46,178 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:01:46] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:01:46,179 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:01:46] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:01:46,195 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:01:46] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:01:46,197 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:01:46] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:01:46,199 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:01:46] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:01:46,201 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:01:46] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:01:46,203 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:01:46] "GET /agents HTTP/1.1" 200 -
+2025-05-19 17:01:46,209 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:01:46] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:01:46,212 - attribute-proxy - INFO - Processing request for agents - attribute endpoint: True
+2025-05-19 17:01:46,225 - attribute-proxy - INFO - Forwarding GET request to http://localhost:8002/agents
+2025-05-19 17:01:46,239 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:01:46] "GET /agents HTTP/1.1" 200 -
+2025-05-19 17:02:06,720 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:06] "OPTIONS /settings/model HTTP/1.1" 200 -
+2025-05-19 17:02:06,759 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:06] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:02:06,762 - attribute-proxy - INFO - Processing request for agents - attribute endpoint: True
+2025-05-19 17:02:06,900 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:06] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:02:06,928 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:06] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:02:06,942 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:06] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:02:06,948 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:06] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:02:06,953 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:06] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:02:06,958 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:06] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:02:06,961 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:06] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:02:06,964 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:06] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:02:06,966 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:06] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:02:06,969 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:06] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:02:06,974 - attribute-proxy - INFO - Forwarding GET request to http://localhost:8002/agents
+2025-05-19 17:02:06,989 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:06] "GET /agents HTTP/1.1" 200 -
+2025-05-19 17:02:06,992 - attribute-proxy - INFO - Processing request for agents - attribute endpoint: True
+2025-05-19 17:02:07,007 - attribute-proxy - INFO - Forwarding GET request to http://localhost:8002/agents
+2025-05-19 17:02:07,067 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:07] "GET /agents HTTP/1.1" 200 -
+2025-05-19 17:02:24,207 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:24] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:02:24,232 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:24] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:02:24,242 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:24] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:02:24,263 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:24] "OPTIONS /settings/model HTTP/1.1" 200 -
+2025-05-19 17:02:24,278 - attribute-proxy - INFO - Processing request for agents - attribute endpoint: True
+2025-05-19 17:02:24,282 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:24] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:02:24,285 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:24] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:02:24,327 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:24] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:02:24,329 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:24] "OPTIONS /settings/model HTTP/1.1" 200 -
+2025-05-19 17:02:24,332 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:24] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:02:24,341 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:24] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:02:24,342 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:24] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:02:24,383 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:24] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:02:24,385 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:24] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:02:24,387 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:24] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:02:24,397 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:24] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:02:24,408 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:24] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:02:24,411 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:24] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:02:24,429 - attribute-proxy - INFO - Forwarding GET request to http://localhost:8002/agents
+2025-05-19 17:02:24,445 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:24] "GET /agents HTTP/1.1" 200 -
+2025-05-19 17:02:24,446 - attribute-proxy - INFO - Processing request for agents - attribute endpoint: True
+2025-05-19 17:02:24,451 - attribute-proxy - INFO - Forwarding GET request to http://localhost:8002/agents
+2025-05-19 17:02:24,454 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:24] "GET /agents HTTP/1.1" 200 -
+2025-05-19 17:02:29,103 - attribute-proxy - INFO - Processing request for api/vehicles - attribute endpoint: False
+2025-05-19 17:02:29,155 - attribute-proxy - INFO - Forwarding request to main app: api/vehicles
+2025-05-19 17:02:29,155 - attribute-proxy - INFO - Forwarding GET request to http://localhost:8000/api/vehicles
+2025-05-19 17:02:29,209 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:29] "GET /api/vehicles HTTP/1.1" 200 -
+2025-05-19 17:02:29,211 - attribute-proxy - INFO - Processing request for api/vehicles - attribute endpoint: False
+2025-05-19 17:02:29,217 - attribute-proxy - INFO - Forwarding request to main app: api/vehicles
+2025-05-19 17:02:29,217 - attribute-proxy - INFO - Forwarding GET request to http://localhost:8000/api/vehicles
+2025-05-19 17:02:29,231 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:29] "GET /api/vehicles HTTP/1.1" 200 -
+2025-05-19 17:02:32,739 - attribute-proxy - INFO - Processing request for api/statistics - attribute endpoint: False
+2025-05-19 17:02:32,746 - attribute-proxy - INFO - Forwarding request to main app: api/statistics
+2025-05-19 17:02:32,746 - attribute-proxy - INFO - Forwarding GET request to http://localhost:8000/api/statistics
+2025-05-19 17:02:32,758 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:32] "GET /api/statistics HTTP/1.1" 200 -
+2025-05-19 17:02:32,762 - attribute-proxy - INFO - Processing request for api/statistics - attribute endpoint: False
+2025-05-19 17:02:32,775 - attribute-proxy - INFO - Forwarding request to main app: api/statistics
+2025-05-19 17:02:32,775 - attribute-proxy - INFO - Forwarding GET request to http://localhost:8000/api/statistics
+2025-05-19 17:02:32,783 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:32] "GET /api/statistics HTTP/1.1" 200 -
+2025-05-19 17:02:34,353 - attribute-proxy - INFO - Processing request for api/vehicles - attribute endpoint: False
+2025-05-19 17:02:34,358 - attribute-proxy - INFO - Forwarding request to main app: api/vehicles
+2025-05-19 17:02:34,358 - attribute-proxy - INFO - Forwarding GET request to http://localhost:8000/api/vehicles
+2025-05-19 17:02:34,368 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:34] "GET /api/vehicles HTTP/1.1" 200 -
+2025-05-19 17:02:34,370 - attribute-proxy - INFO - Processing request for api/vehicles - attribute endpoint: False
+2025-05-19 17:02:34,375 - attribute-proxy - INFO - Forwarding request to main app: api/vehicles
+2025-05-19 17:02:34,375 - attribute-proxy - INFO - Forwarding GET request to http://localhost:8000/api/vehicles
+2025-05-19 17:02:34,386 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:34] "GET /api/vehicles HTTP/1.1" 200 -
+2025-05-19 17:02:36,879 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:36] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:02:36,882 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:36] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:02:36,887 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:36] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:02:36,933 - attribute-proxy - INFO - Processing request for agents - attribute endpoint: True
+2025-05-19 17:02:36,963 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:36] "OPTIONS /settings/model HTTP/1.1" 200 -
+2025-05-19 17:02:36,971 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:36] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:02:37,004 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:37] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:02:37,017 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:37] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:02:37,024 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:37] "OPTIONS /settings/model HTTP/1.1" 200 -
+2025-05-19 17:02:37,034 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:37] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:02:37,035 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:37] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:02:37,042 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:37] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:02:37,045 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:37] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:02:37,046 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:37] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:02:37,054 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:37] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:02:37,058 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:37] "OPTIONS /api/model-settings HTTP/1.1" 200 -
+2025-05-19 17:02:37,062 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:37] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:02:37,063 - attribute-proxy - INFO - Forwarding GET request to http://localhost:8002/agents
+2025-05-19 17:02:37,065 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:37] "OPTIONS /api/session-info HTTP/1.1" 200 -
+2025-05-19 17:02:37,075 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:37] "GET /agents HTTP/1.1" 200 -
+2025-05-19 17:02:37,084 - attribute-proxy - INFO - Processing request for agents - attribute endpoint: True
+2025-05-19 17:02:37,109 - attribute-proxy - INFO - Forwarding GET request to http://localhost:8002/agents
+2025-05-19 17:02:37,124 - werkzeug - INFO - 127.0.0.1 - - [19/May/2025 17:02:37] "GET /agents HTTP/1.1" 200 -

@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 import os
+import sys
 import json
 import http.server
 import socketserver
-from urllib.parse import urlparse, unquote
+from urllib.parse import urlparse, unquote, parse_qs
 import random
 from datetime import datetime, timedelta
 
@@ -183,17 +184,17 @@ def generate_statistics(vehicles):
     avg_days = sum(v["days_in_inventory"] for v in vehicles) / total_vehicles if total_vehicles > 0 else 0
     
     return {
-        "makes": make_stats,
-        "conditions": condition_stats,
+        "make_distribution": {item["name"]: item["value"] for item in make_stats},
+        "condition_distribution": {item["name"]: item["value"] for item in condition_stats},
         "price_ranges": price_stats,
         "inventory_age": age_stats,
-        "summary": {
-            "total_vehicles": total_vehicles,
-            "available_vehicles": available_vehicles,
-            "sold_vehicles": sold_vehicles,
-            "average_price": int(avg_price),
-            "average_days_in_inventory": int(avg_days)
-        }
+        "total_vehicles": total_vehicles,
+        "available_vehicles": available_vehicles,
+        "sold_vehicles": sold_vehicles,
+        "average_price": int(avg_price),
+        "average_days_in_inventory": int(avg_days),
+        "avg_prices_by_make": {make: sum(v["price"] for v in vehicles if v["make"] == make) / makes[make] 
+                              for make in makes if makes[make] > 0}
     }
 
 class AutomotiveHandler(http.server.SimpleHTTPRequestHandler):
@@ -204,52 +205,62 @@ class AutomotiveHandler(http.server.SimpleHTTPRequestHandler):
         self.statistics = generate_statistics(self.vehicles)
         super().__init__(*args, **kwargs)
     
-    def _set_response(self, status_code=200, content_type='application/json'):
-        """Set response headers correctly"""
-        self.send_response(status_code)
-        self.send_header('Content-type', content_type)
+    def _set_cors_headers(self):
+        """Set CORS headers for all responses"""
         self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, OPTIONS')
-        self.send_header('Access-Control-Allow-Headers', 'Content-Type')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+        self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    
+    def _send_json_response(self, status_code, data):
+        """Helper method to send JSON responses"""
+        self.send_response(status_code)
+        self.send_header('Content-type', 'application/json')
+        self._set_cors_headers()
         self.end_headers()
+        self.wfile.write(json.dumps(data).encode())
+    
+    def do_OPTIONS(self):
+        """Handle OPTIONS requests for CORS preflight"""
+        self.send_response(200)
+        self._set_cors_headers()
+        self.end_headers()
+        self.wfile.write(b'{}')
     
     def do_GET(self):
         """Handle GET requests"""
         # Parse the URL path
         parsed_path = urlparse(self.path)
         path = unquote(parsed_path.path)
+        query_params = parse_qs(parsed_path.query)
+        
+        # Print request info for debugging
+        print(f"Received request: {path}")
         
         # Handle API endpoints
         if path == '/api/vehicles':
-            self._set_response()
-            self.wfile.write(json.dumps({'vehicles': self.vehicles}).encode())
+            self._send_json_response(200, {'vehicles': self.vehicles})
             return
         
         elif path == '/api/market-data':
-            self._set_response()
-            self.wfile.write(json.dumps({'market_data': self.market_data}).encode())
+            self._send_json_response(200, {'market_data': self.market_data})
             return
         
         elif path == '/api/opportunities':
-            self._set_response()
-            self.wfile.write(json.dumps({'opportunities': self.opportunities}).encode())
+            self._send_json_response(200, {'opportunities': self.opportunities})
             return
         
         elif path == '/api/statistics':
-            self._set_response()
-            self.wfile.write(json.dumps({'statistics': self.statistics}).encode())
+            self._send_json_response(200, {'statistics': self.statistics})
             return
         
         elif path == '/health':
-            self._set_response()
-            self.wfile.write(json.dumps({
+            self._send_json_response(200, {
                 'status': 'ok', 
                 'message': 'Automotive API is running'
-            }).encode())
+            })
             return
         
         elif path == '/':
-            self._set_response()
             endpoints = [
                 "/api/vehicles", 
                 "/api/market-data", 
@@ -257,25 +268,20 @@ class AutomotiveHandler(http.server.SimpleHTTPRequestHandler):
                 "/api/statistics",
                 "/health"
             ]
-            self.wfile.write(json.dumps({
+            self._send_json_response(200, {
                 "message": "Automotive API Server",
                 "endpoints": endpoints
-            }).encode())
+            })
             return
         
         else:
-            self._set_response(404)
-            self.wfile.write(json.dumps({'error': 'Not found'}).encode())
+            self._send_json_response(404, {'error': 'Not found'})
             return
-    
-    def do_OPTIONS(self):
-        """Handle OPTIONS requests for CORS"""
-        self._set_response()
-        self.wfile.write(b'{}')
 
 
 if __name__ == "__main__":
-    Handler = AutomotiveHandler
+    # Create a CORS-enabled server
+    handler = AutomotiveHandler
     
     print(f"Starting Automotive API server on port {PORT}...")
     print(f"Available endpoints:")
@@ -284,11 +290,18 @@ if __name__ == "__main__":
     print(f"  - /api/opportunities")
     print(f"  - /api/statistics")
     print(f"  - /health")
-    
-    with socketserver.TCPServer(("", PORT), Handler) as httpd:
-        print(f"Server running at http://localhost:{PORT}")
-        try:
-            httpd.serve_forever()
-        except KeyboardInterrupt:
-            print("Server stopped by user")
-            httpd.server_close() 
+
+    # Try to start the server, with port reuse
+    try:
+        socketserver.TCPServer.allow_reuse_address = True
+        with socketserver.TCPServer(("", PORT), handler) as httpd:
+            print(f"Server running at http://localhost:{PORT}")
+            try:
+                httpd.serve_forever()
+            except KeyboardInterrupt:
+                print("Server stopped by user")
+                httpd.server_close()
+    except OSError as e:
+        print(f"Error starting server: {e}")
+        print("Port may be in use. Check if another instance is running.")
+        sys.exit(1) 
