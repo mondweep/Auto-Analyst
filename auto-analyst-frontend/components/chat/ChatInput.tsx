@@ -886,59 +886,150 @@ const ChatInput = forwardRef<
         fileInputRef.current.value = "";
       }
       
-      // Reset the popup shown flags when switching to default dataset
-      popupShownForChatIdsRef.current = new Set();
-      
-      // First force a reset on the backend to ensure we're truly using the default dataset
+      // Try to fetch from the file server
       try {
-        await axios.post(`${PREVIEW_API_URL}/reset-session`, null, {
+        // This will now also ensure we're using the default dataset
+        const response = await axios.get(`${PREVIEW_API_URL}/api/default-dataset`, {
           headers: {
             ...(sessionId && { 'X-Session-ID': sessionId }),
           },
+          // Add a timeout to avoid hanging if the server is down
+          timeout: 5000
         });
-        logger.log('Session forcefully reset to default dataset');
-      } catch (resetError) {
-        console.error('Failed to reset session for default dataset:', resetError);
-        // Continue anyway
+        
+        // For default dataset, use the description provided by the backend
+        const defaultDescription = response.data.description || 'Default housing dataset containing information about residential properties';
+        
+        setFilePreview({
+          headers: response.data.headers,
+          rows: response.data.rows,
+          name: response.data.name,
+          description: defaultDescription
+        });
+        
+        // Pre-fill the name and description
+        setDatasetDescription({
+          name: response.data.name || 'Dataset',
+          description: defaultDescription
+        });
+        
+        setShowPreview(true);
+        
+        // If we got a session ID, save it
+        if (response.data.session_id) {
+          setSessionId(response.data.session_id);
+        }
+        
+        // Clear any dataset-related UI elements
+        setDatasetMismatch(false);
+        setShowDatasetResetPopup(false);
+        
+        logger.log("Default dataset preview loaded, upload state reset");
+      } catch (apiError) {
+        console.error('Failed to fetch dataset preview from API, trying fallback:', apiError);
+        
+        // Try to fetch from the public directory as fallback
+        try {
+          // Use demo-files in the public directory as a fallback
+          const fallbackResponse = await axios.get('/demo-files/vehicles.csv', {
+            // Specify response type as text to handle CSV
+            responseType: 'text',
+            // Add a timeout to avoid hanging
+            timeout: 5000
+          });
+          
+          // Parse the CSV data
+          const lines = fallbackResponse.data.split('\n');
+          const headers = lines[0].split(',');
+          
+          // Get the first 10 rows of data
+          const rows = [];
+          for (let i = 1; i <= 10 && i < lines.length; i++) {
+            if (lines[i].trim()) {
+              rows.push(lines[i].split(','));
+            }
+          }
+          
+          setFilePreview({
+            headers,
+            rows,
+            name: 'Automotive Data',
+            description: 'Vehicle inventory dataset containing information about automotive vehicles, pricing, and sales data'
+          });
+          
+          // Pre-fill the name and description
+          setDatasetDescription({
+            name: 'Automotive Data',
+            description: 'Vehicle inventory dataset containing information about automotive vehicles, pricing, and sales data'
+          });
+          
+          setShowPreview(true);
+          
+          // Clear any dataset-related UI elements
+          setDatasetMismatch(false);
+          setShowDatasetResetPopup(false);
+          
+          logger.log("Default dataset preview loaded from fallback, upload state reset");
+        } catch (fallbackError) {
+          console.error('Failed to fetch fallback dataset:', fallbackError);
+          
+          // Create a hardcoded fallback if all else fails
+          const hardcodedFallback = {
+            headers: ['id', 'make', 'model', 'year', 'color', 'price', 'mileage', 'condition'],
+            rows: [
+              ['1', 'Toyota', 'Camry', '2021', 'Black', '28500', '32000', 'Excellent'],
+              ['2', 'Honda', 'Civic', '2022', 'White', '24700', '18000', 'Good'],
+              ['3', 'Ford', 'F-150', '2020', 'Blue', '38900', '45000', 'Good'],
+              ['4', 'BMW', '3 Series', '2021', 'Black', '43200', '22000', 'Excellent'],
+              ['5', 'Audi', 'Q5', '2022', 'Gray', '47800', '18500', 'Excellent']
+            ],
+            name: 'Automotive Data',
+            description: 'Vehicle inventory dataset containing information about automotive vehicles, pricing, and sales data'
+          };
+          
+          setFilePreview(hardcodedFallback);
+          
+          // Pre-fill the name and description
+          setDatasetDescription({
+            name: hardcodedFallback.name,
+            description: hardcodedFallback.description
+          });
+          
+          setShowPreview(true);
+          
+          // Clear any dataset-related UI elements
+          setDatasetMismatch(false);
+          setShowDatasetResetPopup(false);
+          
+          logger.log("Default dataset preview loaded from hardcoded fallback, upload state reset");
+        }
       }
+    } catch (error) {
+      console.error('Failed to fetch dataset preview:', error);
       
-      // This will now also ensure we're using the default dataset
-      const response = await axios.get(`${PREVIEW_API_URL}/api/default-dataset`, {
-        headers: {
-          ...(sessionId && { 'X-Session-ID': sessionId }),
-        },
-      });
+      // Always provide a fallback if ALL attempts fail
+      const hardcodedFallback = {
+        headers: ['id', 'make', 'model', 'year', 'color', 'price', 'mileage', 'condition'],
+        rows: [
+          ['1', 'Toyota', 'Camry', '2021', 'Black', '28500', '32000', 'Excellent'],
+          ['2', 'Honda', 'Civic', '2022', 'White', '24700', '18000', 'Good'],
+          ['3', 'Ford', 'F-150', '2020', 'Blue', '38900', '45000', 'Good'],
+          ['4', 'BMW', '3 Series', '2021', 'Black', '43200', '22000', 'Excellent'],
+          ['5', 'Audi', 'Q5', '2022', 'Gray', '47800', '18500', 'Excellent']
+        ],
+        name: 'Automotive Data',
+        description: 'Vehicle inventory dataset containing information about automotive vehicles, pricing, and sales data'
+      };
       
-      // For default dataset, use the description provided by the backend
-      const defaultDescription = response.data.description || 'Default housing dataset containing information about residential properties';
-      
-      setFilePreview({
-        headers: response.data.headers,
-        rows: response.data.rows,
-        name: response.data.name,
-        description: defaultDescription
-      });
-      
-      // Pre-fill the name and description
+      setFilePreview(hardcodedFallback);
       setDatasetDescription({
-        name: response.data.name || 'Dataset',
-        description: defaultDescription
+        name: hardcodedFallback.name,
+        description: hardcodedFallback.description
       });
       
       setShowPreview(true);
-      
-      // If we got a session ID, save it
-      if (response.data.session_id) {
-        setSessionId(response.data.session_id);
-      }
-      
-      // Clear any dataset-related UI elements
       setDatasetMismatch(false);
       setShowDatasetResetPopup(false);
-      
-      logger.log("Default dataset preview loaded, upload state reset");
-    } catch (error) {
-      console.error('Failed to fetch dataset preview:', error);
     }
   };
 

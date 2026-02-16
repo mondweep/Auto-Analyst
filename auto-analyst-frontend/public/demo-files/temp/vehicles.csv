@@ -1,0 +1,4 @@
+id,make,model,year,price,mileage,condition,fuel_type,list_date,days_in_inventory,vin,is_sold
+1,Toyota,Camry,2021,28500,32000,Excellent,Gasoline,2023-01-15,45,VIN1ABC12345,false
+2,Honda,Civic,2022,24700,18000,Good,Gasoline,2023-02-20,30,VIN2ABC23456,false
+3,Ford,F-150,2020,38900,45000,Good,Diesel,2023-01-01,60,VIN3ABC34567,false

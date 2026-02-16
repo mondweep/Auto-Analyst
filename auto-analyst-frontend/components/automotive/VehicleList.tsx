@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import AUTOMOTIVE_API_URL from '@/config/automotive-api';
+import API_URL from '@/config/api';
 
 // Define vehicle type
 interface Vehicle {
@@ -49,22 +49,39 @@ export default function VehicleList() {
     const fetchVehicles = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${AUTOMOTIVE_API_URL}/api/vehicles`);
+        const response = await fetch(`${API_URL}/vehicles`);
         
         if (!response.ok) {
           throw new Error(`API error: ${response.status}`);
         }
         
         const data = await response.json();
-        setVehicles(data.vehicles || []);
-        setFilteredVehicles(data.vehicles || []);
         
-        // Extract unique makes and conditions for filters
-        const uniqueMakes = [...new Set(data.vehicles.map((v: Vehicle) => v.make))] as string[];
-        const uniqueConditions = [...new Set(data.vehicles.map((v: Vehicle) => v.condition))] as string[];
+        // Handle different response structures
+        let vehiclesData = [];
+        if (Array.isArray(data)) {
+          // Direct array of vehicles
+          vehiclesData = data;
+        } else if (data.vehicles && Array.isArray(data.vehicles)) {
+          // Object with vehicles property
+          vehiclesData = data.vehicles;
+        } else {
+          console.warn('Unexpected API response format:', data);
+          vehiclesData = [];
+        }
         
-        setMakes(uniqueMakes);
-        setConditions(uniqueConditions);
+        setVehicles(vehiclesData);
+        setFilteredVehicles(vehiclesData);
+        
+        // Check if we have any vehicles before extracting unique values
+        if (vehiclesData.length > 0) {
+          // Extract unique makes and conditions for filters
+          const uniqueMakes = [...new Set(vehiclesData.map((v: Vehicle) => v.make))] as string[];
+          const uniqueConditions = [...new Set(vehiclesData.map((v: Vehicle) => v.condition))] as string[];
+          
+          setMakes(uniqueMakes);
+          setConditions(uniqueConditions);
+        }
         
         setLoading(false);
       } catch (err) {
@@ -257,11 +274,11 @@ export default function VehicleList() {
                 </TableRow>
               ))
             ) : (
-              <TableRow>
-                <TableCell className="text-center py-6 text-gray-500" colSpan={8}>
+              <tr>
+                <td colSpan={8} className="text-center py-6 text-gray-500">
                   No vehicles match your current filters
-                </TableCell>
-              </TableRow>
+                </td>
+              </tr>
             )}
           </TableBody>
         </Table>

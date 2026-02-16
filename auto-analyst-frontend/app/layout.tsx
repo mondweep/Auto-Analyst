@@ -1,6 +1,7 @@
 import "./globals.css"
 import type { Metadata } from "next"
 import ClientLayout from "@/components/ClientLayout"
+import Script from 'next/script'
 
 export const metadata: Metadata = {
   title: "Auto-Analyst",
@@ -25,7 +26,10 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Auto-Analyst",
     description: "AI-powered analytics platform",
-    images: ["https://4q2e4qu710mvgubg.public.blob.vercel-storage.com/auto-analyst-logo-R9wBx0kWOUA96KxwKBtl1onOHp6o02.png"],
+    creator: "@mondweep",
+    images: [
+      "https://4q2e4qu710mvgubg.public.blob.vercel-storage.com/auto-analyst-logo-R9wBx0kWOUA96KxwKBtl1onOHp6o02.png",
+    ],
   },
 }
 
@@ -36,6 +40,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
+      <head>
+        <Script src="/cors-bypass.js" strategy="beforeInteractive" />
+        <Script src="/port-redirect.js" strategy="beforeInteractive" />
+      </head>
       <body>
         <ClientLayout>{children}</ClientLayout>
       </body>

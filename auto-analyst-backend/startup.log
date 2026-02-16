@@ -1,0 +1,291 @@
+Environment variables loaded from .env file
+Starting file server...
+/Users/mondweep/BI-Tool/Auto-Analyst/auto-analyst-backend/file_server.py:6: DeprecationWarning: 'cgi' is deprecated and slated for removal in Python 3.13
+  import cgi
+Starting app server...
+2025-05-28 23:53:18,287 - init_db - INFO - Using SQLite database engine
+/Users/mondweep/BI-Tool/Auto-Analyst/auto-analyst-backend/venv/lib/python3.12/site-packages/pydantic/_internal/_config.py:373: UserWarning: Valid config keys have changed in V2:
+* 'orm_mode' has been renamed to 'from_attributes'
+  warnings.warn(message, UserWarning)
+INFO:     Started server process [44204]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+2025-05-28 23:54:17,929 - ai_manager - INFO - [> ] Model Name: gemini-1.5-pro, Model Provider: Unknown
+2025-05-28 23:54:17,933 - ai_manager - WARNING - Chat ID 856973 does not exist, setting to None
+Frontend demo directory not found, using /Users/mondweep/BI-Tool/Auto-Analyst/auto-analyst-backend/data as fallback
+FRONTEND_URL: 
+DEBUG: api_response type: <class 'dict'>
+DEBUG: api_response content: {'response': 'This is the error from the system: litellm.AuthenticationError: geminiException - {\n  "error": {\n    "code": 400,\n    "message": "API key not valid. Please pass a valid API key.",\n    "status": "INVALID_ARGUMENT",\n    "details": [\n      {\n        "@type": "type.googleapis.com/google.rpc.ErrorInfo",\n        "reason": "API_KEY_INVALID",\n        "domain": "googleapis.com",\n        "metadata": {\n          "service": "generativelanguage.googleapis.com"\n        }\n      },\n      {\n        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",\n        "locale": "en-US",\n        "message": "API key not valid. Please pass a valid API key."\n      }\n    ]\n  }\n}\n'}
+INFO:     127.0.0.1:52796 - "POST /chat/data_viz_agent HTTP/1.1" 200 OK
+2025-05-28 23:54:18,618 - ai_manager - INFO - [> ] Model Name: gemini-1.5-pro, Model Provider: Unknown
+2025-05-28 23:54:18,619 - ai_manager - WARNING - Chat ID 858185 does not exist, setting to None
+DEBUG: api_response type: <class 'dict'>
+DEBUG: api_response content: {'response': 'This is the error from the system: litellm.AuthenticationError: geminiException - {\n  "error": {\n    "code": 400,\n    "message": "API key not valid. Please pass a valid API key.",\n    "status": "INVALID_ARGUMENT",\n    "details": [\n      {\n        "@type": "type.googleapis.com/google.rpc.ErrorInfo",\n        "reason": "API_KEY_INVALID",\n        "domain": "googleapis.com",\n        "metadata": {\n          "service": "generativelanguage.googleapis.com"\n        }\n      },\n      {\n        "@type": "type.googleapis.com/google.rpc.LocalizedMessage",\n        "locale": "en-US",\n        "message": "API key not valid. Please pass a valid API key."\n      }\n    ]\n  }\n}\n'}
+INFO:     127.0.0.1:52810 - "POST /chat/data_viz_agent HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52998 - "OPTIONS /api/auth/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53002 - "OPTIONS /api/auth/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52995 - "GET /agents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52998 - "OPTIONS /api/auth/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53003 - "OPTIONS /api/auth/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53002 - "OPTIONS /settings/model HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53005 - "OPTIONS /api/auth/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53001 - "GET /api/user/credits HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53008 - "OPTIONS /api/auth/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53003 - "OPTIONS /settings/model HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52998 - "OPTIONS /settings/model HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52995 - "OPTIONS /settings/model HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53002 - "GET /agents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53010 - "GET /api/auth/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53012 - "GET /api/user/credits HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53001 - "GET /api/auth/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53002 - "OPTIONS /api/session-info HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52995 - "OPTIONS /api/session-info HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53005 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:52995 - "OPTIONS /api/session-info HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53008 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:52998 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53003 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53012 - "GET /api/auth/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53008 - "OPTIONS /api/model-settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52998 - "OPTIONS /api/model-settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53005 - "OPTIONS /api/session-info HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53005 - "OPTIONS /api/model-settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53002 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53001 - "GET /api/user/data HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53010 - "GET /api/user/credits HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53012 - "GET /api/auth/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53003 - "GET /api/session-info HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53001 - "GET /api/auth/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53008 - "GET /api/model-settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52995 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53012 - "GET /api/user/credits HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53001 - "GET /api/auth/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52995 - "GET /api/session-info HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53008 - "GET /api/model-settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52995 - "GET /api/session-info HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53008 - "GET /api/model-settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52995 - "GET /api/session-info HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53008 - "GET /api/model-settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53008 - "GET /api/model-settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53001 - "GET /api/user/data HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53012 - "GET /api/user/credits HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53012 - "GET /api/user/credits HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53099 - "GET /agents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53097 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53100 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53101 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53099 - "GET /agents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53103 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53103 - "OPTIONS /chats/users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53099 - "OPTIONS /reset-session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53105 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53100 - "GET /api/session-info HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53101 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53097 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53099 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53103 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53105 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53100 - "GET /api/model-settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53097 - "POST /chats/users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53101 - "POST /reset-session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53103 - "GET /api/model-settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53099 - "GET /api/session-info HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53101 - "OPTIONS /chats/?user_id=27&is_admin=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53097 - "OPTIONS /api/default-dataset HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53105 - "OPTIONS /chats/?user_id=27&is_admin=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53097 - "GET /agents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53180 - "GET /api/auth/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53182 - "GET /api/user/credits HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53097 - "GET /agents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53182 - "GET /api/auth/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53180 - "GET /api/user/credits HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53182 - "GET /api/auth/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53182 - "GET /api/auth/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53182 - "GET /api/auth/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53182 - "GET /api/auth/session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53097 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53101 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53105 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53170 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53182 - "GET /api/user/data HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:53180 - "GET /api/user/credits HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53189 - "GET /api/session-info HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53189 - "GET /api/model-settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53189 - "GET /api/model-settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53182 - "GET /api/user/credits HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53189 - "GET /api/model-settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53170 - "GET /agents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53189 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53170 - "GET /agents HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53097 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53101 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53105 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53213 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53170 - "GET /api/session-info HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53189 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53101 - "POST /chats/users HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53105 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53097 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53213 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53189 - "GET /api/model-settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53101 - "GET /api/session-info HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53105 - "GET /chats/?user_id=27&is_admin=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53170 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53189 - "GET /chats/?user_id=27&is_admin=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53105 - "GET /api/model-settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53101 - "GET /api/session-info HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53213 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53101 - "GET /api/session-info HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53105 - "GET /api/model-settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53213 - "GET /api/session-info HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53105 - "GET /api/model-settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53213 - "GET /api/session-info HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53101 - "GET /api/model-settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53105 - "GET /api/model-settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53213 - "GET /api/session-info HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53189 - "GET /api/model-settings HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53101 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:53189 - "GET /api/model-settings HTTP/1.1" 200 OK
+2025-05-28 23:55:57,119 - ai_manager - INFO - [> ] Model Name: gemini-pro, Model Provider: Unknown
+2025-05-28 23:55:57,122 - ai_manager - WARNING - Chat ID 956836 does not exist, setting to None
+DEBUG: api_response type: <class 'dict'>
+DEBUG: api_response content: {'response': 'This is the error from the system: litellm.NotFoundError: VertexAIException - {\n  "error": {\n    "code": 404,\n    "message": "models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.",\n    "status": "NOT_FOUND"\n  }\n}\n'}
+INFO:     127.0.0.1:53368 - "POST /chat/data_viz_agent HTTP/1.1" 200 OK
+2025-05-28 23:55:58,800 - ai_manager - INFO - [> ] Model Name: gemini-pro, Model Provider: Unknown
+2025-05-28 23:55:58,801 - ai_manager - WARNING - Chat ID 958198 does not exist, setting to None
+DEBUG: api_response type: <class 'dict'>
+DEBUG: api_response content: {'response': 'This is the error from the system: litellm.NotFoundError: VertexAIException - {\n  "error": {\n    "code": 404,\n    "message": "models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.",\n    "status": "NOT_FOUND"\n  }\n}\n'}
+INFO:     127.0.0.1:53384 - "POST /chat/data_viz_agent HTTP/1.1" 200 OK
+2025-05-28 23:56:00,501 - ai_manager - INFO - [> ] Model Name: gemini-pro, Model Provider: Unknown
+2025-05-28 23:56:00,502 - ai_manager - WARNING - Chat ID 960642 does not exist, setting to None
+DEBUG: api_response type: <class 'dict'>
+DEBUG: api_response content: {'response': 'This is the error from the system: litellm.NotFoundError: VertexAIException - {\n  "error": {\n    "code": 404,\n    "message": "models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.",\n    "status": "NOT_FOUND"\n  }\n}\n'}
+INFO:     127.0.0.1:53401 - "POST /chat/data_viz_agent HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54411 - "GET /api/user/data HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:54411 - "GET /api/user/credits HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55515 - "GET /api/user/data HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:55515 - "GET /api/user/credits HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56189 - "OPTIONS /reset-session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56189 - "POST /reset-session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56189 - "OPTIONS /upload_dataframe HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56189 - "POST /upload_dataframe HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56189 - "OPTIONS /api/preview-csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56191 - "POST /api/preview-csv HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56191 - "OPTIONS /create-dataset-description HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56189 - "POST /create-dataset-description HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56189 - "POST /reset-session HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56189 - "POST /upload_dataframe HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56275 - "OPTIONS /chats/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56275 - "POST /chats/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56275 - "OPTIONS /chats/14/messages?user_id=27&is_admin=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56275 - "OPTIONS /chats/?user_id=27&is_admin=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56277 - "POST /chats/14/messages?user_id=27&is_admin=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56275 - "GET /chats/?user_id=27&is_admin=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56298 - "OPTIONS /settings/model HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56298 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:56298 - "OPTIONS /chats/14?user_id=27 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56300 - "GET /chats/14?user_id=27 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56313 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:56313 - "GET /chats/14?user_id=27 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56313 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:56313 - "GET /chats/14?user_id=27 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56313 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:56313 - "GET /chats/14?user_id=27 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56361 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:56361 - "GET /chats/14?user_id=27 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56376 - "OPTIONS /api/session-info HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56376 - "GET /api/session-info HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56376 - "OPTIONS /chats/cleanup-empty HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56378 - "POST /chats/cleanup-empty HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56378 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:56378 - "GET /api/session-info HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56378 - "GET /api/session-info HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56378 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:56378 - "OPTIONS /chats/1748473745594?user_id=27 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56378 - "GET /chats/1748473745594?user_id=27 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:56378 - "GET /chats/?user_id=27&is_admin=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56429 - "POST /chats/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56429 - "OPTIONS /chats/15/messages?user_id=27&is_admin=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56429 - "POST /chats/15/messages?user_id=27&is_admin=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56431 - "GET /chats/?user_id=27&is_admin=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56538 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:56538 - "OPTIONS /chats/15?user_id=27 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56538 - "GET /chats/15?user_id=27 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56538 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:56538 - "GET /chats/14?user_id=27 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56538 - "GET /chats/?user_id=27&is_admin=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56572 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:56572 - "GET /chats/15?user_id=27 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56572 - "GET /chats/?user_id=27&is_admin=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56586 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:56586 - "GET /chats/14?user_id=27 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56586 - "GET /chats/?user_id=27&is_admin=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56586 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:56586 - "GET /chats/15?user_id=27 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56586 - "GET /chats/?user_id=27&is_admin=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56619 - "DELETE /chats/15?user_id=27 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56619 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:56621 - "GET /chats/?user_id=27&is_admin=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56621 - "GET /chats/14?user_id=27 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56621 - "DELETE /chats/14?user_id=27 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56621 - "POST /settings/model HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:56619 - "GET /chats/?user_id=27&is_admin=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56619 - "GET /chats/?user_id=27&is_admin=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56619 - "GET /chats/?user_id=27&is_admin=false HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56719 - "GET /api/user/credits HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57937 - "GET /api/user/credits HTTP/1.1" 200 OK
+2025-05-29 00:17:39,938 - ai_manager - INFO - [> ] Model Name: gemini-pro, Model Provider: Unknown
+2025-05-29 00:17:39,939 - ai_manager - WARNING - Chat ID 259688 does not exist, setting to None
+DEBUG: api_response type: <class 'dict'>
+DEBUG: api_response content: {'response': 'This is the error from the system: litellm.NotFoundError: VertexAIException - {\n  "error": {\n    "code": 404,\n    "message": "models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.",\n    "status": "NOT_FOUND"\n  }\n}\n'}
+INFO:     127.0.0.1:58470 - "POST /chat/data_viz_agent HTTP/1.1" 200 OK
+2025-05-29 00:17:41,915 - ai_manager - INFO - [> ] Model Name: gemini-pro, Model Provider: Unknown
+2025-05-29 00:17:41,916 - ai_manager - WARNING - Chat ID 261174 does not exist, setting to None
+DEBUG: api_response type: <class 'dict'>
+DEBUG: api_response content: {'response': 'This is the error from the system: litellm.NotFoundError: VertexAIException - {\n  "error": {\n    "code": 404,\n    "message": "models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.",\n    "status": "NOT_FOUND"\n  }\n}\n'}
+INFO:     127.0.0.1:58486 - "POST /chat/data_viz_agent HTTP/1.1" 200 OK
+2025-05-29 00:17:44,330 - ai_manager - INFO - [> ] Model Name: gemini-pro, Model Provider: Unknown
+2025-05-29 00:17:44,331 - ai_manager - WARNING - Chat ID 263594 does not exist, setting to None
+DEBUG: api_response type: <class 'dict'>
+DEBUG: api_response content: {'response': 'This is the error from the system: litellm.NotFoundError: VertexAIException - {\n  "error": {\n    "code": 404,\n    "message": "models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.",\n    "status": "NOT_FOUND"\n  }\n}\n'}
+INFO:     127.0.0.1:58500 - "POST /chat/data_viz_agent HTTP/1.1" 200 OK
+2025-05-29 00:18:03,696 - ai_manager - INFO - [> ] Model Name: gemini-pro, Model Provider: Unknown
+2025-05-29 00:18:03,698 - ai_manager - WARNING - Chat ID 283746 does not exist, setting to None
+DEBUG: api_response type: <class 'dict'>
+DEBUG: api_response content: {'response': 'This is the error from the system: litellm.NotFoundError: VertexAIException - {\n  "error": {\n    "code": 404,\n    "message": "models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.",\n    "status": "NOT_FOUND"\n  }\n}\n'}
+INFO:     127.0.0.1:58584 - "POST /chat/data_viz_agent HTTP/1.1" 200 OK
+2025-05-29 00:18:07,271 - ai_manager - INFO - [> ] Model Name: gemini-pro, Model Provider: Unknown
+2025-05-29 00:18:07,272 - ai_manager - WARNING - Chat ID 285348 does not exist, setting to None
+DEBUG: api_response type: <class 'dict'>
+DEBUG: api_response content: {'response': 'This is the error from the system: litellm.NotFoundError: VertexAIException - {\n  "error": {\n    "code": 404,\n    "message": "models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.",\n    "status": "NOT_FOUND"\n  }\n}\n'}
+INFO:     127.0.0.1:58601 - "POST /chat/data_viz_agent HTTP/1.1" 200 OK
+2025-05-29 00:18:08,972 - ai_manager - INFO - [> ] Model Name: gemini-pro, Model Provider: Unknown
+2025-05-29 00:18:08,973 - ai_manager - WARNING - Chat ID 289083 does not exist, setting to None
+DEBUG: api_response type: <class 'dict'>
+DEBUG: api_response content: {'response': 'This is the error from the system: litellm.NotFoundError: VertexAIException - {\n  "error": {\n    "code": 404,\n    "message": "models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.",\n    "status": "NOT_FOUND"\n  }\n}\n'}
+INFO:     127.0.0.1:58622 - "POST /chat/data_viz_agent HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58708 - "GET /api/model-settings HTTP/1.1" 200 OK
+2025-05-29 00:18:30,299 - ai_manager - INFO - [> ] Model Name: gemini-pro, Model Provider: Unknown
+2025-05-29 00:18:30,302 - ai_manager - WARNING - Chat ID 310129 does not exist, setting to None
+DEBUG: api_response type: <class 'dict'>
+DEBUG: api_response content: {'response': 'This is the error from the system: litellm.NotFoundError: VertexAIException - {\n  "error": {\n    "code": 404,\n    "message": "models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.",\n    "status": "NOT_FOUND"\n  }\n}\n'}
+INFO:     127.0.0.1:58710 - "POST /chat/data_viz_agent HTTP/1.1" 200 OK
+2025-05-29 00:20:20,677 - ai_manager - INFO - [> ] Model Name: gemini-pro, Model Provider: Unknown
+2025-05-29 00:20:20,680 - ai_manager - WARNING - Chat ID 420241 does not exist, setting to None
+DEBUG: api_response type: <class 'dict'>
+DEBUG: api_response content: {'response': 'This is the error from the system: litellm.NotFoundError: VertexAIException - {\n  "error": {\n    "code": 404,\n    "message": "models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.",\n    "status": "NOT_FOUND"\n  }\n}\n'}
+INFO:     127.0.0.1:59136 - "POST /chat/data_viz_agent HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59164 - "GET /api/user/credits HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59469 - "GET /api/model-settings HTTP/1.1" 200 OK
+2025-05-29 00:24:02,572 - ai_manager - INFO - [> ] Model Name: gemini-pro, Model Provider: Unknown
+2025-05-29 00:24:02,575 - ai_manager - WARNING - Chat ID 642005 does not exist, setting to None
+DEBUG: api_response type: <class 'dict'>
+DEBUG: api_response content: {'response': 'This is the error from the system: litellm.NotFoundError: VertexAIException - {\n  "error": {\n    "code": 404,\n    "message": "models/gemini-pro is not found for API version v1beta, or is not supported for generateContent. Call ListModels to see the list of available models and their supported methods.",\n    "status": "NOT_FOUND"\n  }\n}\n'}
+INFO:     127.0.0.1:60044 - "POST /chat/data_viz_agent HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60370 - "GET /api/user/data HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:60370 - "GET /api/user/credits HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [44204]

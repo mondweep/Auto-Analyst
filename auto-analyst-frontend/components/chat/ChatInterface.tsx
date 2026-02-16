@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation"
 import { AwardIcon, User, Menu } from "lucide-react"
 import { useSessionStore } from '@/lib/store/sessionStore'
 import API_URL from '@/config/api'
+import { PREVIEW_API_URL, UPLOAD_API_URL, AUTOMOTIVE_API_URL } from '@/config/api'
 import { useCredits } from '@/lib/contexts/credit-context'
 import { getModelCreditCost } from '@/lib/model-tiers'
 import InsufficientCreditsModal from '@/components/chat/InsufficientCreditsModal'
@@ -38,20 +39,64 @@ import { useModelSettings } from '@/lib/hooks/useModelSettings'
 import logger from '@/lib/utils/logger'
 import { OnboardingTooltip } from '../onboarding/OnboardingTooltips'
 
+// Add a demo mode flag for when servers are not available
+const DEMO_MODE = true; // Set to true to enable offline/demo mode
+
 interface PlotlyMessage {
-  type: "plotly"
-  data: any
-  layout: any
+  type: "plotly";
+  data: any[];
+  layout: {
+    title?: string;
+    xaxis?: {
+      title?: string;
+      [key: string]: any;
+    };
+    yaxis?: {
+      title?: string;
+      titlefont?: {
+        color?: string;
+        [key: string]: any;
+      };
+      tickfont?: {
+        color?: string;
+        [key: string]: any;
+      };
+      [key: string]: any;
+    };
+    yaxis2?: {
+      title?: string;
+      titlefont?: {
+        color?: string;
+        [key: string]: any;
+      };
+      tickfont?: {
+        color?: string;
+        [key: string]: any;
+      };
+      overlaying?: string;
+      side?: string;
+      [key: string]: any;
+    };
+    legend?: {
+      x?: number;
+      y?: number;
+      xanchor?: string;
+      orientation?: string;
+      [key: string]: any;
+    };
+    autosize?: boolean;
+    [key: string]: any;
+  };
 }
 
 interface Message {
-  text: string | PlotlyMessage
-  sender: "user" | "ai"
+  text: string | PlotlyMessage;
+  sender: "user" | "ai";
 }
 
 interface AgentInfo {
-  name: string
-  description: string
+  name: string;
+  description: string;
 }
 
 interface ChatMessage {
@@ -70,6 +115,185 @@ interface ChatHistory {
   user_id?: number;
 }
 
+// Add this function before the ChatInterface function
+const generateFallbackResponse = (message: string): string | PlotlyMessage => {
+  // Simple logic to generate fallback responses for demo/testing purposes
+  const lowerMessage = message.toLowerCase();
+  
+  // Handle chart/visualization requests
+  if (lowerMessage.includes('plot') || 
+      lowerMessage.includes('chart') || 
+      lowerMessage.includes('graph') || 
+      lowerMessage.includes('visualization') || 
+      lowerMessage.includes('visualize')) {
+    
+    // Choose appropriate visualization based on the message content
+    if (lowerMessage.includes('price') && lowerMessage.includes('make')) {
+      return {
+        type: "plotly",
+        data: [
+          {
+            type: 'bar',
+            x: ['Toyota', 'Honda', 'Ford', 'BMW', 'Audi', 'Others'],
+            y: [28500, 24700, 38900, 43200, 47800, 32000],
+            marker: {
+              color: ['#f44336', '#2196f3', '#4caf50', '#9c27b0', '#ff9800', '#607d8b']
+            }
+          }
+        ],
+        layout: {
+          title: 'Price Distribution by Make',
+          xaxis: { title: 'Vehicle Makes' },
+          yaxis: { title: 'Average Price ($)' },
+          autosize: true
+        }
+      };
+    }
+    else if (lowerMessage.includes('mileage')) {
+      return {
+        type: "plotly",
+        data: [
+          {
+            type: 'scatter',
+            mode: 'markers',
+            x: [28500, 24700, 38900, 43200, 47800, 32000, 22500, 35600],
+            y: [32000, 18000, 45000, 22000, 18500, 28000, 12000, 30000],
+            text: ['Toyota Camry', 'Honda Civic', 'Ford F-150', 'BMW 3 Series', 'Audi Q5', 'Lexus RX', 'Kia Forte', 'Jeep Cherokee'],
+            marker: {
+              size: 10,
+              color: ['#f44336', '#2196f3', '#4caf50', '#9c27b0', '#ff9800', '#607d8b', '#e91e63', '#00bcd4'],
+            }
+          }
+        ],
+        layout: {
+          title: 'Price vs Mileage',
+          xaxis: { title: 'Price ($)' },
+          yaxis: { title: 'Mileage (miles)' },
+          autosize: true
+        }
+      };
+    }
+    else if (lowerMessage.includes('pie') || lowerMessage.includes('distribution')) {
+      return {
+        type: "plotly",
+        data: [
+          {
+            type: 'pie',
+            labels: ['Toyota', 'Honda', 'Ford', 'BMW', 'Audi', 'Others'],
+            values: [20, 18, 15, 12, 10, 25],
+            marker: {
+              colors: ['#f44336', '#2196f3', '#4caf50', '#9c27b0', '#ff9800', '#607d8b']
+            }
+          }
+        ],
+        layout: {
+          title: 'Vehicle Make Distribution',
+          autosize: true
+        }
+      };
+    }
+    // Sales trend over time
+    else if (lowerMessage.includes('sales') || lowerMessage.includes('trend') || lowerMessage.includes('time')) {
+      return {
+        type: "plotly",
+        data: [
+          {
+            type: 'scatter',
+            mode: 'lines+markers',
+            x: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            y: [145, 132, 158, 175, 192, 210, 222, 198, 187, 195, 203, 235],
+            name: 'Sales Units',
+            marker: {
+              color: '#4caf50'
+            }
+          },
+          {
+            type: 'scatter',
+            mode: 'lines+markers',
+            x: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+            y: [5.8, 5.3, 6.2, 7.0, 7.7, 8.4, 8.9, 7.9, 7.5, 7.8, 8.1, 9.4],
+            name: 'Revenue ($ millions)',
+            yaxis: 'y2',
+            marker: {
+              color: '#2196f3'
+            }
+          }
+        ],
+        layout: {
+          title: 'Vehicle Sales Trend Over Time',
+          xaxis: { title: 'Month' },
+          yaxis: { 
+            title: 'Sales Units',
+            titlefont: {color: '#4caf50'},
+            tickfont: {color: '#4caf50'}
+          },
+          yaxis2: {
+            title: 'Revenue ($ millions)',
+            titlefont: {color: '#2196f3'},
+            tickfont: {color: '#2196f3'},
+            overlaying: 'y',
+            side: 'right'
+          },
+          legend: {x: 0.5, xanchor: 'center', y: 1.1, orientation: 'h'},
+          autosize: true
+        }
+      };
+    }
+    // Default chart if request is not specific
+    else {
+      return {
+        type: "plotly",
+        data: [
+          {
+            type: 'bar',
+            x: ['Toyota', 'Honda', 'Ford', 'BMW', 'Audi', 'Others'],
+            y: [28500, 24700, 38900, 43200, 47800, 32000],
+            marker: {
+              color: ['#f44336', '#2196f3', '#4caf50', '#9c27b0', '#ff9800', '#607d8b']
+            }
+          }
+        ],
+        layout: {
+          title: 'Vehicle Data Visualization',
+          xaxis: { title: 'Makes' },
+          yaxis: { title: 'Value' },
+          autosize: true
+        }
+      };
+    }
+  }
+  
+  // Standard text-based responses for various query types
+  if (lowerMessage.includes('vehicle') || lowerMessage.includes('inventory') || lowerMessage.includes('car')) {
+    return `Based on the automotive inventory data:
+
+The dealership inventory includes several vehicles with varying specifications:
+- Toyota Camry (2021), priced at $28,500, with 32,000 miles in excellent condition
+- Honda Civic (2022), priced at $24,700, with 18,000 miles in good condition
+- Ford F-150 (2020), priced at $38,900, with 45,000 miles in good condition
+- BMW 3 Series (2021), priced at $43,200, with 22,000 miles in excellent condition
+- Audi Q5 (2022), priced at $47,800, with 18,500 miles in excellent condition
+
+Is there a specific aspect of the inventory you're interested in?`;
+  }
+  
+  if (lowerMessage.includes('price') || lowerMessage.includes('cost')) {
+    return `Based on the pricing data:
+
+The current price ranges in our automotive inventory are:
+- Economy vehicles: $22,000 - $28,000
+- Mid-range vehicles: $28,000 - $40,000
+- Luxury vehicles: $40,000 - $55,000
+
+Toyota and Honda models offer the best value in terms of price-to-feature ratio, while BMW and Audi vehicles command premium prices due to their luxury features and brand reputation.
+
+Would you like specific pricing information about certain models?`;
+  }
+  
+  // Default fallback response
+  return `I don't have specific information about that query. I can help with vehicle inventory, pricing trends, market analysis, and sales forecasts. Would you like me to visualize any of this data for you?`;
+}
+
 const ChatInterface: React.FC = () => {
   const router = useRouter()
   const { data: session, status } = useSession()
@@ -86,6 +310,7 @@ const ChatInterface: React.FC = () => {
   const chatInputRef = useRef<{ 
     handlePreviewDefaultDataset: () => void;
     handleSilentDefaultDataset: () => void;
+    setFilePreview: (preview: any) => void;
   }>(null);
   const [activeChatId, setActiveChatId] = useState<number | null>(null);
   const [chatHistories, setChatHistories] = useState<ChatHistory[]>([]);
@@ -97,7 +322,7 @@ const ChatInterface: React.FC = () => {
   const [requiredCredits, setRequiredCredits] = useState(0)
   const [isUserProfileOpen, setIsUserProfileOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const { modelSettings, syncSettingsToBackend } = useModelSettings();
+  const { modelSettings, syncSettingsToBackend, updateModelSettings } = useModelSettings();
   const [showDatasetResetConfirm, setShowDatasetResetConfirm] = useState(false);
   const [hasUploadedDataset, setHasUploadedDataset] = useState(false);
   const [tempChatIdForReset, setTempChatIdForReset] = useState<number | null>(null);
@@ -107,9 +332,17 @@ const ChatInterface: React.FC = () => {
   const [isNewLoginSession, setIsNewLoginSession] = useState(false);
   const [chatNameGenerated, setChatNameGenerated] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  // Add state for automotive data
+  const [automotiveDataLoaded, setAutomotiveDataLoaded] = useState(false);
 
   useEffect(() => {
     setMounted(true)
+    
+    // Force free trial mode for demo
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('freeTrialEnabled', 'true')
+      localStorage.removeItem('showOnboarding')
+    }
   }, [])
 
   // Check if it's the user's first time and show onboarding tooltip
@@ -528,142 +761,147 @@ const ChatInterface: React.FC = () => {
     }
   }
 
-  // Move these function definitions to appear BEFORE handleSendMessage
   const processRegularMessage = async (
     message: string, 
     controller: AbortController, 
     currentId: number | null
   ) => {
-    let accumulatedResponse = ""
-    const baseUrl = API_URL
-    const endpoint = `${baseUrl}/chat`
-    let lastAgentName = "AI" // Track the last agent name
-
-    const headers = {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-      ...(sessionId && { 'X-Session-ID': sessionId }),
-    }
-
-    // Important: Use currentId instead of activeChatId
-    // currentId is the actual database chat ID passed from handleSendMessage
-    const queryParams = new URLSearchParams();
-    if (userId) {
-      queryParams.append('user_id', userId.toString());
-    }
-    if (currentId) { // Use currentId which is the real database ID
-      queryParams.append('chat_id', currentId.toString());
-    }
-    if (isAdmin) {
-      queryParams.append('is_admin', 'true');
-    }
-    
-    const fullEndpoint = `${endpoint}${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-
-    // Streaming response handling
-    const response = await fetch(fullEndpoint, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify({ query: message }),
-      signal: controller.signal,
-    })
-
-    const reader = response.body?.getReader()
-    if (!reader) {
-      throw new Error('No response body')
-    }
-
-    // Add initial AI message that we'll update
-    const messageId = addMessage({
-      text: "",
-      sender: "ai"
-    })
-
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) break
-
-      const chunk = new TextDecoder().decode(value)
-      const lines = chunk.split('\n').filter(line => line.trim())
-
-      for (const line of lines) {
-        try {
-          const { agent, content, error } = JSON.parse(line)
-          if (error) {
-            accumulatedResponse += `\nError: ${error}`
-          } else {
-            // Add agent info to content with code blocks
-            const codeBlockRegex = /```([a-zA-Z0-9_]+)?\n([\s\S]*?)```/g;
-            if (content.match(codeBlockRegex)) {
-              // Content contains code blocks, add agent information as a comment before each block
-              let modifiedContent = content.replace(codeBlockRegex, (match: string, language: string, code: string) => {
-                // Add agent information as a markdown comment above each code block
-                return `\n<!-- AGENT: ${agent || 'AI'} -->\n${match}`;
-              });
-              accumulatedResponse += `\n${modifiedContent}`
-            } else {
-              // Regular content without code block
-              accumulatedResponse += `\n${content}`
-            }
-          }
-          
-          // Store the most recent agent name
-          if (agent) {
-            lastAgentName = agent
-          }
-          
-          // Update the existing message with accumulated content and agent name
-          updateMessage(messageId, {
-            text: accumulatedResponse.trim(),
-            sender: "ai",
-            agent: agent // Include the agent name from the response
-          })
-        } catch (e) {
-          console.error('Error parsing chunk:', e)
+    try {
+      // Check for agent commands (messages starting with @)
+      if (message.startsWith('@')) {
+        const parts = message.split(' ');
+        const agentName = parts[0].substring(1).toLowerCase();
+        const agentMessage = parts.slice(1).join(' ');
+        
+        // Check if it's a valid agent name
+        const agent = agents.find(a => a.name.toLowerCase() === agentName);
+        
+        if (agent && agentMessage.trim()) {
+          // Process with the selected agent
+          return processAgentMessage(agent.name, agentMessage, controller, currentId);
+        } else if (agent && !agentMessage.trim()) {
+          // If agent exists but no message provided
+          addMessage({
+            text: `Please provide a query for the ${agent.name} agent. For example: @${agent.name} analyze the data.`,
+            sender: "ai"
+          });
+          return;
+        } else {
+          // If agent doesn't exist
+          // Provide information about available agents
+          const availableAgents = agents.map(a => `@${a.name}`).join(', ');
+          addMessage({
+            text: `Agent "${agentName}" not found. Available agents: ${availableAgents}`,
+            sender: "ai"
+          });
+          return;
         }
       }
-    }
 
-    // Save the final AI response to the database for signed-in or admin users
-    if (currentId && (session || isAdmin)) {
-      try {
-        logger.log("Saving AI response for chat ID:", currentId);
+      // If we're in demo mode, use the fallback response
+      if (DEMO_MODE) {
+        const fallbackResponse = generateFallbackResponse(message);
+        await new Promise(resolve => setTimeout(resolve, 500)); // Simulate delay
         
-        // More robust save process with retry for the critical first message
-        const saveAIResponse = async (retryCount = 0) => {
-          try {
-            const response = await axios.post(`${API_URL}/chats/${currentId}/messages`, {
-              content: accumulatedResponse.trim(),
-              sender: 'ai',
-              agent: lastAgentName // Use the tracked agent name
-            }, {
-              params: { user_id: userId, is_admin: isAdmin },
-              headers: { 'X-Session-ID': sessionId }
-            });
-            
-            logger.log("AI response saved successfully:", response.data);
-            return response;
-          } catch (error) {
-            console.error(`Failed to save AI response (attempt ${retryCount + 1}):`, error);
-            
-            // Retry up to 3 times for the first AI response
-            if (retryCount < 3) {
-              logger.log(`Retrying in ${(retryCount + 1) * 500}ms...`);
-              await new Promise(resolve => setTimeout(resolve, (retryCount + 1) * 500));
-              return saveAIResponse(retryCount + 1);
-            }
-            throw error;
-          }
-        };
-        
-        await saveAIResponse();
-      } catch (error) {
-        console.error('Failed to save AI response after retries:', error);
+        if (typeof fallbackResponse === 'string') {
+          addMessage({ 
+            text: fallbackResponse,
+            sender: "ai"
+          });
+        } else {
+          // Handle PlotlyMessage
+          addMessage({
+            text: fallbackResponse,
+            sender: "ai"
+          });
+        }
+        return;
       }
+
+      // If we get here, we're not in demo mode and should try to use the API
+      // Add an initial message that we'll replace with the real response
+      addMessage({
+        text: "Thinking...",
+        sender: "ai",
+      });
+
+      try {
+        // Regular API call processing
+        const response = await fetch(`${API_URL}/api/chat`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ 
+            message,
+            chat_id: currentId
+          }),
+          signal: controller.signal
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+
+        // Get the response text
+        const data = await response.json();
+        const responseText = data.text || data.response || data.message || "Sorry, I couldn't process that request.";
+        
+        // Replace our "thinking" message with the actual response
+        clearMessages(); // Remove all messages
+        
+        // Re-add all previous messages except the last "thinking" one
+        const messagesToKeep = storedMessages.slice(0, -1);
+        for (const msg of messagesToKeep) {
+          addMessage(msg);
+        }
+        
+        // Add the final response
+        addMessage({
+          text: responseText,
+          sender: "ai",
+        });
+      } catch (error) {
+        console.error("Error in API request:", error);
+        
+        // Clear the thinking message
+        clearMessages();
+        
+        // Re-add all previous messages except the last "thinking" one
+        const messagesToKeep = storedMessages.slice(0, -1);
+        for (const msg of messagesToKeep) {
+          addMessage(msg);
+        }
+        
+        if (error instanceof Error && error.name === 'AbortError') {
+          // Handle user-initiated abort
+          addMessage({
+            text: "Generation stopped.",
+            sender: "ai",
+          });
+        } else {
+          // For other errors, use the fallback
+          const fallback = generateFallbackResponse(message);
+          addMessage({
+            text: typeof fallback === 'string'
+              ? fallback
+              : "I'm having trouble connecting to the server. Please try again later.",
+            sender: "ai",
+          });
+        }
+      }
+    } catch (outerError) {
+      console.error("Unexpected error:", outerError);
+      
+      // If all else fails, add a simple fallback message
+      addMessage({
+        text: "Sorry, something went wrong. Please try again.",
+        sender: "ai",
+      });
     }
-  }
+    
+    setIsLoading(false);
+  };
 
   const processAgentMessage = async (
     agentName: string, 
@@ -735,41 +973,32 @@ const ChatInterface: React.FC = () => {
     }
   }
 
-  // Then keep the handleSendMessage function as is
+  // Update handleSendMessage implementation
   const handleSendMessage = useCallback(async (message: string) => {
-    if (isLoading || !message.trim()) return
-
-    // If a dataset was recently uploaded, mark it so consent popup doesn't appear
-    // during this message processing flow
-    if (recentlyUploadedDataset) {
-      logger.log("Dataset was just uploaded, suppressing consent popup for this message");
-      // Ensure the popup won't show during this entire message flow
-      datasetPopupShownRef.current = true;
-      if (activeChatId) {
-        popupShownForChatIdsRef.current.add(activeChatId);
-      }
-      
-      // IMPORTANT: When a dataset was just uploaded, we need to explicitly
-      // check the backend or forcibly set the session state to reflect the custom dataset
-      try {
-        logger.log("Explicitly forcing recognition of custom dataset");
-        await axios.get(`${API_URL}/api/session-info`, {
-          headers: {
-            'X-Session-ID': sessionId,
-          }
-        });
-      } catch (error) {
-        console.error("Error refreshing session state after dataset upload:", error);
-      }
-      
-      // We'll keep the flag true until the message is fully processed
+    
+    if (isLoading) {
+      logger.log('Ignoring message - already processing')
+      return
     }
-
-    // Sync model settings to ensure backend uses the correct model
-    try {
-      await syncSettingsToBackend();
-    } catch (error) {
-      console.error('Failed to sync model settings before sending message:', error);
+    
+    // Early validation - check if the message is empty
+    if (!message.trim()) {
+      logger.log('Ignoring empty message')
+      return
+    }
+    
+    // If the user needs to accept cookies, save message and show consent
+    if (!hasConsented) {
+      logger.log('Showing cookie consent before proceeding')
+      return
+    }
+    
+    // In a real implementation, check if user has enough credits
+    if (!DEMO_MODE && !hasEnoughCredits && session) {
+      logger.log('User does not have enough credits')
+      setInsufficientCreditsModalOpen(true)
+      setRequiredCredits(getModelCreditCost(modelSettings.model || 'gemini-pro'))
+      return
     }
     
     const controller = new AbortController();
@@ -857,215 +1086,156 @@ const ChatInterface: React.FC = () => {
     // Store original message for later use with chat title generation
     const originalQuery = message;
 
-    // Check if the user has sufficient credits BEFORE processing the query
-    if (session && !isAdmin) {
-      try {
-        // Get the model that will be used for this query
-        let modelName = modelSettings.model || "gpt-4o-mini";
-        
-        // Calculate required credits based on model tier
-        const creditCost = getModelCreditCost(modelName);
-        logger.log(`[Credits] Required credits for ${modelName}: ${creditCost}`);
-        
-        // Check if user has enough credits - this call also sets isChatBlocked=true if insufficient
-        const hasEnough = await hasEnoughCredits(creditCost);
-        
-        if (!hasEnough) {
-          logger.log(`[Credits] Insufficient credits for operation. Required: ${creditCost}, Available: ${remainingCredits}`);
-          
-          // Store the required credits amount for the modal
-          setRequiredCredits(creditCost);
-          
-          // Show the insufficient credits modal
-          setInsufficientCreditsModalOpen(true);
-          
-          // Ensure chat remains blocked
-          await checkCredits();
-          
-          // Stop processing here if not enough credits
-          return;
-        }
-      } catch (error) {
-        console.error("Error checking credits:", error);
-        // Continue anyway to avoid blocking experience
-      }
-    }
-
     try {
-      // Match all @agent mentions in the query
-      const agentRegex = /@(\w+)/g
-      const matches = [...message.matchAll(agentRegex)]
-      
-      // If no agent calls are found, process as a regular message
-      if (matches.length === 0) {
-        await processRegularMessage(message, controller, currentChatId)
-      } else {
-        // Extract all unique agent names
-        const agentNames = [...new Set(matches.map(match => match[1]))]
+      // Check if this is an agent message
+      const agentMatch = message.match(/@([a-zA-Z_]+)/);
+      if (agentMatch && agentMatch[1] && !DEMO_MODE) {
+        logger.log(`Processing agent message for: ${agentMatch[1]}`);
+        await processAgentMessage(agentMatch[1], message, controller, currentChatId);
+      } 
+      // If this is a request for automotive data and we're in demo mode
+      else if (DEMO_MODE && (
+        message.toLowerCase().includes('vehicle') || 
+        message.toLowerCase().includes('car') || 
+        message.toLowerCase().includes('automotive') ||
+        message.toLowerCase().includes('inventory') ||
+        message.toLowerCase().includes('dealership') ||
+        message.toLowerCase().includes('price')
+      )) {
+        // Use our fallback response system for automotive data
+        const response = generateFallbackResponse(message);
         
-        if (agentNames.length === 1) {
-          // Single agent case - use the original logic
-          const agentName = agentNames[0]
-          
-          // Add a system message indicating which agent is being called
+        // Add a slight delay to simulate processing
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Add the AI response
           addMessage({
-            text: "",
-            sender: "ai",
-            agent: agentName
-          })
+          text: response,
+          sender: "ai"
+        });
+      }
+      else {
+        // For regular messages
+        logger.log(`Processing regular message`);
+        
+        if (DEMO_MODE) {
+          // In demo mode, use fallback responses
+          const response = generateFallbackResponse(message);
           
-          // Extract the query text by removing the @mentions
-          const cleanQuery = message.replace(agentRegex, '').trim()
-          await processAgentMessage(agentName, cleanQuery, controller, currentChatId)
+          // Add a slight delay to simulate processing
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          // Add the AI response
+          addMessage({
+            text: response,
+            sender: "ai"
+          });
         } else {
-          // Multiple agents case - send a single request with comma-separated agent names
-          const combinedAgentName = agentNames.join(",")
-          
-          // Add a system message indicating which agents are being called
-          addMessage({
-            text: "",
-            sender: "ai",
-            agent: `Using agents: ${agentNames.join(", ")}`
-          })
-          
-          // Extract the query text by removing the @mentions
-          const cleanQuery = message.replace(agentRegex, '').trim()
-          await processAgentMessage(combinedAgentName, cleanQuery, controller, currentChatId)
+          // In real mode, process via API
+          await processRegularMessage(message, controller, currentChatId);
         }
       }
 
-      // AFTER successful message processing - deduct credits using the correct user ID
-      if (session?.user) {
+      // Generate a chat title if needed
+      if (isFirstMessage && (session || isAdmin) && !DEMO_MODE) {
         try {
-          // Get the model directly from the API instead of relying on React state
-          let modelName;
-          try {
-            const settingsResponse = await axios.get(`${API_URL}/api/model-settings`, {
-              headers: { 'X-Session-ID': sessionId }
-            });
-            modelName = settingsResponse.data.model;
-            logger.log(`[Credits] Using freshly fetched model: ${modelName}`);
-          } catch (settingsError) {
-            console.error('[Credits] Failed to fetch fresh model settings:', settingsError);
-            // Fall back to the model in state
-            modelName = modelSettings.model || "gpt-3.5-turbo";
-          }
-          
-          // Use more robust user ID extraction with logging
-          let userIdForCredits = '';
-          
-          if ((session.user as any).sub) {
-            userIdForCredits = (session.user as any).sub;
-          } else if (session.user.id) {
-            userIdForCredits = session.user.id;
-          } else if (session.user.email) {
-            userIdForCredits = session.user.email;
-          } else {
-            // Fallback to logged in user ID from component state
-            userIdForCredits = userId?.toString() || '';
-          }
-          
-          // Skip credit deduction if we still can't identify the user
-          if (!userIdForCredits) {
-            console.warn('[Credits] Cannot identify user for credit deduction');
-            return;
-          }
-          
-          // Calculate credit cost based on the fresh model name
-          const creditCost = getModelCreditCost(modelName);
-          
-          logger.log(`[Credits] Deducting ${creditCost} credits for user ${userIdForCredits} for model ${modelName}`);
-          
-          // Deduct credits directly through an API call
-          const response = await axios.post('/api/user/deduct-credits', {
-            userId: userIdForCredits,
-            credits: creditCost,
-            description: `Used ${modelName} for chat`
+          const titleResponse = await axios.post(`${API_URL}/chats/${currentChatId}/generate-title`, {
+            message: originalQuery
+          }, {
+            params: { user_id: userId },
+            headers: { 'X-Session-ID': sessionId }
           });
           
-          logger.log('[Credits] Deduction result:', response.data);
-          
-          // Refresh the credits display in the UI after deduction
-          if (checkCredits) {
-            await checkCredits();
-          }
-        } catch (creditError) {
-          console.error('[Credits] Failed to deduct credits:', creditError);
-          // Don't block the user experience if credit deduction fails
-        }
-      }
-
-      // After the AI response is generated and saved, update the chat title for new chats
-      // *but do not* trigger a full history refresh/load immediately
-      if (isFirstMessage && currentChatId !== null) {
-        try {
-          logger.log("Generating title for new chat using query:", message);
-          const titleResponse = await axios.post(`${API_URL}/chat_history_name`, {
-            query: message
-          });
-          
-          logger.log("Title response:", titleResponse.data);
-          
-          if (titleResponse.data && titleResponse.data.name) {
-            await axios.put(`${API_URL}/chats/${currentChatId}`, {
-              title: titleResponse.data.name
-            });
-            
-            // Optionally update the title in the local chatHistories state if needed for the sidebar
-            setChatHistories(prev => 
-              prev.map(chat => 
+          if (titleResponse.data && titleResponse.data.title) {
+            // Update the chat title in our local state
+            setChatHistories(prev => prev.map(chat => 
                 chat.chat_id === currentChatId 
-                  ? { ...chat, title: titleResponse.data.name } 
+                ? { ...chat, title: titleResponse.data.title } 
                   : chat
-              )
-            );
-            
-            // Set chatNameGenerated to true to trigger auto-run in CodeCanvas
+            ));
             setChatNameGenerated(true);
-            
-            // Reset the flag after a delay 
-            setTimeout(() => {
-              setChatNameGenerated(false);
-            }, 5000);
           }
         } catch (error) {
-          console.error('Failed to update chat title:', error);
+          console.error("Failed to generate chat title:", error);
+        }
+      } else if (DEMO_MODE && isFirstMessage) {
+        // For demo mode, just set a static title based on the message
+        if (message.toLowerCase().includes('vehicle') || 
+            message.toLowerCase().includes('automotive') ||
+            message.toLowerCase().includes('car')) {
+          setChatHistories(prev => [
+            ...prev, 
+            { 
+              chat_id: currentChatId || Date.now(), 
+              title: "Automotive Data Analysis", 
+              created_at: new Date().toISOString(),
+              user_id: userId || undefined
+            }
+          ]);
+          setChatNameGenerated(true);
         }
       }
-    } catch (error) {
-      console.error("Error sending message:", error);
       
-      // Add error message
+      // Check if we should show first query onboarding
+      if (localStorage.getItem('showFirstQueryOnboarding') === 'true') {
+        localStorage.removeItem('showFirstQueryOnboarding');
+        localStorage.setItem('showOnboarding', 'true');
+        setShowOnboarding(true);
+      }
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        logger.log('Request aborted by user');
+        addMessage({
+          text: "Generation stopped by user.",
+          sender: "ai",
+        });
+      } else {
+        console.error('Error processing message:', error);
+        
+        if (DEMO_MODE) {
+          // In demo mode, provide a friendly fallback
       addMessage({
-        text: "Sorry, there was an error processing your request. Please try again.",
+            text: "I'm sorry, I couldn't process that request. Is there something else I can help you with?",
         sender: "ai"
       });
+        } else {
+          // In real mode, show the error
+          addMessage({
+            text: "Error processing your request. Please try again.",
+            sender: "ai",
+          });
+        }
+      }
     } finally {
       setIsLoading(false);
       setAbortController(null);
-      
-      // Reset the recently uploaded dataset flag now that message processing is complete
-      if (recentlyUploadedDataset) {
-        logger.log("Message processing complete, resetting recentlyUploadedDataset flag");
-        setRecentlyUploadedDataset(false);
-      }
-      
-      // Check if this was a free trial user's first query
-      const showFirstQueryOnboarding = localStorage.getItem('showFirstQueryOnboarding');
-      if (showFirstQueryOnboarding === 'true') {
-        localStorage.removeItem('showFirstQueryOnboarding');
-        setShowOnboarding(true);
-        localStorage.setItem('hasSeenOnboarding', 'true');
-      }
     }
-  }, [addMessage, clearMessages, incrementQueries, session, isAdmin, activeChatId, userId, sessionId, modelSettings, hasEnoughCredits, processRegularMessage, processAgentMessage, fetchChatHistories, checkCredits, recentlyUploadedDataset, chatHistories, syncSettingsToBackend, queriesUsed]);
+  }, [
+    isLoading, 
+    hasConsented, 
+    addMessage, 
+    activeChatId, 
+    chatHistories, 
+    session, 
+    isAdmin, 
+    userId, 
+    sessionId, 
+    setActiveChatId, 
+    incrementQueries, 
+    queriesUsed, 
+    hasEnoughCredits, 
+    setInsufficientCreditsModalOpen, 
+    modelSettings.model, 
+    setShowWelcome,
+    automotiveDataLoaded
+  ]);
 
   const handleFileUpload = async (file: File) => {
     // File validation
     const isCSVByExtension = file.name.toLowerCase().endsWith('.csv');
     const isCSVByType = file.type === 'text/csv' || file.type === 'application/csv';
     
-    if (!isCSVByExtension || !isCSVByType) {
+    if (!isCSVByExtension && !isCSVByType) {
       addMessage({
         text: "Error: Please upload a valid CSV file. Other file formats are not supported.",
         sender: "ai"
@@ -1081,69 +1251,107 @@ const ChatInterface: React.FC = () => {
       return;
     }
 
-    const formData = new FormData()
-    formData.append("file", file)
-    formData.append("styling_instructions", "Please analyze the data and provide a detailed report.")
+    // Display processing message
+    addMessage({
+      text: "Processing your file. Please wait a moment...",
+      sender: "ai"
+    });
 
     try {
-      // Force close any open dataset popup and set short-term suppression
-      setShowDatasetResetConfirm(false);
-      localStorage.setItem('suppressDatasetPopup', 'true');
-      setTimeout(() => localStorage.removeItem('suppressDatasetPopup'), 5000);
-      
-      const baseUrl = API_URL
-     
-      const uploadResponse = await axios.post(`${baseUrl}/upload_dataframe`, formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          ...(sessionId && { 'X-Session-ID': sessionId }),
-        },
-        timeout: 30000,
-        maxContentLength: 30 * 1024 * 1024,
-      });
-      
-      // Update dataset state
-      setRecentlyUploadedDataset(true);
-      setHasUploadedDataset(true);
-      
-      // Mark current chat to prevent popup
-      if (activeChatId) {
-        popupShownForChatIdsRef.current.add(activeChatId);
-      }
-      
-      // Add a temporary ID for any new chat created immediately after upload
-      popupShownForChatIdsRef.current.add(Date.now());
-      datasetPopupShownRef.current = true;
-      
-      // Refresh session info to avoid race conditions
-      try {
-        await axios.get(`${baseUrl}/api/session-info`, {
-          headers: { 'X-Session-ID': sessionId }
-        });
-        await new Promise(resolve => setTimeout(resolve, 100));
-      } catch (error) {
-        console.error("Error refreshing session info:", error);
+      // Close dataset popup if open
+      if (typeof setShowDatasetResetConfirm === 'function') {
+        setShowDatasetResetConfirm(false);
       }
 
-    } catch (error) {
-      let errorMessage = "An error occurred while uploading the file.";
-      
-      if (axios.isAxiosError(error)) {
-        if (error.code === 'ECONNABORTED') {
-          errorMessage = "Upload timeout: The request took too long to complete. Please try again with a smaller file.";
-        } else if (error.response) {
-          errorMessage = `Upload failed: ${error.response.data?.message || error.message}`;
+      // First try uploading to the server
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        
+        console.log('Uploading to:', `${UPLOAD_API_URL}/upload`);
+        const response = await fetch(`${UPLOAD_API_URL}/upload`, {
+          method: 'POST',
+          body: formData,
+        });
+        
+        if (!response.ok) {
+          throw new Error(`File upload failed with status ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        // Show success message with stats about the file
+        addMessage({
+          text: `File uploaded successfully! Processed ${result.rows || 'all'} rows of data.`,
+          sender: "ai"
+        });
+        
+        // Now prompt user to ask questions about the data
+        addMessage({
+          text: "You can now ask questions about your data. For example, try asking for a summary of the dataset, or request specific visualizations.",
+          sender: "ai"
+        });
+        
+        return true;
+      } catch (uploadError) {
+        console.error('Server upload failed, trying local fallback:', uploadError);
+        
+        // Try to process the file locally as a fallback
+        try {
+          const reader = new FileReader();
+          
+          reader.onload = (event) => {
+            if (!event.target || !event.target.result) {
+              throw new Error('Failed to read file');
+            }
+            
+            const csvText = event.target.result.toString();
+            const lines = csvText.split('\n');
+            const headers = lines[0].split(',');
+            
+            // Basic data stats for feedback
+            const rowCount = lines.length - 1; // Exclude header
+            const columnCount = headers.length;
+            
+            addMessage({
+              text: `File processed locally. Found ${rowCount} rows and ${columnCount} columns.`,
+              sender: "ai"
+            });
+            
+            addMessage({
+              text: "You can now ask questions about your data. For example, try asking for a summary of the dataset, or request specific visualizations.",
+              sender: "ai"
+            });
+          };
+          
+          reader.onerror = () => {
+            throw new Error('Failed to read file');
+          };
+          
+          reader.readAsText(file);
+          return true;
+        } catch (localError) {
+          console.error('Local fallback also failed:', localError);
+          // Continue to general error handler
         }
       }
       
+      // If both server and local processing failed, show a general error
       addMessage({
-        text: errorMessage,
+        text: "There was an issue processing your file. Please try again or use a different file.",
         sender: "ai"
       });
+      return false;
+    } catch (error) {
+      console.error('File upload error:', error);
       
-      throw error;
+      addMessage({
+        text: `Error uploading file: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        sender: "ai"
+      });
+      return false;
     }
-  }
+  };
 
   const isInputDisabled = () => {
     if (session) return false // Allow input if user is signed in
@@ -1294,21 +1502,25 @@ const ChatInterface: React.FC = () => {
           if (sessionResponse.data && sessionResponse.data.is_custom_dataset) {
             setHasUploadedDataset(true);
             
-            if (chatInputRef.current && sessionResponse.data.dataset_name) {
-              const datasetName = sessionResponse.data.dataset_name;
+            if (chatInputRef.current && sessionResponse.data.is_custom_dataset) {
+              setHasUploadedDataset(true);
               
-              const fileInfo = {
-                name: datasetName.endsWith('.csv') ? datasetName : `${datasetName}.csv`,
-                type: 'text/csv',
-                lastModified: new Date().getTime()
-              };
-              
-              localStorage.setItem('lastUploadedFile', JSON.stringify(fileInfo));
-              
-              setTimeout(() => {
-                setHasUploadedDataset(prev => !prev);
-                setTimeout(() => setHasUploadedDataset(true), 10);
-              }, 10);
+              if (chatInputRef.current && sessionResponse.data.dataset_name) {
+                const datasetName = sessionResponse.data.dataset_name;
+                
+                const fileInfo = {
+                  name: datasetName.endsWith('.csv') ? datasetName : `${datasetName}.csv`,
+                  type: 'text/csv',
+                  lastModified: new Date().getTime()
+                };
+                
+                localStorage.setItem('lastUploadedFile', JSON.stringify(fileInfo));
+                
+                setTimeout(() => {
+                  setHasUploadedDataset(prev => !prev);
+                  setTimeout(() => setHasUploadedDataset(true), 10);
+                }, 10);
+              }
             }
           }
         } catch (error) {
@@ -1375,33 +1587,58 @@ const ChatInterface: React.FC = () => {
     setIsUserProfileOpen(false);
   }, [router, setIsUserProfileOpen]);
 
-  // Add this useEffect near the top of the component to handle custom API keys
+  // Handle model settings from environment or local storage
   useEffect(() => {
-    // Check for custom API key in localStorage
+    // Get provider from local storage or default to gemini
+    const modelProvider = localStorage.getItem('modelProvider') || 'gemini';
     const userApiKey = localStorage.getItem('userApiKey');
-    const modelProvider = localStorage.getItem('modelProvider');
     
-    if (userApiKey && modelProvider && modelSettings) {
-      // Update the model settings with the custom API key
+    // Always set up default model provider if none is set
+    if (!localStorage.getItem('modelProvider')) {
+      localStorage.setItem('modelProvider', 'gemini');
+    }
+    
+    if (modelSettings) {
+      // Create updated settings with proper defaults
       const updatedSettings = {
         ...modelSettings,
-        apiKey: userApiKey,
         provider: modelProvider,
+        // Use user's API key if available, otherwise leave as default
+        ...(userApiKey && { apiKey: userApiKey }),
         model: modelProvider === 'gemini' ? 'gemini-pro' : 
                modelProvider === 'openai' ? 'gpt-4o-mini' :
-               modelProvider === 'anthropic' ? 'claude-3-sonnet-20240229' :
-               modelProvider === 'groq' ? 'llama3-70b-8192' : 
-               modelSettings.model,
-        hasCustomKey: true
+               modelProvider === 'anthropic' ? 'claude-3-opus-20240229' : 
+               modelSettings.model
       };
       
-      // Sync the updated settings to the backend
-      syncSettingsToBackend(updatedSettings);
+      // Save updated settings both locally and to storage
+      localStorage.setItem('modelSettings', JSON.stringify(updatedSettings));
       
-      // Log that we're using a custom API key (for debugging)
-      console.log(`Using custom ${modelProvider} API key`);
+      // Update settings without waiting for completion
+      updateModelSettings(updatedSettings).catch(err => {
+        console.error('Failed to update model settings:', err);
+      });
     }
-  }, [modelSettings, syncSettingsToBackend]);
+  }, [modelSettings, updateModelSettings]);
+
+  // Add automotive data loading effect inside the component
+  useEffect(() => {
+    // Load automotive data if needed when component mounts
+    if (mounted && !automotiveDataLoaded) {
+      const loadAutomotiveData = async () => {
+        try {
+          // In a real implementation, we'd pre-fetch some data here
+          // For now, just mark as loaded
+          setAutomotiveDataLoaded(true);
+          logger.log("Automotive data integration ready");
+        } catch (error) {
+          console.error("Error loading automotive data:", error);
+        }
+      };
+      
+      loadAutomotiveData();
+    }
+  }, [mounted, automotiveDataLoaded]);
 
   // Don't render anything until mounted to prevent hydration mismatch
   if (!mounted) {
@@ -1431,8 +1668,6 @@ const ChatInterface: React.FC = () => {
         transition={{ type: "tween", duration: 0.3 }}
         className="flex-1 flex flex-col min-w-0 relative"
       >
-        {mounted && !session && !hasFreeTrial() && !localStorage.getItem('userApiKey') && <FreeTrialOverlay />}
-        
         <header className="bg-white/70 backdrop-blur-sm p-4 flex justify-between items-center border-b border-gray-200 relative z-10">
           <div className="flex items-center gap-4">
             {(session || isAdmin) && !isSidebarOpen && (

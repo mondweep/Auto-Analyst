@@ -1,0 +1,4 @@
+id,make,model,year,your_price,market_price,price_difference,price_difference_percent,days_in_inventory
+1,Toyota,Camry,2021,28500,30200,-1700,-5.63,45
+2,Honda,Civic,2022,24700,25900,-1200,-4.63,30
+3,Ford,F-150,2020,38900,36700,2200,5.99,60

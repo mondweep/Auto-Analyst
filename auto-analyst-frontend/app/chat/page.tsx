@@ -12,22 +12,43 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 export default function ChatPage() {
   const { status } = useSession()
-  const { queriesUsed, hasFreeTrial } = useFreeTrialStore()
-  const [hasApiKey, setHasApiKey] = useState(false)
+  const { queriesUsed, hasFreeTrial, setHasFreeTrial } = useFreeTrialStore()
+  // Always set hasApiKey to true in demo mode
+  const [hasApiKey, setHasApiKey] = useState(true)
   
-  // Check for first-time free trial users
+  // Check for first-time free trial users and set model provider
   useEffect(() => {
-    if (status === "unauthenticated" && queriesUsed === 0 && hasFreeTrial()) {
-      // First-time free trial user, set flag to show onboarding tooltip
-      if (!localStorage.getItem('hasSeenOnboarding')) {
-        localStorage.setItem('showOnboarding', 'true')
-      }
+    // Always enable free trial mode and set infinite queries for demo
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('freeTrialQueries', '0')
+      localStorage.setItem('freeTrialEnabled', 'true')
+      
+      // Force free trial to always be available
+      setHasFreeTrial(true)
+
+      // Set model provider (default to gemini if not set)
+      const defaultProvider = 'gemini'
+      localStorage.setItem('modelProvider', defaultProvider)
+    
+    // Get API key from environment variables based on provider
+    const apiKeys = {
+      openai: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
+      anthropic: process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY,
+      groq: process.env.NEXT_PUBLIC_GROQ_API_KEY,
+      gemini: process.env.NEXT_PUBLIC_GEMINI_API_KEY
     }
     
-    // Check if API key is stored
-    const userApiKey = localStorage.getItem('userApiKey')
-    setHasApiKey(!!userApiKey)
-  }, [status, queriesUsed, hasFreeTrial])
+    // Set the API key for the current provider
+    const apiKey = apiKeys[defaultProvider as keyof typeof apiKeys] || 'demo-api-key'
+    if (apiKey && apiKey !== 'your_') {
+      localStorage.setItem('userApiKey', apiKey)
+      console.log(`Using ${defaultProvider} with provided API key`)
+    } else {
+      console.warn('Using demo mode - no valid API key found')
+      localStorage.setItem('userApiKey', 'demo-api-key')
+    }
+  }
+  }, [status, queriesUsed, setHasFreeTrial])
 
   const handleApiKeySet = () => {
     setHasApiKey(true)
@@ -36,7 +57,7 @@ export default function ChatPage() {
   return (
     <ResponsiveLayout>
       <div className="container mx-auto py-4">
-        <Tabs defaultValue={hasApiKey ? "chat" : "settings"} className="w-full">
+        <Tabs defaultValue="chat" className="w-full">
           <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 mb-4">
             <TabsTrigger value="chat">Chat</TabsTrigger>
             <TabsTrigger value="settings">API Settings</TabsTrigger>

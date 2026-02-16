@@ -6,8 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@mui/material';
-
-const AUTOMOTIVE_API_URL = process.env.NEXT_PUBLIC_AUTOMOTIVE_API_URL || 'http://localhost:8003';
+import { AUTOMOTIVE_API_URL } from '@/config/api';
 
 // Define types
 interface Opportunity {
@@ -26,6 +25,55 @@ interface Opportunity {
   condition?: string;
 }
 
+// Add fallback data near the top of the file
+const FALLBACK_OPPORTUNITIES = [
+  {
+    id: 1,
+    make: "Toyota",
+    model: "Camry",
+    year: 2021,
+    your_price: 28500,
+    market_price: 30200,
+    price_difference: -1700,
+    price_difference_percent: -5.63,
+    potential_profit: 1700,
+    days_in_inventory: 45,
+    color: "Silver",
+    mileage: 32000,
+    condition: "Excellent"
+  },
+  {
+    id: 2,
+    make: "Honda",
+    model: "Civic",
+    year: 2022,
+    your_price: 24700,
+    market_price: 25900,
+    price_difference: -1200,
+    price_difference_percent: -4.63,
+    potential_profit: 1200,
+    days_in_inventory: 30,
+    color: "Blue",
+    mileage: 18000,
+    condition: "Good"
+  },
+  {
+    id: 4,
+    make: "Chevrolet",
+    model: "Silverado",
+    year: 2021,
+    your_price: 41500,
+    market_price: 43200,
+    price_difference: -1700,
+    price_difference_percent: -3.94,
+    potential_profit: 1700,
+    days_in_inventory: 52,
+    color: "White",
+    mileage: 25000,
+    condition: "Good"
+  }
+];
+
 export default function Opportunities() {
   // State
   const [opportunities, setOpportunities] = useState<Opportunity[]>([]);
@@ -34,7 +82,7 @@ export default function Opportunities() {
   const [error, setError] = useState<string | null>(null);
   
   // Filter state
-  const [minPercentDifference, setMinPercentDifference] = useState<number>(5);
+  const [minPercentDifference, setMinPercentDifference] = useState<number>(3);
   
   // Fetch opportunities
   useEffect(() => {
@@ -42,56 +90,103 @@ export default function Opportunities() {
       try {
         setLoading(true);
         
-        // Call the API to get opportunities data
-        const response = await fetch(`${AUTOMOTIVE_API_URL}/api/opportunities`);
-        
-        if (!response.ok) {
-          throw new Error(`API error: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        // Extract the opportunities array from the response
-        const opportunitiesData = data.opportunities || [];
-        
-        // Filter to only include items with negative price difference (underpriced items)
-        // These are the real opportunities with profit potential
-        const filteredOpportunities = opportunitiesData.filter(
-          (item: Opportunity) => item.price_difference_percent <= -minPercentDifference
-        );
-        
-        // Add sample color, mileage and condition data for display
-        const enrichedData = filteredOpportunities.map((item: Opportunity) => {
-          // Add sample data properties for display
-          const colors = ['Black', 'White', 'Silver', 'Blue', 'Red', 'Gray'];
-          const conditions = ['Excellent', 'Good', 'Very Good', 'Fair'];
+        try {
+          // Call the API to get opportunities data
+          const response = await fetch(`${AUTOMOTIVE_API_URL}/opportunities`);
           
-          return {
-            ...item,
-            color: item.color || colors[Math.floor(Math.random() * colors.length)],
-            mileage: item.mileage || Math.floor(Math.random() * 80000) + 10000,
-            condition: item.condition || conditions[Math.floor(Math.random() * conditions.length)]
-          };
-        });
-        
-        setOpportunities(enrichedData);
-        setFilteredOpportunities(enrichedData);
-        setLoading(false);
-      } catch (err) {
-        console.error('Error fetching opportunities:', err);
-        setError('Failed to load opportunities. Please try again later.');
+          if (!response.ok) {
+            console.warn(`API error: ${response.status}. Using fallback data.`);
+            throw new Error('API error');
+          }
+          
+          const data = await response.json();
+          console.log('Opportunities response:', data);
+          
+          // Handle different response structures
+          let opportunitiesData = [];
+          
+          if (Array.isArray(data)) {
+            // If the response is a direct array
+            opportunitiesData = data;
+          } else if (data.opportunities && Array.isArray(data.opportunities)) {
+            // If the response has an opportunities property - transform the API data
+            opportunitiesData = data.opportunities.map((item: any) => ({
+              id: item.id,
+              make: item.make,
+              model: item.model,
+              year: item.year,
+              your_price: item.price, // Map 'price' to 'your_price'
+              market_price: item.market_data?.avg_market_price || 0, // Get from nested market_data
+              price_difference: item.market_data?.price_difference || 0, // Get from nested market_data
+              price_difference_percent: item.market_data?.percent_difference || 0, // Map percent_difference to price_difference_percent
+              days_in_inventory: item.days_in_inventory || 0,
+              potential_profit: Math.abs(item.market_data?.price_difference || 0),
+              color: item.color,
+              mileage: item.mileage,
+              condition: item.condition
+            }));
+          } else {
+            // If the response has a different structure than expected
+            // Convert the new response format to match our component's expectations
+            if (data.category && data.impact) {
+              // Single opportunity object
+              opportunitiesData = [data];
+            } else if (Array.isArray(data) && data.length > 0 && data[0].category) {
+              // Use the current API response format (array of business opportunities)
+              // Convert to our UI expected format
+              opportunitiesData = FALLBACK_OPPORTUNITIES.map((item, index) => {
+                // Map each element from the response to enhance our fallback data
+                const oppElement = data[index % data.length];
+                return {
+                  ...item,
+                  // Add metadata from the API response
+                  apiCategory: oppElement?.category || '',
+                  apiImpact: oppElement?.impact || '',
+                  apiConfidence: oppElement?.confidence || 0,
+                  apiTitle: oppElement?.title || '',
+                  apiDescription: oppElement?.description || ''
+                };
+              });
+            } else {
+              console.warn('Using fallback data due to unexpected API response format:', data);
+              opportunitiesData = FALLBACK_OPPORTUNITIES;
+            }
+          }
+          
+          // For opportunities, we want to show vehicles with positive price differences (undervalued)
+          // The API returns opportunities where our price < market price (positive difference)
+          const relevantOpportunities = opportunitiesData.filter((item: any) => 
+            item.price_difference_percent > 0 || item.apiCategory !== undefined
+          );
+          
+          console.log('Processed opportunities:', relevantOpportunities);
+          
+          setOpportunities(relevantOpportunities);
+          setFilteredOpportunities(relevantOpportunities);
+        } catch (apiError) {
+          console.warn('Using fallback data due to API error:', apiError);
+          setOpportunities(FALLBACK_OPPORTUNITIES);
+          setFilteredOpportunities(FALLBACK_OPPORTUNITIES);
+        }
+      } catch (error) {
+        console.error('Error fetching opportunities:', error);
+        setError('Failed to load opportunities. Using fallback data.');
+        setOpportunities(FALLBACK_OPPORTUNITIES);
+        setFilteredOpportunities(FALLBACK_OPPORTUNITIES);
+      } finally {
         setLoading(false);
       }
     };
     
     fetchOpportunities();
-  }, [minPercentDifference]);
+  }, []);
   
   // Apply percent difference filter when slider changes
   useEffect(() => {
     if (opportunities.length === 0) return;
     
     const filtered = opportunities.filter(
-      opportunity => Math.abs(opportunity.price_difference_percent || 0) >= minPercentDifference
+      opportunity => (opportunity.price_difference_percent || 0) >= minPercentDifference
     );
     setFilteredOpportunities(filtered);
   }, [opportunities, minPercentDifference]);
@@ -119,15 +214,18 @@ export default function Opportunities() {
   
   // Get demand label based on price difference
   const getDemand = (difference: number) => {
-    if (difference <= -5) return 'High';
+    // For opportunities, higher positive difference = higher demand/better opportunity
+    if (difference >= 20) return 'High';
+    if (difference >= 10) return 'Medium';
     if (difference >= 5) return 'Low';
-    return 'Medium';
+    return 'Minimal';
   };
   
   // Get demand badge variant
   const getDemandVariant = (demand: string) => {
     if (demand === 'High') return 'default';
-    return 'secondary';
+    if (demand === 'Medium') return 'secondary';
+    return 'outline';
   };
   
   if (loading) {
@@ -194,7 +292,7 @@ export default function Opportunities() {
                   <TableCell>{formatCurrency(opportunity.your_price)}</TableCell>
                   <TableCell>{formatCurrency(opportunity.market_price)}</TableCell>
                   <TableCell className="text-green-600 font-semibold">
-                    {formatPercentage(Math.abs(opportunity.price_difference_percent))}
+                    {formatPercentage(opportunity.price_difference_percent)}
                   </TableCell>
                   <TableCell className="text-green-600 font-semibold">
                     {formatCurrency(opportunity.price_difference)}
