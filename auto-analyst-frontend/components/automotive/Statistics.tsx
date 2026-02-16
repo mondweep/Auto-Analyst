@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart, Pie, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
-import API_URL from '@/config/api';
+import API_URL, { DEMO_MODE } from '@/config/api';
 
 // Define types
 interface Statistics {
@@ -31,172 +31,131 @@ export default function Statistics() {
   const [priceData, setPriceData] = useState<any[]>([]);
   
   // Fetch statistics
+  // Default statistics for demo/fallback
+  const getDefaultStats = (): Statistics => ({
+    total_vehicles: 150,
+    available_vehicles: 120,
+    sold_vehicles: 30,
+    make_distribution: {
+      'Ford': 35,
+      'Toyota': 30,
+      'Honda': 25,
+      'Chevrolet': 20,
+      'BMW': 15,
+      'Others': 25
+    },
+    condition_distribution: {
+      'Excellent': 50,
+      'Good': 60,
+      'Fair': 30,
+      'Poor': 10
+    },
+    avg_prices_by_make: {
+      'Ford': 35000,
+      'Toyota': 32000,
+      'Honda': 28000,
+      'Chevrolet': 30000,
+      'BMW': 48000,
+      'Others': 29000
+    },
+    opportunities_count: 35
+  });
+
   useEffect(() => {
     const fetchStatistics = async () => {
       try {
         setLoading(true);
-        
-        // Call the API to get statistics data
-        const response = await fetch(`${API_URL}/statistics`);
-        
-        if (!response.ok) {
-          throw new Error(`API error: ${response.status}`);
-        }
-        
-        const responseData = await response.json();
-        const data = responseData?.statistics || responseData || {};
-        
-        // Generate default data for testing or when API doesn't return expected format
-        const defaultStats: Statistics = {
-          total_vehicles: data?.total_vehicles || 150,
-          available_vehicles: data?.available_vehicles || 120,
-          sold_vehicles: data?.sold_vehicles || 30,
-          make_distribution: {
-            'Ford': 35,
-            'Toyota': 30,
-            'Honda': 25,
-            'Chevrolet': 20,
-            'BMW': 15,
-            'Others': 25
-          },
-          condition_distribution: {
-            'Excellent': 50,
-            'Good': 60,
-            'Fair': 30,
-            'Poor': 10
-          },
-          avg_prices_by_make: {
-            'Ford': 35000,
-            'Toyota': 32000,
-            'Honda': 28000,
-            'Chevrolet': 30000,
-            'BMW': 48000,
-            'Others': 29000
-          },
-          opportunities_count: data?.opportunities_count || 35
-        };
-        
-        // Process API data if it exists and has the expected format
-        if (data && typeof data === 'object') {
-          // Extract summary data
-          const summary = data.summary || {};
-          const processedStats: Statistics = {
-            total_vehicles: summary.total_vehicles || defaultStats.total_vehicles,
-            available_vehicles: summary.available_vehicles || defaultStats.available_vehicles,
-            sold_vehicles: summary.sold_vehicles || defaultStats.sold_vehicles,
-            
-            // Count opportunities (vehicles with price_difference_percent <= -5)
-            opportunities_count: data.opportunities_count || defaultStats.opportunities_count,
-            
-            // Use default distributions initially
-            make_distribution: { ...defaultStats.make_distribution },
-            condition_distribution: { ...defaultStats.condition_distribution },
-            avg_prices_by_make: { ...defaultStats.avg_prices_by_make }
-          };
-          
-          // Process makes data if available
-          if (data.makes && Array.isArray(data.makes) && data.makes.length > 0) {
-            const makeDistribution: Record<string, number> = {};
-            data.makes.forEach((item: any) => {
-              if (item && item.name && typeof item.value === 'number') {
-                makeDistribution[item.name] = item.value;
-              }
-            });
-            
-            // Only override default if we have actual data
-            if (Object.keys(makeDistribution).length > 0) {
-              processedStats.make_distribution = makeDistribution;
-            }
-          }
-          
-          // Process condition data if available
-          if (data.conditions && Array.isArray(data.conditions) && data.conditions.length > 0) {
-            const conditionDistribution: Record<string, number> = {};
-            data.conditions.forEach((item: any) => {
-              if (item && item.name && typeof item.value === 'number') {
-                conditionDistribution[item.name] = item.value;
-              }
-            });
-            
-            // Only override default if we have actual data
-            if (Object.keys(conditionDistribution).length > 0) {
-              processedStats.condition_distribution = conditionDistribution;
-            }
-          }
-          
-          // Create average price by make if available
-          const avgPricesByMake: Record<string, number> = {};
-          if (data.prices && Array.isArray(data.prices) && data.prices.length > 0) {
-            data.prices.forEach((item: any) => {
-              if (item && item.name && typeof item.value === 'number') {
-                avgPricesByMake[item.name] = item.value;
-              }
-            });
-            
-            // Only override default if we have actual data
-            if (Object.keys(avgPricesByMake).length > 0) {
-              processedStats.avg_prices_by_make = avgPricesByMake;
-            }
-          } else if (Object.keys(processedStats.make_distribution).length > 0) {
-            // Generate prices based on make names if we don't have price data
-            Object.keys(processedStats.make_distribution).forEach(make => {
-              // Generate a random price between 25000 and 60000 for each make
-              avgPricesByMake[make] = Math.floor(Math.random() * 35000) + 25000;
-            });
-            processedStats.avg_prices_by_make = avgPricesByMake;
-          }
-          
-          setStatistics(processedStats);
 
-          // Format chart data for display
-          formatChartData(processedStats);
-        } else {
-          // Use default data if API response is empty or invalid
+        try {
+          // Call the API to get statistics data
+          const response = await fetch(`${API_URL}/statistics`);
+
+          if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+          }
+
+          const responseData = await response.json();
+          const data = responseData?.statistics || responseData || {};
+
+          const defaultStats = getDefaultStats();
+
+          // Process API data if it exists and has the expected format
+          if (data && typeof data === 'object') {
+            // Extract summary data
+            const summary = data.summary || {};
+            const processedStats: Statistics = {
+              total_vehicles: summary.total_vehicles || defaultStats.total_vehicles,
+              available_vehicles: summary.available_vehicles || defaultStats.available_vehicles,
+              sold_vehicles: summary.sold_vehicles || defaultStats.sold_vehicles,
+              opportunities_count: data.opportunities_count || defaultStats.opportunities_count,
+              make_distribution: { ...defaultStats.make_distribution },
+              condition_distribution: { ...defaultStats.condition_distribution },
+              avg_prices_by_make: { ...defaultStats.avg_prices_by_make }
+            };
+
+            // Process makes data if available
+            if (data.makes && Array.isArray(data.makes) && data.makes.length > 0) {
+              const makeDistribution: Record<string, number> = {};
+              data.makes.forEach((item: any) => {
+                if (item && item.name && typeof item.value === 'number') {
+                  makeDistribution[item.name] = item.value;
+                }
+              });
+              if (Object.keys(makeDistribution).length > 0) {
+                processedStats.make_distribution = makeDistribution;
+              }
+            }
+
+            // Process condition data if available
+            if (data.conditions && Array.isArray(data.conditions) && data.conditions.length > 0) {
+              const conditionDistribution: Record<string, number> = {};
+              data.conditions.forEach((item: any) => {
+                if (item && item.name && typeof item.value === 'number') {
+                  conditionDistribution[item.name] = item.value;
+                }
+              });
+              if (Object.keys(conditionDistribution).length > 0) {
+                processedStats.condition_distribution = conditionDistribution;
+              }
+            }
+
+            // Create average price by make if available
+            if (data.prices && Array.isArray(data.prices) && data.prices.length > 0) {
+              const avgPricesByMake: Record<string, number> = {};
+              data.prices.forEach((item: any) => {
+                if (item && item.name && typeof item.value === 'number') {
+                  avgPricesByMake[item.name] = item.value;
+                }
+              });
+              if (Object.keys(avgPricesByMake).length > 0) {
+                processedStats.avg_prices_by_make = avgPricesByMake;
+              }
+            }
+
+            setStatistics(processedStats);
+            formatChartData(processedStats);
+          } else {
+            setStatistics(defaultStats);
+            formatChartData(defaultStats);
+          }
+        } catch (apiError) {
+          // API failed — use fallback data without showing error
+          console.warn('Using fallback statistics data due to API error:', apiError);
+          const defaultStats = getDefaultStats();
           setStatistics(defaultStats);
           formatChartData(defaultStats);
         }
-        
-        setLoading(false);
       } catch (err) {
-        console.error('Error fetching statistics:', err);
+        console.error('Error in statistics component:', err);
         setError('Failed to load statistics. Please try again later.');
-        setLoading(false);
-        
-        // Use default data in case of error
-        const defaultStats: Statistics = {
-          total_vehicles: 150,
-          available_vehicles: 120,
-          sold_vehicles: 30,
-          make_distribution: {
-            'Ford': 35,
-            'Toyota': 30,
-            'Honda': 25,
-            'Chevrolet': 20,
-            'BMW': 15,
-            'Others': 25
-          },
-          condition_distribution: {
-            'Excellent': 50,
-            'Good': 60,
-            'Fair': 30,
-            'Poor': 10
-          },
-          avg_prices_by_make: {
-            'Ford': 35000,
-            'Toyota': 32000,
-            'Honda': 28000,
-            'Chevrolet': 30000,
-            'BMW': 48000,
-            'Others': 29000
-          },
-          opportunities_count: 35
-        };
-        
+        const defaultStats = getDefaultStats();
         setStatistics(defaultStats);
         formatChartData(defaultStats);
+      } finally {
+        setLoading(false);
       }
     };
-    
+
     fetchStatistics();
   }, []);
   

@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import API_URL from '@/config/api';
+import API_URL, { DEMO_MODE } from '@/config/api';
 
 // Define vehicle type
 interface Vehicle {
@@ -26,71 +26,89 @@ interface Vehicle {
   is_sold: boolean;
 }
 
+// Fallback vehicle data for demo/offline mode
+const FALLBACK_VEHICLES: Vehicle[] = [
+  { id: 1, make: "Toyota", model: "Camry", year: 2021, color: "Silver", price: 28500, mileage: 32000, condition: "Excellent", fuel_type: "Gasoline", list_date: "2024-01-15", days_in_inventory: 45, vin: "1HGBH41JXMN109186", is_sold: false },
+  { id: 2, make: "Honda", model: "Civic", year: 2022, color: "Blue", price: 24700, mileage: 18000, condition: "Good", fuel_type: "Gasoline", list_date: "2024-02-01", days_in_inventory: 30, vin: "2HGFC2F59MH522145", is_sold: false },
+  { id: 3, make: "Ford", model: "F-150", year: 2020, color: "Red", price: 38900, mileage: 45000, condition: "Good", fuel_type: "Gasoline", list_date: "2023-12-10", days_in_inventory: 60, vin: "1FTEW1EP5LFA12345", is_sold: false },
+  { id: 4, make: "Chevrolet", model: "Silverado", year: 2021, color: "White", price: 41500, mileage: 25000, condition: "Good", fuel_type: "Gasoline", list_date: "2024-01-05", days_in_inventory: 52, vin: "3GCUYDED1MG123456", is_sold: false },
+  { id: 5, make: "BMW", model: "X5", year: 2020, color: "Black", price: 56800, mileage: 38000, condition: "Excellent", fuel_type: "Gasoline", list_date: "2023-11-20", days_in_inventory: 75, vin: "5UXCR6C05L9B12345", is_sold: true },
+  { id: 6, make: "Toyota", model: "RAV4", year: 2023, color: "White", price: 34200, mileage: 8000, condition: "Excellent", fuel_type: "Hybrid", list_date: "2024-03-01", days_in_inventory: 15, vin: "2T3P1RFV5NW123456", is_sold: false },
+  { id: 7, make: "Honda", model: "Accord", year: 2021, color: "Gray", price: 29800, mileage: 27000, condition: "Good", fuel_type: "Gasoline", list_date: "2024-01-20", days_in_inventory: 40, vin: "1HGCV1F34MA012345", is_sold: false },
+  { id: 8, make: "Ford", model: "Mustang", year: 2022, color: "Yellow", price: 45600, mileage: 12000, condition: "Excellent", fuel_type: "Gasoline", list_date: "2024-02-15", days_in_inventory: 20, vin: "1FA6P8TH5N5123456", is_sold: true },
+];
+
 export default function VehicleList() {
   // State
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [filteredVehicles, setFilteredVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Filter states
   const [makeFilter, setMakeFilter] = useState<string>('');
   const [minPrice, setMinPrice] = useState<string>('');
   const [maxPrice, setMaxPrice] = useState<string>('');
   const [conditionFilter, setConditionFilter] = useState<string>('');
   const [soldFilter, setSoldFilter] = useState<string>('');
-  
+
   // Unique values for filters
   const [makes, setMakes] = useState<string[]>([]);
   const [conditions, setConditions] = useState<string[]>([]);
-  
+
+  // Helper to populate state from vehicle data
+  const populateVehicleData = (vehiclesData: Vehicle[]) => {
+    setVehicles(vehiclesData);
+    setFilteredVehicles(vehiclesData);
+    if (vehiclesData.length > 0) {
+      const uniqueMakes = [...new Set(vehiclesData.map((v: Vehicle) => v.make))] as string[];
+      const uniqueConditions = [...new Set(vehiclesData.map((v: Vehicle) => v.condition))] as string[];
+      setMakes(uniqueMakes);
+      setConditions(uniqueConditions);
+    }
+  };
+
   // Fetch vehicles data
   useEffect(() => {
     const fetchVehicles = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${API_URL}/vehicles`);
-        
-        if (!response.ok) {
-          throw new Error(`API error: ${response.status}`);
+
+        try {
+          const response = await fetch(`${API_URL}/vehicles`);
+
+          if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          // Handle different response structures
+          let vehiclesData = [];
+          if (Array.isArray(data)) {
+            vehiclesData = data;
+          } else if (data.vehicles && Array.isArray(data.vehicles)) {
+            vehiclesData = data.vehicles;
+          } else {
+            console.warn('Unexpected API response format, using fallback data');
+            vehiclesData = FALLBACK_VEHICLES;
+          }
+
+          populateVehicleData(vehiclesData);
+        } catch (apiError) {
+          // API failed — use fallback data without showing error
+          console.warn('Using fallback vehicle data due to API error:', apiError);
+          populateVehicleData(FALLBACK_VEHICLES);
         }
-        
-        const data = await response.json();
-        
-        // Handle different response structures
-        let vehiclesData = [];
-        if (Array.isArray(data)) {
-          // Direct array of vehicles
-          vehiclesData = data;
-        } else if (data.vehicles && Array.isArray(data.vehicles)) {
-          // Object with vehicles property
-          vehiclesData = data.vehicles;
-        } else {
-          console.warn('Unexpected API response format:', data);
-          vehiclesData = [];
-        }
-        
-        setVehicles(vehiclesData);
-        setFilteredVehicles(vehiclesData);
-        
-        // Check if we have any vehicles before extracting unique values
-        if (vehiclesData.length > 0) {
-          // Extract unique makes and conditions for filters
-          const uniqueMakes = [...new Set(vehiclesData.map((v: Vehicle) => v.make))] as string[];
-          const uniqueConditions = [...new Set(vehiclesData.map((v: Vehicle) => v.condition))] as string[];
-          
-          setMakes(uniqueMakes);
-          setConditions(uniqueConditions);
-        }
-        
-        setLoading(false);
       } catch (err) {
-        console.error('Error fetching vehicles:', err);
+        console.error('Error in vehicle list component:', err);
         setError('Failed to load vehicles. Please try again later.');
+        populateVehicleData(FALLBACK_VEHICLES);
+      } finally {
         setLoading(false);
       }
     };
-    
+
     fetchVehicles();
   }, []);
   
