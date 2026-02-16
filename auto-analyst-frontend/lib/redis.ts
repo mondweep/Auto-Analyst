@@ -269,7 +269,7 @@ class MockRedis {
 }
 
 // Initialize Redis client or use mock
-let redis;
+let redis: Redis;
 try {
   console.log('Using mock Redis implementation (Demo mode)');
   
